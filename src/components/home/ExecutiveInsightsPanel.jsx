@@ -1,0 +1,133 @@
+import {
+  CheckCircle,
+  AlertTriangle,
+  DollarSign,
+  TrendingUp,
+  Shield,
+  Cpu,
+  Percent,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
+
+export default function ExecutiveInsightsPanel() {
+  const executiveInsights = [
+    {
+      title: "Duplicate Payment Prevention Rate",
+      value: "98.7%",
+      change: "+2.6%",
+      icon: CheckCircle,
+      iconColor: "text-emerald-500",
+      trend: "up",
+    },
+    {
+      title: "Financial Leakage Identified (USD)",
+      value: "$5.61M",
+      change: "+17.2%",
+      icon: AlertTriangle,
+      iconColor: "text-amber-500",
+      trend: "up",
+    },
+    {
+      title: "Recovery Value Realized (USD)",
+      value: "$3.42M",
+      change: "+18.7%",
+      icon: DollarSign,
+      iconColor: "text-emerald-500",
+      trend: "up",
+    },
+    {
+      title: "Risk Exposure Trend",
+      value: "High",
+      change: "+6.3%",
+      icon: TrendingUp,
+      iconColor: "text-red-500",
+      trend: "down",
+    },
+    {
+      title: "Cost Savings Achieved (USD)",
+      value: "$4.18M",
+      change: "+16.1%",
+      icon: Shield,
+      iconColor: "text-blue-500",
+      trend: "up",
+    },
+    {
+      title: "Automation & AI Adoption",
+      value: "68.2%",
+      change: "+6.8%",
+      icon: Cpu,
+      iconColor: "text-purple-500",
+      trend: "up",
+    },
+    {
+      title: "Return on Investment (ROI)",
+      value: "320%",
+      change: "+14.5%",
+      icon: Percent,
+      iconColor: "text-emerald-500",
+      trend: "up",
+    },
+  ];
+
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-4">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-slate-900">
+          Executive Insights
+        </h2>
+
+        <button className="cursor-pointer text-xs font-medium text-blue-600 hover:text-blue-700">
+          View full insights
+        </button>
+      </div>
+
+      <div className="space-y-2">
+        {executiveInsights.map((item) => {
+          const Icon = item.icon;
+
+          return (
+            <div
+              key={item.title}
+              className="flex cursor-pointer items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50"
+            >
+              <div className="flex items-center gap-3">
+                <Icon
+                  size={18}
+                  className={item.iconColor}
+                  strokeWidth={2}
+                />
+
+                <span className="text-sm font-medium text-slate-700">
+                  {item.title}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-semibold text-slate-800">
+                  {item.value}
+                </span>
+
+                <div
+                  className={`flex items-center gap-1 text-xs font-semibold ${
+                    item.trend === "down"
+                      ? "text-red-500"
+                      : "text-emerald-500"
+                  }`}
+                >
+                  {item.trend === "down" ? (
+                    <ArrowDown size={12} />
+                  ) : (
+                    <ArrowUp size={12} />
+                  )}
+
+                  <span>{item.change}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
