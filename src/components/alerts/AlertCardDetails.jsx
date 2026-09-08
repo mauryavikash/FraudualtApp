@@ -1,50 +1,64 @@
 import {
-  Lock,
-  History,
-  BadgeCheck,
-  GitBranch,
+  BellRing,
+  Zap,
+  Activity,
+  SlidersHorizontal,
 } from "lucide-react";
 
 export const AlertCardDetails = () => {
-  const complianceInfo = [
+  const infoCards = [
     {
-      icon: Lock,
-      text: "Immutable audit records protected from unauthorized modification.",
+      icon: BellRing,
+      title: "Stay informed",
+      text: "Get real-time alerts for critical events that need your attention.",
+      linkText: "Get real time attention",
     },
     {
-      icon: History,
-      text: "Full reviewer decision history retained for complete transparency.",
+      icon: Zap,
+      title: "Take action",
+      text: "Prioritize alerts by severity and type and resolve issues quickly.",
+      linkText: "Take action now",
     },
     {
-      icon: BadgeCheck,
-      text: "Supports SOX, Internal Audit, and Compliance validation.",
+      icon: Activity,
+      title: "Track progress",
+      text: "Monitor alert status and resolution path from start to finish.",
+      linkText: "Track & resolve",
     },
     {
-      icon: GitBranch,
-      text: "Historical traceability available for every duplicate cluster.",
+      icon: SlidersHorizontal,
+      title: "Customize alerts",
+      text: "Set preferences to receive alerts that matter most to your role.",
+      linkText: "Manage alerts",
     },
   ];
 
   return (
-    <div className="col-span-12 rounded-2xl mt-4">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {complianceInfo.map((item, index) => {
+    <div className="col-span-12 mt-4">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+        {infoCards.map((item, index) => {
           const Icon = item.icon;
 
           return (
             <div
               key={index}
-              className="flex items-center gap-3 rounded-md bg-white/80 px-5 py-4 backdrop-blur-sm"
+              className="flex items-start gap-3 rounded-[10px] border border-[#D9E1EA] bg-white px-4 py-3.5 shadow-[0px_1px_4px_rgba(15,23,42,0.05)]"
             >
-              <Icon
-                size={18}
-                strokeWidth={2}
-                className="shrink-0 text-blue-600"
-              />
+              <div className="h-8 w-8 rounded-lg bg-[#DBEAFE] flex items-center justify-center shrink-0">
+                <Icon size={15} className="text-[#2563EB]" />
+              </div>
 
-              <p className="text-sm leading-5 text-slate-600">
-                {item.text}
-              </p>
+              <div className="min-w-0">
+                <p className="text-[13px] font-semibold text-[#0F172A]">
+                  {item.title}
+                </p>
+                <p className="mt-1 text-[12px] leading-4 text-[#64748B]">
+                  {item.text}
+                </p>
+                <button className="mt-1.5 text-[12px] font-medium text-[#2563EB]">
+                  {item.linkText}
+                </button>
+              </div>
             </div>
           );
         })}
