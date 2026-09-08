@@ -11,23 +11,28 @@ export default function KpiCard({
   positive = true,
 }) {
   return (
-    <div className="rounded-[18px] p-[2px]"
-    style={{background: "linear-gradient(135deg, #3391d8 0%, #33d8c0 92%, #1abece 100%);"}}
+  <div
+    className="rounded-[18px] p-[2px]"
+    style={{
+      background:
+        "linear-gradient(135deg, #3391d8 0%, #33d8c0 92%, #1abece 100%)",
+    }}
+  >
+    <div
+      className="
+        rounded-[16px]
+        bg-white
+        px-3
+        py-2
+        min-h-[140px]
+        transition-all
+        duration-300
+        ease-in-out
+        hover:bg-[#F8FAFC]
+        hover:shadow-[0_6px_16px_rgba(15,23,42,0.08)]
+      "
     >
- <div
-  className="
-      rounded-[16px]
-      bg-white
-      px-3
-      py-2
-      min-h-[140px]
-      transition-all
-      duration-300
-      ease-in-out
-      hover:bg-[#F8FAFC]
-      hover:shadow-[0_6px_16px_rgba(15,23,42,0.08)]
-    "
->
+      
        <div className="flex h-full justify-between items-start">
   {/* Left Content */}
   <div className="flex flex-col flex-1">
