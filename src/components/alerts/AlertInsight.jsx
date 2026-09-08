@@ -1,265 +1,127 @@
 "use client";
-import React, { useMemo, useState } from "react";
-import {
-  Sparkles,
-  X,
-  Plus,
-  ChevronDown,
-} from "lucide-react";
+import React from "react";
+import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { History } from "lucide-react";
 
-const tableData = [
-  {
-    caseId: "INV-2025-000123",
-    caseType: "Duplicate",
-    priority: "High",
-    status: "In Progress",
-    vendor: "ABC Solutions",
-    amount: "125,450.00",
-    detectedOn: "May 20, 2025 10:24 AM",
-    slaDue: "May 24, 2025",
-    remaining: "2 Days Left",
-    investigator: "Sarah Johnson",
-    sourceSystem: "SAP",
-  },
+const SEVERITY_DATA = [
+  { name: "Critical", value: 3, percent: "16.7%", color: "#F87171" },
+  { name: "High", value: 7, percent: "38.9%", color: "#FBBF24" },
+  { name: "Medium", value: 6, percent: "33.3%", color: "#3B82F6" },
+  { name: "Low", value: 2, percent: "11.1%", color: "#34D399" },
+];
+
+const TOTAL = SEVERITY_DATA.reduce((sum, item) => sum + item.value, 0);
+
+const TOP_ALERT_TYPES = [
+  { name: "Duplicate Detection", value: 6, max: 6, color: "#F87171" },
+  { name: "Anomaly", value: 4, max: 6, color: "#FBBF24" },
+  { name: "Recovery Alert", value: 3, max: 6, color: "#60A5FA" },
+  { name: "Review Activity", value: 2, max: 6, color: "#1E3A8A" },
+  { name: "Data Change", value: 1, max: 6, color: "#0D9488" },
+  { name: "System", value: 2, max: 6, color: "#34D399" },
 ];
 
 export const AlertInsight = () => {
-  const [selectedCase] = useState(tableData[0]);
   return (
-   <div className="w-full bg-white rounded-[16px] border border-[#D1D5DB] shadow-[0px_2px_8px_rgba(0,0,0,0.08)] overflow-hidden">
-    {/* Header */}
-    <div className="px-4 pt-4">
-        <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2">
-            <h2 className="text-[18px] leading-[24px] font-semibold text-[#0F172A]">
-            {selectedCase.caseId}
-            </h2>
+    <div className="w-full bg-white rounded-[16px] border border-[#D9E1EA] shadow-[0px_2px_8px_rgba(15,23,42,0.05)] p-5">
+      <h2 className="text-[16px] font-semibold text-[#0F172A]">
+        Alert Insights
+      </h2>
 
-            <span className="px-2 py-[2px] text-[10px] font-medium rounded bg-[#F3E8FF] text-[#9333EA]">
-            {selectedCase.caseType}
-            </span>
-        </div>
-
-        <button className="text-[#64748B] hover:text-[#334155]">
-            <X size={16} />
-        </button>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex gap-5 mt-4 border-b border-[#E5E7EB]">
-        <button className="pb-2 text-[12px] font-medium text-[#2563EB] border-b border-[#2563EB]">
-            Details
-        </button>
-
-        <button className="pb-2 text-[12px] text-[#475569]">
-            Transactions (4)
-        </button>
-
-        <button className="pb-2 text-[12px] text-[#475569]">
-            AI Insights
-        </button>
-
-        <button className="pb-2 text-[12px] text-[#475569]">
-            Audit Trail
-        </button>
-        </div>
-    </div>
-
-    {/* Details */}
-    <div className="px-4 pt-4">
-        <div className="grid grid-cols-2 gap-y-5 gap-x-8">
-        <Info
-            label="STATUS"
-            value={
-            <span className="inline-flex px-2 py-[2px] rounded text-[10px] font-medium bg-[#DBEAFE] text-[#2563EB]">
-                In Progress
-            </span>
-            }
-        />
-
-        <Info
-            label="PRIORITY"
-            value={
-            <div className="flex items-center gap-1.5">
-                <span className="w-[6px] h-[6px] rounded-full bg-[#EF4444]" />
-                <span>High</span>
-            </div>
-            }
-        />
-
-        <Info
-            label="AMOUNT (USD)"
-            value={
-            <span className="font-semibold text-[14px]">
-                125,450.00
-            </span>
-            }
-        />
-
-        <Info
-            label="VENDOR"
-            value="ABC Solutions"
-        />
-
-        <Info
-            label="DETECTED ON"
-            value="May 20, 2025 10:24 AM"
-        />
-
-        <Info
-            label="SLA DUE"
-            value={
-            <span className="text-[#F59E0B]">
-                May 24, 2025 (2 Days Left)
-            </span>
-            }
-        />
-
-        <Info
-            label="INVESTIGATOR"
-            value="Sarah Johnson"
-        />
-
-        <Info
-            label="SOURCE SYSTEM"
-            value="SAP"
-        />
-        </div>
-
-        {/* AI Recommendation */}
-        <div className="mt-5 border border-[#D1D5DB] rounded-[10px] bg-[#F8FAFC] p-3">
-        <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-[#2563EB] flex items-center justify-center">
-            <Sparkles size={9} className="text-white" />
-            </div>
-
-            <span className="text-[13px] font-semibold text-[#0F172A]">
-            AI Recommendation
-            </span>
-        </div>
-
-        <p className="mt-3 text-[12px] leading-5 text-[#475569]">
-            Potential duplicate invoice detected with 92%
-            confidence. Review and confirm as duplicate or
-            false positive.
+      {/* Severity Donut */}
+      <div className="mt-4">
+        <p className="text-[13px] text-[#64748B] mb-3">
+          Alerts by Severity
         </p>
 
-        <button className="mt-2 text-[12px] font-medium text-[#2563EB]">
-            View AI Analysis
-        </button>
-        </div>
-
-        {/* Progress */}
-        <div className="mt-5">
-        <div className="text-[11px] font-semibold tracking-wide text-[#64748B]">
-            CASE PROGRESS
-        </div>
-
-        <div className="mt-4 flex items-center">
-            <div className="flex flex-col items-center">
-            <div className="w-3.5 h-3.5 rounded-full bg-[#10B981]" />
-            <span className="mt-2 text-[10px] text-[#334155]">
-                Detected
-            </span>
+        <div className="flex justify-center">
+          <div className="relative h-[160px] w-[160px] shrink-0">
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-3xl font-extrabold text-[#0F172A]">
+                {TOTAL}
+              </span>
+              <span className="text-[11px] font-semibold text-[#94A3B8] tracking-wide uppercase">
+                Total
+              </span>
             </div>
 
-            <div className="w-14 h-[2px] bg-[#2563EB] mx-3" />
-
-            <div className="flex flex-col items-center">
-            <div className="w-3.5 h-3.5 rounded-full bg-[#2563EB]" />
-            <span className="mt-2 text-[10px] text-[#2563EB] font-medium">
-                Under Review
-            </span>
-            </div>
-
-            <div className="w-14 h-[2px] bg-[#E2E8F0] mx-3" />
-
-            <div className="flex flex-col items-center">
-            <div className="w-3.5 h-3.5 rounded-full bg-[#F1F5F9] border border-[#CBD5E1]" />
-            <span className="mt-2 text-[10px] text-[#64748B]">
-                Resolution
-            </span>
-            </div>
-
-            <div className="w-14 h-[2px] bg-[#E2E8F0] mx-3" />
-
-            <div className="flex flex-col items-center">
-            <div className="w-3.5 h-3.5 rounded-full bg-[#F1F5F9] border border-[#CBD5E1]" />
-            <span className="mt-2 text-[10px] text-[#64748B]">
-                Closed
-            </span>
-            </div>
-        </div>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={SEVERITY_DATA}
+                  dataKey="value"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={54}
+                  outerRadius={78}
+                  paddingAngle={2}
+                >
+                  {SEVERITY_DATA.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
-        {/* Buttons */}
-        <div className="grid grid-cols-3 gap-2 mt-5">
-        <button className="h-9 rounded-md bg-[#2563EB] text-white text-[13px] font-medium hover:bg-[#1D4ED8]">
-            Review Case
-        </button>
-
-        <button className="h-9 rounded-md border border-[#CBD5E1] bg-white text-[13px] font-medium text-[#334155]">
-            Escalate Case
-        </button>
-
-        <button className="h-9 rounded-md border border-[#CBD5E1] bg-white text-[13px] font-medium text-[#334155] flex items-center justify-center gap-1">
-            More Actions
-            <ChevronDown size={14} />
-        </button>
-        </div>
-
-        {/* Notes */}
-        <div className="mt-6 pb-4">
-        <div className="flex items-center justify-between">
-            <div className="text-[11px] font-semibold tracking-wide text-[#64748B]">
-            NOTES
+        <div className="mt-4 flex flex-col gap-2.5 text-[13px]">
+          {SEVERITY_DATA.map((item) => (
+            <div key={item.name} className="flex items-center justify-between">
+              <div className="flex items-center gap-2 min-w-0">
+                <span
+                  className="w-2 h-2 rounded-full shrink-0"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span className="text-[#475569]">{item.name}</span>
+              </div>
+              <span className="font-medium text-[#334155] shrink-0">
+                {item.value} ({item.percent})
+              </span>
             </div>
-
-            <Plus size={14} className="text-[#475569]" />
+          ))}
         </div>
+      </div>
 
-        <div className="mt-3 flex gap-2">
-            <div className="w-6 h-6 rounded-full bg-[#2563EB] flex items-center justify-center text-white text-[9px] font-semibold">
-            SJ
+      <div className="my-5 border-t border-[#E5E7EB]" />
+
+      {/* Top Alert Types */}
+      <div>
+        <p className="text-[13px] text-[#64748B] mb-4">
+          Top Alert Types
+        </p>
+
+        <div className="flex flex-col gap-3.5">
+          {TOP_ALERT_TYPES.map((item) => (
+            <div key={item.name} className="flex items-center gap-3">
+              <span className="text-[12px] text-[#475569] w-[120px] shrink-0 truncate">
+                {item.name}
+              </span>
+
+              <div className="flex-1 h-[6px] rounded-full bg-[#F1F5F9] overflow-hidden">
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${(item.value / item.max) * 100}%`,
+                    backgroundColor: item.color,
+                  }}
+                />
+              </div>
+
+              <span className="text-[12px] font-semibold text-[#0F172A] w-4 text-right shrink-0">
+                {item.value}
+              </span>
             </div>
-
-            <div>
-            <div className="flex items-center gap-2">
-                <span className="text-[12px] font-semibold text-[#0F172A]">
-                Sarah Johnson
-                </span>
-
-                <span className="text-[10px] text-[#94A3B8]">
-                May 20, 2025 11:15 AM
-                </span>
-            </div>
-
-            <p className="mt-1 text-[12px] leading-4 text-[#475569] max-w-[320px]">
-                Case assigned for review. Initial analysis
-                indicates possible duplicate from similar invoice.
-            </p>
-            </div>
+          ))}
         </div>
+      </div>
 
-        <button className="mt-3 text-[12px] font-medium text-[#2563EB]">
-            View all notes
-        </button>
-        </div>
-    </div>
+      <div className="my-5 border-t border-[#E5E7EB]" />
+
+      <button className="w-full flex items-center justify-center gap-2 text-[13px] font-medium text-[#2563EB]">
+        <History size={14} />
+        View All Insights
+      </button>
     </div>
   );
 };
-
-function Info({ label, value }) {
-  return (
-    <div>
-      <div className="text-[11px] font-semibold text-slate-500 tracking-wide mb-1">
-        {label}
-      </div>
-
-      <div className="text-sm text-slate-800 font-medium">
-        {value}
-      </div>
-    </div>
-  );
-}

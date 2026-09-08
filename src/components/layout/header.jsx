@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell,Search, Menu, ChevronDown, Settings, User, LogOut } from "lucide-react";
+import { Bell, Menu, ChevronDown, Settings, User, LogOut, HelpCircle, Download, Upload, BarChart3 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
@@ -16,12 +16,16 @@ export default function Header({ setIsOpen, isOpen }) {
     else if (pathname === "/investigations") title = "Investigations";
     else if (pathname === "/recoveries") title = "Recoveries";
     else if (pathname === "/alerts") title = "Alerts";
-    else if (pathname === "/audit") title = "Audit Trail";
+    else if (pathname === "/audit") title = "Audit Log";
     // else if (pathname === "/reports") title = "Reports & Analytics";
-    // else if (pathname === "/audit") title = "Audit & Compliance";
     // else if (pathname === "/settings") title = "Configuration";
     // else if (pathname === "/users-roles") title = "Users & Roles";
   }
+
+  const headerActions = [
+    { label: "Export Audit Log", icon: Download },
+    { label: "Upload File", icon: Upload },
+  ];
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -35,84 +39,106 @@ export default function Header({ setIsOpen, isOpen }) {
 
   return (
     <header className="sticky top-0 z-30 w-full">
-      {/* border-b border-slate-200/70 bg-white/90 shadow-[0_1px_0_rgba(15,23,42,0.03)] backdrop-blur-md */}
-      <div className="flex h-16 items-center justify-between px-4 sm:px-6">
+      <div className="flex h-14 items-center justify-between px-4 sm:px-6 gap-3">
         {/* Left section */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:text-dgem-blue hover:shadow-md"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:text-dgem-blue hover:shadow-md"
             type="button"
             aria-label="Toggle Sidebar"
             title="Toggle Sidebar"
           >
-            <Menu size={18} />
+            <Menu size={17} />
           </button>
 
-          <div className="flex flex-col">
-            <div className="flex items-center gap-3">
-              <div className="text-lg font-semibold tracking-tight text-slate-900">
-                {title}
-              </div>
-
-             
-            </div>
-
-            {/* <div className="text-xs text-slate-500">Last refreshed: just now</div> */}
+          <div className="text-[17px] font-semibold tracking-tight text-slate-900">
+            {title}
           </div>
         </div>
 
         {/* Right section */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          <div className="relative w-60">
+            <svg
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"
+              />
+            </svg>
 
-              <div className="relative w-72">
-                <svg
-                  className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"
-                  />
-                </svg>
+            <input
+              type="text"
+              placeholder="Search cases, recoveries, vendors..."
+              className="h-9 w-full rounded-full border border-slate-200 bg-white py-2 pl-9 pr-3 text-[13px] text-slate-700 placeholder:text-slate-400 shadow-sm focus:outline-none"
+            />
+          </div>
 
-                <input
-                  type="text"
-                  placeholder="Search reports, audits..."
-                  className="w-full rounded-lg border border-slate-200 bg-slate-100 py-2 pl-10 pr-4 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
-                />
-              </div>
+          {headerActions.map((action) => {
+            const ActionIcon = action.icon;
+            return (
+              <button
+                key={action.label}
+                type="button"
+                className="h-9 px-3.5 rounded-full border border-slate-200 bg-white text-[13px] font-medium text-slate-600 shadow-sm flex items-center gap-1.5 whitespace-nowrap hover:bg-slate-50"
+              >
+                <ActionIcon size={14} />
+                {action.label}
+              </button>
+            );
+          })}
+
           <button
-            className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:text-dgem-blue hover:shadow-md"
+            className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:text-dgem-blue hover:shadow-md"
             type="button"
             title="Notifications"
           >
-            <Bell size={18} />
-            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-dgem-blue px-1 text-[10px] font-bold text-white shadow-sm select-none">
-              99+
-            </span>
+            <Bell size={16} />
+            <span className="absolute -right-0.5 -top-0.5 flex h-3 w-3 items-center justify-center rounded-full border-2 border-white bg-red-500 select-none" />
+          </button>
+
+          <button
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:text-dgem-blue hover:shadow-md"
+            type="button"
+            title="Help"
+          >
+            <HelpCircle size={16} />
+          </button>
+
+          <button
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:text-dgem-blue hover:shadow-md"
+            type="button"
+            title="Settings"
+          >
+            <Settings size={16} />
           </button>
 
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setProfileOpen(!profileOpen)}
-              className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:shadow-md"
+              className="flex h-9 items-center gap-2 rounded-full border border-slate-200 bg-white pl-1 pr-2 text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:shadow-md"
               type="button"
               title="Profile"
             >
               <img
                 src="/logo.svg"
                 alt="User avatar"
-                className="h-8 w-8 rounded-full border border-slate-200 object-cover"
+                className="h-7 w-7 rounded-full border border-slate-200 object-cover"
               />
-              <span className="hidden text-sm font-semibold sm:inline">
-                Vigneshwaran
+              <span className="hidden flex-col items-start leading-tight sm:flex">
+                <span className="text-[12px] font-semibold text-slate-900">
+                  Vigneshwaran D
+                </span>
+                <span className="text-[10px] text-slate-500">Finance Ops Lead</span>
               </span>
-              <ChevronDown size={16} className="text-slate-500" />
+              <ChevronDown size={14} className="text-slate-500" />
             </button>
 
             <div
@@ -142,6 +168,13 @@ export default function Header({ setIsOpen, isOpen }) {
               </button>
             </div>
           </div>
+
+          <div className="hidden md:flex items-center gap-1.5 pl-2 border-l border-slate-200">
+            <BarChart3 size={16} className="text-emerald-500" />
+            <span className="text-[13px] font-bold text-dgem-blue">i360</span>
+          </div>
+
+          <div className="hidden md:block h-6 w-6 rounded-full bg-gradient-to-br from-sky-500 via-indigo-500 to-fuchsia-500 shrink-0" />
         </div>
       </div>
     </header>

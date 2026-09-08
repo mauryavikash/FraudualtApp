@@ -1,4 +1,4 @@
-
+"use client";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -12,350 +12,244 @@ import {
   Cell,
 } from "recharts";
 
+const ACTIONS_BY_DAY = [
+  { name: "May 14", confirmed: 3, rejected: 1, escalated: 0 },
+  { name: "May 15", confirmed: 5, rejected: 2, escalated: 1 },
+  { name: "May 16", confirmed: 2, rejected: 3, escalated: 0 },
+  { name: "May 17", confirmed: 6, rejected: 2, escalated: 1 },
+  { name: "May 18", confirmed: 4, rejected: 4, escalated: 0 },
+  { name: "May 19", confirmed: 7, rejected: 1, escalated: 1 },
+  { name: "May 20", confirmed: 3, rejected: 2, escalated: 0 },
+];
+
+const DECISION_BREAKDOWN = [
+  { name: "Confirmed", value: 2, percent: "50%", color: "#10B981" },
+  { name: "Rejected", value: 2, percent: "50%", color: "#EF4444" },
+  { name: "Escalated", value: 0, percent: "0%", color: "#F59E0B" },
+];
+const DECISION_TOTAL = DECISION_BREAKDOWN.reduce((s, i) => s + i.value, 0);
+
+const RECOVERY_VALUE_TREND = [
+  { name: "May 14", value: 42000 },
+  { name: "May 15", value: 58000 },
+  { name: "May 16", value: 51000 },
+  { name: "May 17", value: 74000 },
+  { name: "May 18", value: 63000 },
+  { name: "May 19", value: 93720 },
+  { name: "May 20", value: 80000 },
+];
+
+const TOP_REJECTION_REASONS = [
+  { label: "Incorrect Vendor", value: 32, max: 32 },
+  { label: "Duplicate Custom Error", value: 24, max: 32 },
+  { label: "Manual Reviewer Override", value: 18, max: 32 },
+  { label: "Vendor Selection Error", value: 15, max: 32 },
+];
+
+const panelClass =
+  "rounded-[10px] border border-[#D9E1EA] bg-white p-4 shadow-[0px_1px_4px_rgba(15,23,42,0.05)]";
+
 export const AuditChart = () => {
-  const cardClass = `
-    rounded-xl
-    border
-    border-slate-200
-    bg-white
-    p-5
-    shadow-sm
-    transition-all
-    duration-300
-    cursor-pointer
-    hover:bg-slate-50
-    hover:border-slate-300
-    hover:shadow-[0_12px_30px_rgba(15,23,42,0.12)]
-  `;
-
-  const openClosedData = [
-    { name: "Open", value: 4723, percent: "47.9%", color: "#6886d1" },
-    { name: "Closed", value: 5119, percent: "52.1%", color: "#5ed3af" },
-  ];
-
-  const priorityData = [
-    { name: "High", value: 1892, percent: "19.2%", color: "#e28282" },
-    { name: "Medium", value: 3913, percent: "39.7%", color: "#ebbc62" },
-    { name: "Low", value: 4037, percent: "41.1%", color: "#5ed3af" },
-  ];
-
-  const recoveryTrendData = [
-    { name: "May 14", value: 1.1 },
-    { name: "May 15", value: 1.5 },
-    { name: "May 16", value: 1.4 },
-    { name: "May 17", value: 1.9 },
-    { name: "May 18", value: 1.7 },
-    { name: "May 19", value: 2.4 },
-    { name: "May 20", value: 1.95 },
-  ];
-
-  const investigationCycleData = [
-    { name: "May 14", value: 5.1 },
-    { name: "May 15", value: 6.0 },
-    { name: "May 16", value: 5.5 },
-    { name: "May 17", value: 5.0 },
-    { name: "May 18", value: 6.1 },
-    { name: "May 19", value: 7.6 },
-    { name: "May 20", value: 6.5 },
-  ];
-
-  const vendorTrendData = [
-    { name: "May 14", value: 180 },
-    { name: "May 15", value: 220 },
-    { name: "May 16", value: 215 },
-    { name: "May 17", value: 245 },
-    { name: "May 18", value: 225 },
-    { name: "May 19", value: 235 },
-    { name: "May 20", value: 270 },
-  ];
-
-  const dashboardSummary = {
-    totalCases: "9,842",
-    recoveryValue: "$3.42M",
-    recoveryGrowth: "+18.7%",
-    cycleTime: "6.2 Days",
-    cycleImprovement: "-1.3 Days",
-    slaCompliance: "92.4%",
-    automationRate: "68.2%",
-    automationGrowth: "+6.8%",
-    highRiskVendors: "245",
-    highRiskGrowth: "+8.4%",
-  };
-
   return (
-    <div className="rounded-xl border border-slate-200 mt-4">
-      <div className="grid grid-cols-12 gap-4 items-stretch">
-        {/* LEFT SECTION */}
-        <div className="col-span-12 xl:col-span-12 h-full">
-          <div className="grid grid-cols-12 gap-4 h-full">
-            {/* OPEN VS CLOSED */}
-            <div className={`col-span-12 md:col-span-3 ${cardClass}`}>
-              <h3 className="mb-4 text-[13px] font-bold text-slate-800">
-              OPEN VS CLOSED CASES
-            </h3>
+    <div className="mt-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 items-stretch">
+        {/* ACTIONS BY DAY */}
+        <div className={panelClass}>
+          <h3 className="text-[13px] font-semibold text-[#0F172A]">
+            Actions by Day
+          </h3>
 
-            <div className="flex items-center justify-between">
-              <div className="relative h-[128px] w-[128px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={openClosedData}
-                      dataKey="value"
-                      innerRadius={34}
-                      outerRadius={50}
-                      stroke="none"
-                    >
-                      {openClosedData.map((item, index) => (
-                        <Cell key={index} fill={item.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
+          <div className="mt-1.5 flex items-center gap-3">
+            {[
+              { name: "Confirmed", color: "#34D399" },
+              { name: "Rejected", color: "#F87171" },
+              { name: "Escalated", color: "#FB923C" },
+            ].map((item) => (
+              <div key={item.name} className="flex items-center gap-1">
+                <span
+                  className="w-2 h-2 rounded-full shrink-0"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span className="text-[10px] text-[#64748B]">{item.name}</span>
+              </div>
+            ))}
+          </div>
 
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <div className="text-[18px] font-bold text-slate-800">
-                    {dashboardSummary.totalCases}
-                  </div>
+          <span className="sr-only">
+            Area chart showing confirmed, rejected, and escalated actions per
+            day from May 14 to May 20, 2025.
+          </span>
 
-                  <div className="text-[10px] font-semibold text-slate-400">
-                    TOTAL
-                  </div>
-                </div>
+          <div className="mt-2 h-[150px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={ACTIONS_BY_DAY}
+                margin={{ top: 5, right: 5, left: -25, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id="confirmedFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#34D399" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="#34D399" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="rejectedFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#F87171" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="#F87171" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 9, fill: "#94A3B8" }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => v.replace("May ", "")}
+                />
+                <YAxis tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ fontSize: "11px", borderRadius: "8px" }} />
+                <Area type="monotone" dataKey="confirmed" name="Confirmed" stroke="#34D399" strokeWidth={2} fill="url(#confirmedFill)" dot={false} />
+                <Area type="monotone" dataKey="rejected" name="Rejected" stroke="#F87171" strokeWidth={2} fill="url(#rejectedFill)" dot={false} />
+                <Area type="monotone" dataKey="escalated" name="Escalated" stroke="#FB923C" strokeWidth={2} fill="transparent" dot={false} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+
+        {/* DECISION BREAKDOWN */}
+        <div className={panelClass}>
+          <h3 className="text-[13px] font-semibold text-[#0F172A]">
+            Decision Breakdown
+          </h3>
+
+          <span className="sr-only">
+            Donut chart showing 2 confirmed decisions (50%), 2 rejected
+            decisions (50%), and 0 escalated decisions out of 4 total.
+          </span>
+
+          <div className="mt-2 flex items-center justify-between gap-3">
+            <div className="relative h-[120px] w-[120px] shrink-0">
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-xl font-extrabold text-[#0F172A]">
+                  {DECISION_TOTAL}
+                </span>
+                <span className="text-[9px] font-semibold text-[#94A3B8] uppercase tracking-wide">
+                  Total
+                </span>
               </div>
 
-              <div className="space-y-3">
-                {openClosedData.map((item) => (
-                  <div key={item.name}>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="h-2.5 w-2.5 rounded-full"
-                        style={{ backgroundColor: item.color }}
-                      />
-
-                      <span className="text-[13px] font-semibold text-slate-700">
-                        {item.name}
-                      </span>
-                    </div>
-
-                    <div className="ml-4 text-[16px] font-bold text-slate-800">
-                      {item.value.toLocaleString()}
-                      <span className="ml-1 text-[12px] text-slate-400">
-                        ({item.percent})
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            </div>
-
-            {/* RECOVERY VALUE */}
-            <div className={`col-span-12 md:col-span-3 ${cardClass}`}>
-              {/* your existing Recovery Value code */}
-              <div className="flex items-start justify-between">
-              <h3 className="text-[13px] font-bold text-slate-800">
-                RECOVERY VALUE (USD)
-              </h3>
-
-              <span className="rounded bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-600">
-                ↗ {dashboardSummary.recoveryGrowth}
-              </span>
-            </div>
-
-            <div className="mt-2 text-[24px] font-bold text-slate-800">
-              {dashboardSummary.recoveryValue}
-            </div>
-
-            <div className="text-[11px] text-slate-400">
-              vs May 7 – May 13, 2025
-            </div>
-
-            <div className="mt-4 h-[90px]">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={recoveryTrendData} margin={{ top: 5, right: 10, left: -30, bottom: 5 }}>
-                  <defs>
-                    <linearGradient id="colorRecovery" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#5ED3AF" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#5ED3AF" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="0" vertical={false} stroke="#f0f0f0" />
-                  <XAxis dataKey="name" hide={true} />
-                  <YAxis hide={true} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '4px' }}
-                    formatter={(value) => `$${value.toFixed(2)}M`}
-                  />
-                  <Area
-                    type="monotone"
+                <PieChart>
+                  <Pie
+                    data={DECISION_BREAKDOWN}
                     dataKey="value"
-                    stroke="#5ED3AF"
-                    strokeWidth={2.5}
-                    fill="url(#colorRecovery)"
-                  />
-                </AreaChart>
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={38}
+                    outerRadius={56}
+                    paddingAngle={2}
+                  >
+                    {DECISION_BREAKDOWN.map((entry, index) => (
+                      <Cell key={index} fill={entry.color} stroke="none" />
+                    ))}
+                  </Pie>
+                </PieChart>
               </ResponsiveContainer>
             </div>
-            </div>
 
-            {/* CASES BY PRIORITY */}
-            <div className={`col-span-12 md:col-span-3 ${cardClass}`}>
-              {/* your existing Cases By Priority code */}
-              <h3 className="mb-6 text-lg font-bold text-slate-800">
-              CASES BY PRIORITY
-            </h3>
-
-            <div className="flex items-center justify-between">
-              <div className="relative h-[140px] w-[140px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={priorityData}
-                      dataKey="value"
-                      innerRadius={42}
-                      outerRadius={56}
-                      stroke="none"
-                    >
-                      {priorityData.map((item, index) => (
-                        <Cell key={index} fill={item.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-
-              <div className="flex flex-col gap-3">
-                {priorityData.map((item) => (
-                  <div key={item.name} className="flex items-center gap-3">
-                    <span
-                      className="h-3 w-3 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: item.color }}
-                    />
-
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-semibold text-slate-800">
-                        {item.name}
-                      </span>
-
-                      <span className="text-xs text-slate-500">
-                        {item.value.toLocaleString()} ({item.percent})
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            </div>
-
-            {/* AUTOMATION RATE */}
-            <div className="col-span-12 md:col-span-3 flex">
-              <div
-                className="
-                  flex-1
-                  rounded-2xl
-                  border
-                  border-[#D8E0EA]
-                  bg-white
-                  px-6
-                  py-6
-                  shadow-sm
-                  transition-all
-                  duration-300
-                  cursor-pointer
-                  hover:bg-slate-50
-                  hover:border-slate-300
-                  hover:shadow-[0_12px_30px_rgba(15,23,42,0.12)]
-                "
-              >
-                {/* your existing Automation Rate code */}
-                 <h3 className="text-[14px] font-semibold text-[#1E293B] tracking-tight">
-                AUTOMATION RATE
-              </h3>
-
-              {/* Gauge */}
-              <div className="flex justify-center">
-                <div className="relative h-[170px] w-[240px]">
-                  <svg
-                    viewBox="0 0 240 160"
-                    className="h-full w-full"
-                  >
-                    <defs>
-                      <linearGradient
-                        id="automationGradient"
-                        x1="0%"
-                        y1="0%"
-                        x2="100%"
-                        y2="0%"
-                      >
-                        <stop
-                          offset="0%"
-                          stopColor="#6783D0"
-                        />
-                        <stop
-                          offset="100%"
-                          stopColor="#6D89D6"
-                        />
-                      </linearGradient>
-                    </defs>
-
-                    {/* Background Arc */}
-                    <path
-                      d="M40 120 A80 80 0 0 1 200 120"
-                      fill="none"
-                      stroke="#DADFE8"
-                      strokeWidth="14"
-                      strokeLinecap="round"
-                    />
-
-                    {/* Progress Arc 68.2% */}
-                    <path
-                      d="M40 120 A80 80 0 0 1 168 58"
-                      fill="none"
-                      stroke="url(#automationGradient)"
-                      strokeWidth="14"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-
-                  {/* Center Content */}
-                  <div className="absolute top-[60px] inset-0 flex flex-col items-center justify-center">
-                    <div className="text-[26px] font-bold leading-none text-[#26334D]">
-                      68.2%
-                    </div>
-
-                    <div className="mt-2 text-[13px] font-medium text-[#66758C]">
-                      Automation
-                    </div>
-
-                    <div
-                      className="
-                        mt-2
-                        rounded-full
-                        bg-[#DDF7E7]
-                        px-4
-                        py-[7px]
-                        text-[13px]
-                        font-semibold
-                        text-[#10B981]
-                        leading-none
-                      "
-                    >
-                      ↗ +6.8%
-                    </div>
-                  </div>
+            <div className="flex flex-col gap-2 text-[11px] min-w-0">
+              {DECISION_BREAKDOWN.map((item) => (
+                <div key={item.name} className="flex items-center gap-1.5">
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <span className="text-[#475569] whitespace-nowrap">
+                    {item.name}: {item.value} ({item.percent})
+                  </span>
                 </div>
-              </div>
-
-              {/* Footer */}
-              <div className="mt-1 text-center text-[12px] font-medium text-[#94A3B8]">
-                vs May 7 – May 13, 2025
-              </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
-       
+
+        {/* RECOVERY VALUE OVER TIME */}
+        <div className={panelClass}>
+          <h3 className="text-[13px] font-semibold text-[#0F172A]">
+            Recovery Value over Time (USD)
+          </h3>
+
+          <span className="sr-only">
+            Area chart showing recovery value trending from $42,000 on May 14
+            to $80,000 on May 20, peaking at $93,720 on May 19.
+          </span>
+
+          <div className="mt-2 h-[170px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={RECOVERY_VALUE_TREND} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorRecoveryValue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="0" vertical={false} stroke="#F1F5F9" />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 9, fill: "#94A3B8" }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => v.replace("May ", "")}
+                />
+                <YAxis
+                  tick={{ fontSize: 9, fill: "#94A3B8" }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => `$${Math.round(v / 1000)}K`}
+                />
+                <Tooltip
+                  contentStyle={{ fontSize: "11px", borderRadius: "8px" }}
+                  formatter={(value) => `$${value.toLocaleString()}`}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  stroke="#2563EB"
+                  strokeWidth={2}
+                  fill="url(#colorRecoveryValue)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* TOP REJECTION REASONS */}
+        <div className={panelClass}>
+          <h3 className="text-[13px] font-semibold text-[#0F172A]">
+            Top Rejection Reasons
+          </h3>
+
+          <div className="mt-3 flex flex-col gap-3">
+            {TOP_REJECTION_REASONS.map((item) => (
+              <div key={item.label}>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-[#475569] truncate">
+                    {item.label}
+                  </span>
+                  <span className="text-[11px] font-semibold text-[#0F172A]">
+                    {item.value}
+                  </span>
+                </div>
+
+                <div className="mt-1 h-[6px] rounded-full bg-[#F1F5F9] overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-[#2563EB]"
+                    style={{ width: `${(item.value / item.max) * 100}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
-}
+};

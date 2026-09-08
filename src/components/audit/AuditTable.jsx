@@ -1,672 +1,391 @@
-// "use client";
-
-// import React, { useMemo } from "react";
-// import {
-//   useReactTable,
-//   getCoreRowModel,
-//   getPaginationRowModel,
-//   flexRender,
-// } from "@tanstack/react-table";
-
-// export default function AuditTable({
-//   data = [],
-//   columns = [],
-//   loading = false,
-//   emptyMessage = "No matching records found.",
-//   initialPageSize = 10,
-// }) {
-//   const safeData = useMemo(() => (Array.isArray(data) ? data : []), [data]);
-//   const safeColumns = useMemo(() => (Array.isArray(columns) ? columns : []), [columns]);
-
-//   const table = useReactTable({
-//     data: safeData,
-//     columns: safeColumns,
-//     getCoreRowModel: getCoreRowModel(),
-//     getPaginationRowModel: getPaginationRowModel(),
-//     initialState: {
-//       pagination: {
-//         pageIndex: 0,
-//         pageSize: initialPageSize,
-//       },
-//     },
-//   });
-
-//   const headerGroups = table.getHeaderGroups();
-//   const rows = table.getRowModel().rows;
-
-//   const pageIndex = table.getState().pagination.pageIndex;
-//   const pageSize = table.getState().pagination.pageSize;
-//   const totalRows = safeData.length;
-//   const startItem = totalRows === 0 ? 0 : pageIndex * pageSize + 1;
-//   const endItem = Math.min((pageIndex + 1) * pageSize, totalRows);
-
-//   return (
-//     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-//       <div className="overflow-x-auto">
-//         <table className="min-w-full border-collapse text-left text-xs font-medium text-slate-600">
-//           <thead>
-//             {headerGroups.map((headerGroup) => (
-//               <tr key={headerGroup.id} className="border-b border-slate-200 bg-slate-50">
-//                 {headerGroup.headers.map((header) => (
-//                   <th
-//                     key={header.id}
-//                     className="px-6 py-3.5 text-[11px] font-bold uppercase tracking-wider text-slate-500"
-//                   >
-//                     {header.isPlaceholder
-//                       ? null
-//                       : flexRender(header.column.columnDef.header, header.getContext())}
-//                   </th>
-//                 ))}
-//               </tr>
-//             ))}
-//           </thead>
-
-//           <tbody className="divide-y divide-slate-100">
-//             {loading ? (
-//               <tr>
-//                 <td
-//                   colSpan={safeColumns.length || 1}
-//                   className="bg-slate-50/20 px-6 py-12 text-center text-sm font-normal text-slate-400"
-//                 >
-//                   Loading audit data...
-//                 </td>
-//               </tr>
-//             ) : rows.length === 0 ? (
-//               <tr>
-//                 <td
-//                   colSpan={safeColumns.length || 1}
-//                   className="bg-slate-50/20 px-6 py-12 text-center text-sm font-normal text-slate-400"
-//                 >
-//                   {emptyMessage}
-//                 </td>
-//               </tr>
-//             ) : (
-//               rows.map((row) => (
-//                 <tr key={row.id} className="group transition hover:bg-slate-50/80">
-//                   {row.getVisibleCells().map((cell) => (
-//                     <td
-//                       key={cell.id}
-//                       className="whitespace-nowrap px-6 py-3.5 align-middle"
-//                     >
-//                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
-//                     </td>
-//                   ))}
-//                 </tr>
-//               ))
-//             )}
-//           </tbody>
-//         </table>
-//       </div>
-
-//       <div className="flex flex-col gap-4 border-t border-slate-100 bg-white px-6 py-4 text-xs font-medium text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-//         <div>
-//           Showing {startItem} to {endItem} of {totalRows} items
-//         </div>
-
-//         <div className="flex items-center gap-2">
-//           <button
-//             onClick={() => table.previousPage()}
-//             disabled={!table.getCanPreviousPage()}
-//             className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-600 disabled:opacity-40 hover:bg-slate-50"
-//           >
-//             ‹
-//           </button>
-
-//           <span className="text-xs text-slate-500">
-//             Page {pageIndex + 1} of {table.getPageCount()}
-//           </span>
-
-//           <button
-//             onClick={() => table.nextPage()}
-//             disabled={!table.getCanNextPage()}
-//             className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-600 disabled:opacity-40 hover:bg-slate-50"
-//           >
-//             ›
-//           </button>
-
-//           <select
-//             value={pageSize}
-//             onChange={(e) => table.setPageSize(Number(e.target.value))}
-//             className="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-[#0b57d0]"
-//           >
-//             {[5, 10, 25, 50].map((size) => (
-//               <option key={size} value={size}>
-//                 {size} / page
-//               </option>
-//             ))}
-//           </select>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-
+"use client";
 import React, { useMemo, useState } from "react";
-import {MoreVertical} from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
+
+const auditData = [
+  {
+    id: "AUD-1004",
+    timestamp: "24-May-2025 10:24:27 AM",
+    reviewer: "Vigneshwaran D",
+    action: "Confirmed",
+    reason: "Incorrect Vendor Chosen",
+    clusterId: "#7666611",
+    comments: "",
+    reversal: "No",
+  },
+  {
+    id: "AUD-1003",
+    timestamp: "24-May-2025 10:24:24 AM",
+    reviewer: "Vigneshwaran D",
+    action: "Rejected",
+    reason: "Manual Entry",
+    clusterId: "#7088123",
+    comments: "",
+    reversal: "No",
+  },
+  {
+    id: "AUD-1002",
+    timestamp: "24-May-2025 10:24:20 AM",
+    reviewer: "Vigneshwaran D",
+    action: "Confirmed",
+    reason: "Vendor Error",
+    clusterId: "#7688611",
+    comments: "",
+    reversal: "No",
+  },
+  {
+    id: "AUD-1001",
+    timestamp: "24-May-2025 10:24:16 AM",
+    reviewer: "Vigneshwaran D",
+    action: "Rejected",
+    reason: "Incorrect Vendor Chosen",
+    clusterId: "#7034512",
+    comments: "",
+    reversal: "No",
+  },
+];
+
+const TOTAL_RECORDS = 3216;
+
+const actionClass = (action) => {
+  switch (action) {
+    case "Confirmed":
+      return "bg-[#D1FAE5] text-[#10B981]";
+    case "Rejected":
+      return "bg-[#FEE2E2] text-[#EF4444]";
+    case "Escalated":
+      return "bg-[#FEF3C7] text-[#F59E0B]";
+    default:
+      return "bg-[#F1F5F9] text-[#64748B]";
+  }
+};
+
+const initials = (name) =>
+  name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+function FilterSelect({ label, children, ...props }) {
+  return (
+    <div>
+      <p className="text-[11px] font-semibold text-[#475569] mb-1.5">
+        {label}
+      </p>
+
+      <select
+        {...props}
+        className="w-full h-9 rounded-xl border border-[#D9E1EA] px-3 text-[12px] text-[#334155] bg-white"
+      >
+        {children}
+      </select>
+    </div>
+  );
+}
+
 export const AuditTable = () => {
-   const [activeTab, setActiveTab] = useState("All Cases");
-    const [search, setSearch] = useState("");
-    const [page, setPage] = useState(1);
-    const [statusFilter, setStatusFilter] = useState("All");
-    const [caseTypeFilter, setCaseTypeFilter] = useState("All");
-    const [priorityFilter, setPriorityFilter] = useState("All");
-    const pageSize = 8;
-    const TABS = [
-      "All Cases",
-      "Duplicate Cases",
-      "Anomaly Cases",
-      "Escalated Cases",
-      "My Assignments",
-      "Watchlist",
-    ];
-  
-    const tableData = [
-      {
-        caseId: "INV-2025-000123",
-        caseType: "Duplicate",
-        priority: "High",
-        status: "In Progress",
-        vendor: "ABC Solutions",
-        amount: "125,450.00",
-        detectedOn: "May 20, 2025",
-        slaDue: "May 24, 2025",
-        remaining: "2 Days Left",
-        investigator: "Sarah Johnson",
-      },
-      {
-        caseId: "INV-2025-000122",
-        caseType: "Anomaly",
-        priority: "High",
-        status: "In Progress",
-        vendor: "Global Supplies Inc.",
-        amount: "78,900.00",
-        detectedOn: "May 20, 2025",
-        slaDue: "May 23, 2025",
-        remaining: "2 Days Left",
-        investigator: "Michael Brown",
-      },
-      {
-        caseId: "INV-2025-000121",
-        caseType: "Duplicate",
-        priority: "Medium",
-        status: "Pending Review",
-        vendor: "TechWorks LLC",
-        amount: "42,600.00",
-        detectedOn: "May 19, 2025",
-        slaDue: "May 24, 2025",
-        remaining: "2 Days Left",
-        investigator: "Priya Nair",
-      },
-      {
-        caseId: "INV-2025-000120",
-        caseType: "Anomaly",
-        priority: "High",
-        status: "Escalated",
-        vendor: "Alpha Traders",
-        amount: "210,000.00",
-        detectedOn: "May 19, 2025",
-        slaDue: "May 22, 2025",
-        remaining: "Overdue",
-        investigator: "David Lee",
-      },
-      {
-        caseId: "INV-2025-000119",
-        caseType: "Duplicate",
-        priority: "Low",
-        status: "Open",
-        vendor: "Office Needs Co.",
-        amount: "12,350.00",
-        detectedOn: "May 18, 2025",
-        slaDue: "May 25, 2025",
-        remaining: "2 Days Left",
-        investigator: "Emma Wilson",
-      },
-       {
-        caseId: "INV-2025-000118",
-        caseType: "Duplicate",
-        priority: "Low",
-        status: "Open",
-        vendor: "Office Needs Co.",
-        amount: "12,350.00",
-        detectedOn: "May 18, 2026",
-        slaDue: "May 25, 2026",
-        remaining: "2 Days Left",
-        investigator: "Emma Wilson",
-      },
-       {
-        caseId: "INV-2025-000117",
-        caseType: "Duplicate",
-        priority: "Low",
-        status: "Open",
-        vendor: "Office Needs Co.",
-        amount: "12,350.00",
-        detectedOn: "jun 18, 2026",
-        slaDue: "jun 25, 2026",
-        remaining: "2 Days Left",
-        investigator: "Emma Wilson",
-      },
-       {
-        caseId: "INV-2025-000116",
-        caseType: "Duplicate",
-        priority: "Low",
-        status: "Open",
-        vendor: "Office Needs Co.",
-        amount: "12,350.00",
-        detectedOn: "jul 18, 2026",
-        slaDue: "jul 25, 2026",
-        remaining: "2 Days Left",
-        investigator: "Emma Wilson",
-      },
-    ];
-  
-    const filteredData = useMemo(() => {
-    return tableData.filter((item) => {
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [reviewerFilter, setReviewerFilter] = useState("All Reviewers");
+  const [vendorFilter, setVendorFilter] = useState("All Vendors");
+  const [actionFilter, setActionFilter] = useState("All Actions");
+  const [runIdFilter, setRunIdFilter] = useState("All Runs");
+  const [reasonFilter, setReasonFilter] = useState("All Reasons");
+  const pageSize = 8;
+
+  const filteredData = useMemo(() => {
+    return auditData.filter((item) => {
       const matchesSearch = Object.values(item)
         .join(" ")
         .toLowerCase()
         .includes(search.toLowerCase());
-  
-      const matchesStatus =
-        statusFilter === "All" ||
-        item.status === statusFilter;
-  
-      const matchesType =
-        caseTypeFilter === "All" ||
-        item.caseType === caseTypeFilter;
-  
-      const matchesPriority =
-        priorityFilter === "All" ||
-        item.priority === priorityFilter;
-  
-      return (
-        matchesSearch &&
-        matchesStatus &&
-        matchesType &&
-        matchesPriority
-      );
+
+      const matchesAction =
+        actionFilter === "All Actions" || item.action === actionFilter;
+
+      const matchesReason =
+        reasonFilter === "All Reasons" || item.reason === reasonFilter;
+
+      return matchesSearch && matchesAction && matchesReason;
     });
-  }, [
-    search,
-    statusFilter,
-    caseTypeFilter,
-    priorityFilter,
-  ]);
-  
-    const totalPages = Math.ceil(
-      filteredData.length / pageSize
-    );
-  
-    const paginatedData = filteredData.slice(
-      (page - 1) * pageSize,
-      page * pageSize
-    );
-  
-   const statusClass = (status) => {
-    switch (status) {
-      case "In Progress":
-        return "bg-[#DBEAFE] text-[#2563EB]";
-  
-      case "Pending Review":
-        return "bg-[#FDE7C7] text-[#F59E0B]";
-  
-      case "Escalated":
-        return "bg-[#FEE2E2] text-[#EF4444]";
-  
-      case "Open":
-        return "bg-[#D1FAE5] text-[#10B981]";
-  
-      default:
-        return "";
-    }
-  };
-  
-  function FilterSelect({
-    label,
-    children,
-    ...props
-  }) {
-    return (
-      <div>
-        <p className="text-[11px] font-semibold text-[#475569] mb-2">
-          {label}
-        </p>
-  
-        <select
-          {...props}
-          className="w-full h-9 rounded-xl border border-[#D9E1EA] px-3 text-[13px] text-[#334155]"
-        >
-          {children}
-        </select>
-      </div>
-    );
-  }
-    const [selectedCase, setSelectedCase] = useState(tableData[0]);
+  }, [search, actionFilter, reasonFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(TOTAL_RECORDS / pageSize));
+  const visiblePages = [1, 2, 3];
 
   return (
-     <div className="col-span-12 xl:col-span-8 flex">
+    <div className="col-span-12 xl:col-span-9 flex">
+      <div
+        className="
+          w-full
+          h-full
+          flex
+          flex-col
+          bg-white
+          rounded-[16px]
+          border
+          border-[#D9E1EA]
+          shadow-[0px_2px_8px_rgba(15,23,42,0.05)]
+          overflow-hidden
+        "
+      >
+        <div className="px-4 pt-4">
+          <h2 className="text-[15px] font-semibold text-[#0F172A]">
+            Decision Audit Trail
+          </h2>
+        </div>
 
-          <div
-            className="
-              w-full
-              h-full
-              flex
-              flex-col
-              bg-white
-              rounded-[20px]
-              border
-              border-[#D9E1EA]
-              shadow-[0px_2px_8px_rgba(15,23,42,0.05)]
-              overflow-hidden
-          "
-          >
+        {/* Filters */}
+        <div className="px-4 py-4 border-b border-[#E2E8F0]">
+          <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
+            <FilterSelect label="Date Range">
+              <option>May 14 - May 20, 2025</option>
+            </FilterSelect>
 
-            {/* Tabs */}
+            <FilterSelect
+              label="Reviewer"
+              value={reviewerFilter}
+              onChange={(e) => setReviewerFilter(e.target.value)}
+            >
+              <option>All Reviewers</option>
+              <option>Vigneshwaran D</option>
+            </FilterSelect>
 
-            <div className="px-5 pt-4 border-b border-[#E2E8F0]">
-              <div className="flex gap-5">
-                {TABS.map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`pb-3 text-[13px] font-medium transition-all ${
-                      activeTab === tab
-                        ? "text-[#2563EB] border-b-2 border-[#2563EB]"
-                        : "text-[#475569]"
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <FilterSelect
+              label="Vendor"
+              value={vendorFilter}
+              onChange={(e) => setVendorFilter(e.target.value)}
+            >
+              <option>All Vendors</option>
+            </FilterSelect>
 
-            {/* Filters */}
+            <FilterSelect
+              label="Action Type"
+              value={actionFilter}
+              onChange={(e) => setActionFilter(e.target.value)}
+            >
+              <option>All Actions</option>
+              <option>Confirmed</option>
+              <option>Rejected</option>
+              <option>Escalated</option>
+            </FilterSelect>
 
-            <div className="px-5 py-4 border-b border-[#E2E8F0]">
+            <FilterSelect
+              label="Run ID"
+              value={runIdFilter}
+              onChange={(e) => setRunIdFilter(e.target.value)}
+            >
+              <option>All Runs</option>
+            </FilterSelect>
 
-              <div className="grid grid-cols-6 gap-3">
+            <FilterSelect
+              label="Reason"
+              value={reasonFilter}
+              onChange={(e) => setReasonFilter(e.target.value)}
+            >
+              <option>All Reasons</option>
+              <option>Incorrect Vendor Chosen</option>
+              <option>Manual Entry</option>
+              <option>Vendor Error</option>
+            </FilterSelect>
 
-                <FilterSelect
-                  label="Status"
-                  value={statusFilter}
-                  onChange={(e) =>
-                    setStatusFilter(e.target.value)
-                  }
-                >
-                  <option>All</option>
-                  <option>In Progress</option>
-                  <option>Pending Review</option>
-                  <option>Escalated</option>
-                  <option>Open</option>
-                </FilterSelect>
-
-                <FilterSelect
-                  label="Case Type"
-                  value={caseTypeFilter}
-                  onChange={(e) =>
-                    setCaseTypeFilter(e.target.value)
-                  }
-                >
-                  <option>All</option>
-                  <option>Duplicate</option>
-                  <option>Anomaly</option>
-                </FilterSelect>
-
-                <FilterSelect
-                  label="Priority"
-                  value={priorityFilter}
-                  onChange={(e) =>
-                    setPriorityFilter(e.target.value)
-                  }
-                >
-                  <option>All</option>
-                  <option>High</option>
-                  <option>Medium</option>
-                  <option>Low</option>
-                </FilterSelect>
-
-                <FilterSelect label="Investigator">
-                  <option>All</option>
-                </FilterSelect>
-
-                <FilterSelect label="Vendor">
-                  <option>Select vendor</option>
-                </FilterSelect>
-
-                <div className="flex items-end gap-3">
-                  <button className="h-9 px-4 rounded-xl border border-[#D9E1EA] text-[12px] font-medium text-[#475569]">
-                    More Filters
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setStatusFilter("All");
-                      setPriorityFilter("All");
-                      setCaseTypeFilter("All");
-                      setSearch("");
-                    }}
-                    className="text-[#2563EB] text-[12px] font-medium"
-                  >
-                    Reset
-                  </button>
+            <div>
+              <p className="text-[11px] font-semibold text-[#475569] mb-1.5">
+                Search Comments
+              </p>
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Search
+                    size={13}
+                    className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#94A3B8]"
+                  />
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search..."
+                    className="w-full h-9 rounded-xl border border-[#D9E1EA] bg-white pl-8 pr-2 text-[12px] text-[#334155] placeholder:text-[#94A3B8] focus:outline-none"
+                  />
                 </div>
 
-              </div>
-            </div>
-
-            {/* TABLE */}
-
-            <div className="overflow-x-auto flex-1 min-h-[520px]">
-
-              <table className="w-full">
-
-                <thead>
-
-                  <tr className="h-[46px] border-b border-[#E2E8F0]">
-
-                    <th className="w-12 px-5">
-                      <input type="checkbox" />
-                    </th>
-
-                    {[
-                      "CASE ID",
-                      "CASE TYPE",
-                      "PRIORITY",
-                      "STATUS",
-                      "VENDOR",
-                      "AMOUNT (USD)",
-                      "DETECTED ON",
-                      "SLA DUE",
-                      "INVESTIGATOR",
-                    ].map((item) => (
-                      <th
-                        key={item}
-                        className="
-                        text-left
-                        text-[10px]
-                        font-bold
-                        uppercase
-                        tracking-[0.08em]
-                        text-[#64748B]
-                      "
-                      >
-                        {item}
-                      </th>
-                    ))}
-
-                    <th />
-                  </tr>
-
-                </thead>
-
-                <tbody>
-
-                  {paginatedData.map((row) => (
-
-                    <tr
-                      key={row.caseId}
-                      onClick={() => setSelectedCase(row)}
-                      className={`
-                        h-[58px]
-                        border-b
-                        border-[#E2E8F0]
-                        hover:bg-[#F8FAFC]
-                        cursor-pointer
-                        transition-colors
-                        ${
-                          selectedCase.caseId === row.caseId
-                            ? "bg-[#F8FAFC]"
-                            : ""
-                        }
-                      `}
-                    >
-
-                      <td className="px-5">
-                        <input type="checkbox" />
-                      </td>
-
-                      <td className="text-[12px] font-semibold text-[#2563EB]">
-                        {row.caseId}
-                      </td>
-
-                      <td>
-                        <span
-                          className={`px-2.5 py-[2px] rounded-md text-[10px] font-semibold ${
-                            row.caseType === "Duplicate"
-                              ? "bg-[#F3E8FF] text-[#8B5CF6]"
-                              : "bg-[#FDE7C7] text-[#F59E0B]"
-                          }`}
-                        >
-                          {row.caseType}
-                        </span>
-                      </td>
-
-                      <td>
-                        <div className="flex items-center gap-2 text-[12px] text-[#334155]">
-
-                          <span
-                            className={`w-2 h-2 rounded-full ${
-                              row.priority === "High"
-                                ? "bg-red-500"
-                                : row.priority === "Medium"
-                                ? "bg-amber-500"
-                                : "bg-emerald-500"
-                            }`}
-                          />
-
-                          {row.priority}
-
-                        </div>
-                      </td>
-
-                      <td>
-                        <span
-                          className={`px-2.5 py-[2px] rounded-md text-[10px] font-semibold ${statusClass(
-                            row.status
-                          )}`}
-                        >
-                          {row.status}
-                        </span>
-                      </td>
-
-                      <td className="text-[12px] text-[#334155]">
-                        {row.vendor}
-                      </td>
-
-                      <td className="text-[12px] font-semibold text-[#0F172A]">
-                        {row.amount}
-                      </td>
-
-                      <td className="text-[12px] text-[#64748B]">
-                        {row.detectedOn}
-                      </td>
-
-                      <td>
-                        <div className="text-[12px] text-[#334155]">
-                          {row.slaDue}
-                        </div>
-
-                        <div
-                          className={`text-[10px] font-semibold ${
-                            row.remaining === "Overdue"
-                              ? "text-[#EF4444]"
-                              : "text-[#F59E0B]"
-                          }`}
-                        >
-                          {row.remaining}
-                        </div>
-                      </td>
-
-                      <td className="text-[12px] text-[#64748B]">
-                        {row.investigator}
-                      </td>
-
-                      <td className="pr-4">
-                        <MoreVertical
-                          size={15}
-                          className="text-[#94A3B8]"
-                        />
-                      </td>
-
-                    </tr>
-
-                  ))}
-
-                </tbody>
-
-              </table>
-
-            </div>
-
-            {/* Pagination */}
-
-            <div className="border-t border-[#E2E8F0] px-5 py-3 flex items-center justify-between">
-
-              <div className="text-[12px] text-[#64748B]">
-                Showing {(page - 1) * pageSize + 1} to{" "}
-                {Math.min(
-                  page * pageSize,
-                  filteredData.length
-                )}
-                {" "}of {filteredData.length} cases
-              </div>
-
-              <div className="flex items-center gap-2">
-
-                <button className="w-7 h-7 rounded-lg border border-[#D9E1EA]">
-                  ‹
+                <button
+                  className="h-9 px-3 rounded-xl border border-[#D9E1EA] bg-white text-[12px] font-medium text-[#475569] flex items-center gap-1.5 shrink-0"
+                  aria-haspopup="true"
+                >
+                  <SlidersHorizontal size={14} />
+                  Filters
                 </button>
-
-                {[...Array(totalPages)].map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() =>
-                      setPage(index + 1)
-                    }
-                    className={`w-7 h-7 rounded-lg text-[12px] font-medium ${
-                      page === index + 1
-                        ? "bg-[#2563EB] text-white"
-                        : "border border-[#D9E1EA] text-[#475569]"
-                    }`}
-                  >
-                    {index + 1}
-                  </button>
-                ))}
-
-                <button className="w-7 h-7 rounded-lg border border-[#D9E1EA]">
-                  ›
-                </button>
-
-                <select className="h-7 rounded-lg border border-[#D9E1EA] px-2 text-[12px]">
-                  <option>10 / page</option>
-                </select>
-
               </div>
-
             </div>
-
           </div>
         </div>
+
+        {/* TABLE */}
+        <div className="overflow-x-auto flex-1 min-h-[260px]">
+          <table className="w-full">
+            <thead>
+              <tr className="h-[42px] border-b border-[#E2E8F0]">
+                {[
+                  "TIMESTAMP",
+                  "REVIEWER",
+                  "ACTION",
+                  "REASON",
+                  "CLUSTER ID",
+                  "COMMENTS",
+                  "REVERSAL",
+                ].map((item) => (
+                  <th
+                    key={item}
+                    scope="col"
+                    className="
+                      px-4
+                      text-left
+                      text-[10px]
+                      font-bold
+                      uppercase
+                      tracking-[0.08em]
+                      text-[#64748B]
+                    "
+                  >
+                    {item}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+
+            <tbody>
+              {filteredData.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="px-4 py-10 text-center text-[13px] text-[#94A3B8]"
+                  >
+                    No matching audit records found.
+                  </td>
+                </tr>
+              ) : (
+                filteredData.map((row) => (
+                  <tr
+                    key={row.id}
+                    tabIndex={0}
+                    className="h-[46px] border-b border-[#E2E8F0] hover:bg-[#F8FAFC] focus-within:bg-[#F8FAFC] transition-colors"
+                  >
+                    <td className="px-4 text-[12px] text-[#334155] whitespace-nowrap">
+                      {row.timestamp}
+                    </td>
+
+                    <td className="px-4">
+                      <div className="flex items-center gap-2">
+                        <span className="h-6 w-6 rounded-full bg-[#2563EB] flex items-center justify-center text-white text-[9px] font-semibold shrink-0">
+                          {initials(row.reviewer)}
+                        </span>
+                        <span className="text-[12px] text-[#334155] whitespace-nowrap">
+                          {row.reviewer}
+                        </span>
+                      </div>
+                    </td>
+
+                    <td className="px-4">
+                      <span
+                        className={`px-2.5 py-[2px] rounded-md text-[10px] font-semibold ${actionClass(
+                          row.action
+                        )}`}
+                      >
+                        {row.action}
+                      </span>
+                    </td>
+
+                    <td className="px-4 text-[12px] text-[#334155] whitespace-nowrap">
+                      {row.reason}
+                    </td>
+
+                    <td className="px-4">
+                      <a
+                        href={`/audit/clusters/${row.clusterId.replace("#", "")}`}
+                        className="text-[12px] font-semibold text-[#2563EB] hover:underline"
+                      >
+                        {row.clusterId}
+                      </a>
+                    </td>
+
+                    <td className="px-4 text-[12px] text-[#94A3B8]">
+                      {row.comments || "-"}
+                    </td>
+
+                    <td className="px-4 text-[12px] text-[#334155]">
+                      {row.reversal}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="border-t border-[#E2E8F0] px-4 py-3 flex items-center justify-between">
+          <div className="text-[12px] text-[#64748B]">
+            Showing {(page - 1) * pageSize + 1} to{" "}
+            {Math.min(page * pageSize, TOTAL_RECORDS)} of{" "}
+            {TOTAL_RECORDS.toLocaleString()} recoveries
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              aria-label="Previous page"
+              className="w-7 h-7 rounded-lg border border-[#D9E1EA] text-[#475569] disabled:opacity-40"
+            >
+              ‹
+            </button>
+
+            {visiblePages.map((p) => (
+              <button
+                key={p}
+                onClick={() => setPage(p)}
+                aria-current={page === p ? "page" : undefined}
+                className={`w-7 h-7 rounded-lg text-[12px] font-medium ${
+                  page === p
+                    ? "bg-[#2563EB] text-white"
+                    : "border border-[#D9E1EA] text-[#475569]"
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+
+            <span className="text-[12px] text-[#94A3B8]">…</span>
+
+            <button
+              onClick={() => setPage(totalPages)}
+              aria-current={page === totalPages ? "page" : undefined}
+              className={`w-7 h-7 rounded-lg text-[12px] font-medium ${
+                page === totalPages
+                  ? "bg-[#2563EB] text-white"
+                  : "border border-[#D9E1EA] text-[#475569]"
+              }`}
+            >
+              {totalPages}
+            </button>
+
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              aria-label="Next page"
+              className="w-7 h-7 rounded-lg border border-[#D9E1EA] text-[#475569] disabled:opacity-40"
+            >
+              ›
+            </button>
+
+            <select className="h-7 rounded-lg border border-[#D9E1EA] px-2 text-[12px]">
+              <option>10 / page</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
