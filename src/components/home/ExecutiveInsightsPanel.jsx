@@ -1,10 +1,8 @@
 import {
   CheckCircle,
   AlertTriangle,
-  DollarSign,
   TrendingUp,
   Shield,
-  Cpu,
   Percent,
   ArrowUp,
   ArrowDown,
@@ -29,14 +27,6 @@ export default function ExecutiveInsightsPanel() {
       trend: "up",
     },
     {
-      title: "Recovery Value Realized (USD)",
-      value: "$3.42M",
-      change: "+18.7%",
-      icon: DollarSign,
-      iconColor: "text-emerald-500",
-      trend: "up",
-    },
-    {
       title: "Risk Exposure Trend",
       value: "High",
       change: "+6.3%",
@@ -50,14 +40,6 @@ export default function ExecutiveInsightsPanel() {
       change: "+16.1%",
       icon: Shield,
       iconColor: "text-blue-500",
-      trend: "up",
-    },
-    {
-      title: "Automation & AI Adoption",
-      value: "68.2%",
-      change: "+6.8%",
-      icon: Cpu,
-      iconColor: "text-purple-500",
       trend: "up",
     },
     {

@@ -1,8 +1,8 @@
 import {
   Home,
-  Search,
+  Gift,
   DollarSign,
-  BellRing,
+  Users,
   Clock3,
 } from "lucide-react";
 
@@ -26,9 +26,9 @@ export const NAV_ITEMS = [
     icon: Home,
   },
   {
-    name: "Investigations",
-    href: "/investigations",
-    icon: Search,
+    name: "Cases",
+    href: "/cases",
+    icon: Gift,
   },
   {
     name: "Recoveries",
@@ -36,9 +36,9 @@ export const NAV_ITEMS = [
     icon: DollarSign,
   },
   {
-    name: "Alerts",
-    href: "/alerts",
-    icon: BellRing,
+    name: "Vendor",
+    href: "/vendor",
+    icon: Users,
   },
   {
     name: "Audit",

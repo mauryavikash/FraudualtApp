@@ -4,10 +4,10 @@ import React, { useMemo, useState } from "react";
 import {
   MoreVertical,
 } from "lucide-react";
-import {InvestigationKpiCards} from "@/components/investigations/InvestigationKpiCards";
-import {TransactionsDetails} from "@/components/investigations/TransactionsDetails";
-import {InvestigationHeader} from "@/components/investigations/InvestigationHeader";
-export default function Investigations() {
+import {CasesKpiCards} from "@/components/cases/CasesKpiCards";
+import {CasesDetails} from "@/components/cases/CasesDetails";
+import {CasesHeader} from "@/components/cases/CasesHeader";
+export default function cases() {
   const [activeTab, setActiveTab] = useState("All Cases");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -209,9 +209,9 @@ function FilterSelect({
   return (
     <div>
       {/* HEADER */}
-       <InvestigationHeader/>
+       <CasesHeader/>
       {/* KPI */}
-      <InvestigationKpiCards />
+      <CasesKpiCards />
       {/* CONTENT */}
       <div className="grid grid-cols-12 gap-4 mt-4 items-stretch">
 
@@ -543,7 +543,7 @@ function FilterSelect({
 
         {/* RIGHT PANEL */}
         <div className="col-span-12 xl:col-span-4 flex">
-          <TransactionsDetails />
+          <CasesDetails />
         </div>
 
       </div>

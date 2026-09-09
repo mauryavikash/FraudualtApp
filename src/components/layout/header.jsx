@@ -12,10 +12,10 @@ export default function Header({ setIsOpen, isOpen }) {
   let title = "Home";
 
   if (pathname) {
-    if (pathname === "/home") title = "Home";
-    else if (pathname === "/investigations") title = "Investigations";
+    if (pathname === "/home") title = "Reporting & Audit Center";
+    else if (pathname === "/cases") title = "Cases";
     else if (pathname === "/recoveries") title = "Recoveries";
-    else if (pathname === "/alerts") title = "Alerts";
+    else if (pathname === "/vendor") title = "Vendor Deviations ";
     else if (pathname === "/audit") title = "Audit Log";
     // else if (pathname === "/reports") title = "Reports & Analytics";
     // else if (pathname === "/settings") title = "Configuration";
@@ -172,9 +172,20 @@ export default function Header({ setIsOpen, isOpen }) {
           <div className="hidden md:flex items-center gap-1.5 pl-2 border-l border-slate-200">
             <BarChart3 size={16} className="text-emerald-500" />
             <span className="text-[13px] font-bold text-dgem-blue">i360</span>
+            {/* <img
+                src="/pw.png"
+                alt="User avatar"
+                className="h-8 w-12"
+              /> */}
           </div>
-
-          <div className="hidden md:block h-6 w-6 rounded-full bg-gradient-to-br from-sky-500 via-indigo-500 to-fuchsia-500 shrink-0" />
+          <div>
+            <img
+                src="/capgemini_icon.png"
+                alt="capgemini icon"
+                className="h-10 w-12"
+              />
+          </div> 
+          {/* <div className="hidden md:block h-6 w-6 rounded-full bg-gradient-to-br from-sky-500 via-indigo-500 to-fuchsia-500 shrink-0" /> */}
         </div>
       </div>
     </header>
