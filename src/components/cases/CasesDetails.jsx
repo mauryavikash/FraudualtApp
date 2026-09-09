@@ -23,7 +23,7 @@ const tableData = [
   },
 ];
 
-export const TransactionsDetails = () => {
+export const CasesDetails = () => {
   const [selectedCase] = useState(tableData[0]);
   return (
    <div className="w-full bg-white rounded-[16px] border border-[#D1D5DB] shadow-[0px_2px_8px_rgba(0,0,0,0.08)] overflow-hidden">

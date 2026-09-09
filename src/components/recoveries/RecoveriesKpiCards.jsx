@@ -5,7 +5,7 @@ import {
   Clock3,
   ShieldCheck,
 } from "lucide-react";
-import KpiGrid from "@/components/ui/KpiGrid";
+
 const kpiData = [
   {
     title: "TOTAL RECOVERY VALUE (USD)",
@@ -61,9 +61,59 @@ const kpiData = [
 
 export const RecoveriesKpiCards = () => {
   return (
-    <KpiGrid
-          items={kpiData}
-          className="xl:grid-cols-5"
-        />
+    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+      {kpiData.map((item) => {
+        const Icon = item.icon;
+        return (
+          <div
+            key={item.title}
+            className="
+              rounded-[10px]
+              border
+              border-[1.5px]
+              border-[#7DD3FC]
+              bg-white
+              shadow-[0px_1px_4px_rgba(15,23,42,0.05)]
+              px-4
+              py-3.5
+              min-h-[104px]
+              flex
+              flex-col
+              justify-between
+            "
+          >
+            <div className="flex items-start justify-between">
+              <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-[#64748B]">
+                {item.title}
+              </p>
+
+              <div
+                className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0"
+                style={{ backgroundColor: item.iconBg }}
+              >
+                <Icon size={15} style={{ color: item.iconColor }} />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-[22px] leading-[26px] font-bold text-[#0F172A]">
+                {item.value}
+              </h3>
+              <p
+                className={`mt-1 text-[11px] font-medium flex items-center gap-1 ${
+                  item.positive ? "text-[#10B981]" : "text-[#F59E0B]"
+                }`}
+              >
+                {item.positive ? "↑" : "↓"} {item.change}{" "}
+                <span className="text-[#94A3B8] font-normal">
+                  {item.comparison}
+                </span>
+              </p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 };
+

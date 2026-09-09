@@ -11,7 +11,7 @@ export default function AuditActivitiesPanel() {
     },
     {
       time: "May 20, 2025 10:18 AM",
-      activity: "AI Recommendation Added",
+      activity: "AI Recommendation Accepted",
       user: "Michael Brown",
       source: "UI",
       badge: "bg-blue-100 text-blue-700",
@@ -25,7 +25,7 @@ export default function AuditActivitiesPanel() {
     },
     {
       time: "May 20, 2025 10:05 AM",
-      activity: "Data Ingestion Complete",
+      activity: "Data Ingestion Completed",
       user: "System",
       source: "Integration",
       badge: "bg-purple-100 text-purple-700",
@@ -35,7 +35,7 @@ export default function AuditActivitiesPanel() {
       activity: "Escalation Triggered",
       user: "David Lee",
       source: "System",
-      badge: "bg-green-100 text-green-700",
+      badge: "bg-indigo-100 text-indigo-700",
     },
   ];
 
@@ -47,7 +47,7 @@ export default function AuditActivitiesPanel() {
         </h2>
 
         <button className="cursor-pointer text-xs font-medium text-blue-600 hover:text-blue-700">
-          View all activities
+          View all activity
         </button>
       </div>
 

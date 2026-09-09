@@ -134,7 +134,7 @@ function FilterSelect({ label, children, ...props }) {
   );
 }
 
-export const AlertTable = () => {
+export const VendorTable = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [severityFilter, setSeverityFilter] = useState("All Severities");

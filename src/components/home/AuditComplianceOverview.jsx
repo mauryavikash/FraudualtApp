@@ -102,12 +102,12 @@ export default function AuditComplianceOverview() {
                 />
               </div>
 
-              <div className="text-4xl font-bold leading-none text-slate-900">
+              <div className="text-[22px] font-bold leading-none text-slate-900">
                 {item.value}
               </div>
 
               <div
-                className={`mt-3 text-xs font-semibold ${item.growthColor}`}
+                className={`mt-2 text-[11px] font-semibold ${item.growthColor}`}
               >
                 {item.growth}
               </div>

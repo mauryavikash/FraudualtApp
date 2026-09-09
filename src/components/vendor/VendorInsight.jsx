@@ -21,7 +21,7 @@ const TOP_ALERT_TYPES = [
   { name: "System", value: 2, max: 6, color: "#34D399" },
 ];
 
-export const AlertInsight = () => {
+export const VendorInsight = () => {
   return (
     <div className="w-full bg-white rounded-[16px] border border-[#D9E1EA] shadow-[0px_2px_8px_rgba(15,23,42,0.05)] p-5">
       <h2 className="text-[16px] font-semibold text-[#0F172A]">

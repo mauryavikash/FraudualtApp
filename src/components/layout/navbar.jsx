@@ -6,9 +6,9 @@ import {
   ChevronDown,
   ChevronRight,
   Home,
-  Search,
+  Gift,
   DollarSign,
-  BellRing,
+  Users,
   Clock3,
 
 } from "lucide-react";
@@ -16,9 +16,9 @@ import Link from "next/link";
 
 const navItems = [
   { name: "Home", href: "/home", icon: Home },
-  { name: "Investigations", href: "/investigations", icon: Search },
+  { name: "Cases", href: "/cases", icon: Gift },
   { name: "Recoveries", href: "/recoveries", icon: DollarSign },
-  { name: "Alerts", href: "/alerts", icon: BellRing },
+  { name: "Vendor", href: "/vendor", icon: Users },
   { name: "Audit Trail", href: "/audit", icon: Clock3 },
   // { name: "Reports & Analytics", href: "/reports", icon: BarChart3 },
   // { name: "Audit & Compliance", href: "/audit", icon: ShieldCheck },
