@@ -55,11 +55,12 @@ body {
     radial-gradient(circle at bottom left, rgba(29, 184, 242, 0.12), transparent 26%),
     var(--bg); */
     background: linear-gradient(
-  135deg,
-  #E6ECEE 0%,
-  #D7EEF0 55%,
-  #D3D8FA 100%
-);
+    135deg,
+    #D7DDE0 0%,
+    #C7DADF 35%,
+    #B9DEE5 60%,
+    #A5AEDF 100%
+   );
   color: var(--text);
   min-height: 100vh;
 }
