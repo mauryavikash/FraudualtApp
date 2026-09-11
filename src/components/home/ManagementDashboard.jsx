@@ -212,9 +212,9 @@ export default function ManagementDashboard() {
             {/* CASES BY PRIORITY */}
             <div className={`col-span-12 md:col-span-6 ${cardClass}`}>
               {/* your existing Cases By Priority code */}
-              <h3 className="mb-6 text-lg font-bold text-slate-800">
-              CASES BY PRIORITY
-            </h3>
+              <h3 className="text-[13px] font-bold text-slate-800">
+                CASES BY PRIORITY
+              </h3>
 
             <div className="flex items-center justify-between">
               <div className="relative h-[140px] w-[140px]">

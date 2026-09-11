@@ -14,12 +14,12 @@ export default function DashboardPage() {
       <div className="mx-auto max-w-[1800px] space-y-3">
       
         {/* HEADER */}
-       <div className="rounded-2xl border border-slate-200 bg-white px-6 py-4">
+       <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           
           {/* Left Content */}
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">
+            <h1 className="text-[20px] font-semibold text-[#0F172A]">
               Welcome back, Vigneshwaran! 👋
             </h1>
 
