@@ -6,6 +6,7 @@ import {
   Info,
   BellOff,
 } from "lucide-react";
+import KpiTooltip from "../common/KpiTooltip";
 
 const kpiData = [
   {
@@ -16,6 +17,8 @@ const kpiData = [
     icon: Bell,
     iconColor: "#2563EB",
     iconBg: "#DBEAFE",
+    invoiceCount: "18",
+    invoiceValue: "$142K",
   },
   {
     title: "CRITICAL",
@@ -25,6 +28,8 @@ const kpiData = [
     icon: ShieldAlert,
     iconColor: "#EF4444",
     iconBg: "#FEE2E2",
+    invoiceCount: "3",
+    invoiceValue: "$58K",
   },
   {
     title: "HIGH",
@@ -34,6 +39,8 @@ const kpiData = [
     icon: TriangleAlert,
     iconColor: "#F59E0B",
     iconBg: "#FEF3C7",
+    invoiceCount: "7",
+    invoiceValue: "$46K",
   },
   {
     title: "MEDIUM",
@@ -43,6 +50,8 @@ const kpiData = [
     icon: ShieldCheck,
     iconColor: "#2563EB",
     iconBg: "#DBEAFE",
+    invoiceCount: "6",
+    invoiceValue: "$28K",
   },
   {
     title: "LOW",
@@ -52,6 +61,8 @@ const kpiData = [
     icon: Info,
     iconColor: "#10B981",
     iconBg: "#DCFCE7",
+    invoiceCount: "2",
+    invoiceValue: "$10K",
   },
   {
     title: "UNREAD",
@@ -61,6 +72,8 @@ const kpiData = [
     icon: BellOff,
     iconColor: "#64748B",
     iconBg: "#F1F5F9",
+    invoiceCount: "11",
+    invoiceValue: "$86K",
   },
 ];
 
@@ -70,8 +83,12 @@ export const VendorKpiCard = () => {
       {kpiData.map((item) => {
         const Icon = item.icon;
         return (
-          <div
+          <KpiTooltip
             key={item.title}
+            invoiceCount={item.invoiceCount}
+            invoiceValue={item.invoiceValue}
+          >
+          <div
             className="
               rounded-[10px]
               border
@@ -108,6 +125,7 @@ export const VendorKpiCard = () => {
               </p>
             </div>
           </div>
+          </KpiTooltip>
         );
       })}
     </div>

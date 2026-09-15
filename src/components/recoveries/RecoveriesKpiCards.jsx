@@ -5,6 +5,7 @@ import {
   Clock3,
   ShieldCheck,
 } from "lucide-react";
+import KpiTooltip from "../common/KpiTooltip";
 
 const kpiData = [
   {
@@ -16,6 +17,8 @@ const kpiData = [
     iconColor: "#10B981",
     iconBg: "#DCFCE7",
     positive: true,
+    invoiceCount: "2,915",
+    invoiceValue: "$3.42M",
   },
   {
     title: "RECOVERIES COMPLETED",
@@ -26,6 +29,8 @@ const kpiData = [
     iconColor: "#3B82F6",
     iconBg: "#DBEAFE",
     positive: true,
+    invoiceCount: "2,086",
+    invoiceValue: "$2.45M",
   },
   {
     title: "RECOVERIES IN PROGRESS",
@@ -36,6 +41,8 @@ const kpiData = [
     iconColor: "#F59E0B",
     iconBg: "#FEF3C7",
     positive: true,
+    invoiceCount: "612",
+    invoiceValue: "$0.72M",
   },
   {
     title: "AVG. RECOVERY CYCLE TIME",
@@ -46,6 +53,8 @@ const kpiData = [
     iconColor: "#8B5CF6",
     iconBg: "#F3E8FF",
     positive: false,
+    invoiceCount: "2,915",
+    invoiceValue: "$3.42M",
   },
   {
     title: "RECOVERY SUCCESS RATE",
@@ -56,6 +65,8 @@ const kpiData = [
     iconColor: "#06B6D4",
     iconBg: "#CFFAFE",
     positive: true,
+    invoiceCount: "2,603",
+    invoiceValue: "$3.05M",
   },
 ];
 
@@ -65,8 +76,12 @@ export const RecoveriesKpiCards = () => {
       {kpiData.map((item) => {
         const Icon = item.icon;
         return (
-          <div
+          <KpiTooltip
             key={item.title}
+            invoiceCount={item.invoiceCount}
+            invoiceValue={item.invoiceValue}
+          >
+          <div
             className="
               rounded-[10px]
               border
@@ -111,6 +126,7 @@ export const RecoveriesKpiCards = () => {
               </p>
             </div>
           </div>
+          </KpiTooltip>
         );
       })}
     </div>

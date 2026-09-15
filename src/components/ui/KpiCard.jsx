@@ -1,4 +1,5 @@
 import { ArrowUp, ArrowDown } from "lucide-react";
+import KpiTooltip from "../common/KpiTooltip";
 
 export default function KpiCard({
   title,
@@ -9,8 +10,11 @@ export default function KpiCard({
   iconColor,
   iconBg,
   positive = true,
+  invoiceCount,
+  invoiceValue,
 }) {
   return (
+  <KpiTooltip invoiceCount={invoiceCount} invoiceValue={invoiceValue}>
   <div
     className="rounded-[18px] p-[2px]"
     style={{
@@ -94,5 +98,6 @@ export default function KpiCard({
 </div>
       </div>
     </div>
+  </KpiTooltip>
   );
 }

@@ -5,6 +5,7 @@ import {
   DollarSign,
   Settings,
 } from "lucide-react";
+import KpiTooltip from "../common/KpiTooltip";
 
 export default function DashboardKpiCards() {
   const kpiData = [
@@ -17,6 +18,8 @@ export default function DashboardKpiCards() {
       iconColor: "#2563EB",
       iconBg: "#DBEAFE",
       positive: true,
+      invoiceCount: "12,458",
+      invoiceValue: "$1.86M",
     },
     {
       title: "ANOMALIES DETECTED",
@@ -27,6 +30,8 @@ export default function DashboardKpiCards() {
       iconColor: "#D97706",
       iconBg: "#FEF3C7",
       positive: true,
+      invoiceCount: "8,392",
+      invoiceValue: "$1.24M",
     },
     {
       title: "OPEN CASES",
@@ -37,6 +42,8 @@ export default function DashboardKpiCards() {
       iconColor: "#7C3AED",
       iconBg: "#EDE9FE",
       positive: true,
+      invoiceCount: "4,723",
+      invoiceValue: "$980K",
     },
     {
       title: "RECOVERY VALUE (USD)",
@@ -47,6 +54,8 @@ export default function DashboardKpiCards() {
       iconColor: "#059669",
       iconBg: "#D1FAE5",
       positive: true,
+      invoiceCount: "2,915",
+      invoiceValue: "$3.42M",
     },
     {
       title: "AUTOMATION RATE",
@@ -57,6 +66,8 @@ export default function DashboardKpiCards() {
       iconColor: "#2563EB",
       iconBg: "#DBEAFE",
       positive: true,
+      invoiceCount: "17,825",
+      invoiceValue: "$4.68M",
     },
   ];
 
@@ -65,8 +76,12 @@ export default function DashboardKpiCards() {
       {kpiData.map((item) => {
         const Icon = item.icon;
         return (
-          <div
+          <KpiTooltip
             key={item.title}
+            invoiceCount={item.invoiceCount}
+            invoiceValue={item.invoiceValue}
+          >
+          <div
             className="
               rounded-[10px]
               border
@@ -107,6 +122,7 @@ export default function DashboardKpiCards() {
               </p>
             </div>
           </div>
+          </KpiTooltip>
         );
       })}
     </div>

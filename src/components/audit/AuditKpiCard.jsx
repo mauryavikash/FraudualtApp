@@ -5,6 +5,7 @@ import {
   RotateCcw,
   Users,
 } from "lucide-react";
+import KpiTooltip from "../common/KpiTooltip";
 
 const DISTRIBUTION = [
   { label: "Confirmed", value: 2, color: "#10B981" },
@@ -21,6 +22,8 @@ const kpiData = [
     value: "4",
     supporting: "+12% vs Last Period",
     supportingColor: "text-[#10B981]",
+    invoiceCount: "4",
+    invoiceValue: "$93,720",
   },
   {
     title: "Decision Distribution",
@@ -28,6 +31,8 @@ const kpiData = [
     iconColor: "#F59E0B",
     iconBg: "#FEF3C7",
     distribution: DISTRIBUTION,
+    invoiceCount: "4",
+    invoiceValue: "$93,720",
   },
   {
     title: "Recovery Value (USD)",
@@ -37,6 +42,8 @@ const kpiData = [
     value: "$93,720",
     supporting: "+8.4% Potentially Recoverable",
     supportingColor: "text-[#10B981]",
+    invoiceCount: "2",
+    invoiceValue: "$93,720",
   },
   {
     title: "Reversal Rate",
@@ -46,6 +53,8 @@ const kpiData = [
     value: "0%",
     supporting: "No reopened decisions",
     supportingColor: "text-[#64748B]",
+    invoiceCount: "0",
+    invoiceValue: "$0",
   },
   {
     title: "Reviewer Compliance",
@@ -55,6 +64,8 @@ const kpiData = [
     value: "100%",
     supporting: "Following review workflow",
     supportingColor: "text-[#64748B]",
+    invoiceCount: "4",
+    invoiceValue: "$93,720",
   },
 ];
 
@@ -64,8 +75,12 @@ export const AuditKpiCards = () => {
       {kpiData.map((item) => {
         const Icon = item.icon;
         return (
-          <div
+          <KpiTooltip
             key={item.title}
+            invoiceCount={item.invoiceCount}
+            invoiceValue={item.invoiceValue}
+          >
+          <div
             className="
               rounded-[10px]
               border
@@ -125,6 +140,7 @@ export const AuditKpiCards = () => {
               </div>
             )}
           </div>
+          </KpiTooltip>
         );
       })}
     </div>

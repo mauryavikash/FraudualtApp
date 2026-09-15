@@ -6,6 +6,7 @@ import {
   Sparkles,
   BadgeCheck,
 } from "lucide-react";
+import KpiTooltip from "../common/KpiTooltip";
 
 const kpiData = [
   {
@@ -17,6 +18,8 @@ const kpiData = [
     iconColor: "#8B5CF6",
     iconBg: "#F3E8FF",
     positive: true,
+    invoiceCount: "4,723",
+    invoiceValue: "$2.86M",
   },
   {
     title: "OVERDUE CASES",
@@ -27,6 +30,8 @@ const kpiData = [
     iconColor: "#F59E0B",
     iconBg: "#FEF3C7",
     positive: true,
+    invoiceCount: "842",
+    invoiceValue: "$512K",
   },
   {
     title: "HIGH PRIORITY CASES",
@@ -37,6 +42,8 @@ const kpiData = [
     iconColor: "#EF4444",
     iconBg: "#FEE2E2",
     positive: true,
+    invoiceCount: "1,892",
+    invoiceValue: "$1.14M",
   },
   {
     title: "AVG. INVESTIGATION CYCLE TIME",
@@ -47,6 +54,8 @@ const kpiData = [
     iconColor: "#3B82F6",
     iconBg: "#DBEAFE",
     positive: false,
+    invoiceCount: "4,723",
+    invoiceValue: "$2.86M",
   },
   {
     title: "SLA COMPLIANCE",
@@ -57,6 +66,8 @@ const kpiData = [
     iconColor: "#10B981",
     iconBg: "#DCFCE7",
     positive: true,
+    invoiceCount: "4,364",
+    invoiceValue: "$2.64M",
   },
 ];
 
@@ -66,8 +77,12 @@ export const CasesKpiCards = () => {
       {kpiData.map((item) => {
         const Icon = item.icon;
         return (
-          <div
+          <KpiTooltip
             key={item.title}
+            invoiceCount={item.invoiceCount}
+            invoiceValue={item.invoiceValue}
+          >
+          <div
             className="
               rounded-[10px]
               border
@@ -112,6 +127,7 @@ export const CasesKpiCards = () => {
               </p>
             </div>
           </div>
+          </KpiTooltip>
         );
       })}
     </div>
