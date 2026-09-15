@@ -5,7 +5,7 @@ import {
   RotateCcw,
   Users,
 } from "lucide-react";
-import KpiTooltip from "../common/KpiTooltip";
+import KpiCardsGrid from "../common/KpiCardsGrid";
 
 const DISTRIBUTION = [
   { label: "Confirmed", value: 2, color: "#10B981" },
@@ -69,80 +69,6 @@ const kpiData = [
   },
 ];
 
-export const AuditKpiCards = () => {
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-      {kpiData.map((item) => {
-        const Icon = item.icon;
-        return (
-          <KpiTooltip
-            key={item.title}
-            invoiceCount={item.invoiceCount}
-            invoiceValue={item.invoiceValue}
-          >
-          <div
-            className="
-              rounded-[10px]
-              border
-              border-[1.5px]
-              border-[#7DD3FC]
-              bg-white
-              shadow-[0px_1px_4px_rgba(15,23,42,0.05)]
-              px-4
-              py-3.5
-              min-h-[104px]
-              flex
-              flex-col
-              justify-between
-            "
-          >
-            <div className="flex items-start justify-between">
-              <p className="text-[12px] font-medium text-[#475569]">
-                {item.title}
-              </p>
-
-              <div
-                className="h-7 w-7 rounded-lg flex items-center justify-center shrink-0"
-                style={{ backgroundColor: item.iconBg }}
-              >
-                <Icon size={14} style={{ color: item.iconColor }} />
-              </div>
-            </div>
-
-            {item.distribution ? (
-              <div className="flex flex-col gap-1">
-                {item.distribution.map((row) => (
-                  <div
-                    key={row.label}
-                    className="flex items-center justify-between text-[11px]"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className="w-1.5 h-1.5 rounded-full shrink-0"
-                        style={{ backgroundColor: row.color }}
-                      />
-                      <span className="text-[#475569]">{row.label}:</span>
-                    </div>
-                    <span className="font-semibold text-[#0F172A]">
-                      {row.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div>
-                <h3 className="text-[22px] leading-[26px] font-bold text-[#0F172A]">
-                  {item.value}
-                </h3>
-                <p className={`mt-1 text-[11px] font-medium ${item.supportingColor}`}>
-                  {item.supporting}
-                </p>
-              </div>
-            )}
-          </div>
-          </KpiTooltip>
-        );
-      })}
-    </div>
-  );
-};
+export const AuditKpiCards = () => (
+  <KpiCardsGrid items={kpiData} columns="xl:grid-cols-5" variant="audit" />
+);
