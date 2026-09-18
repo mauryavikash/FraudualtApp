@@ -4,7 +4,11 @@ import {
   MoreHorizontal,
   X,
   Plus,
-  ChevronDown,
+    ArrowRight,
+    UserPlus,
+    FileSearch,
+    AlertTriangle,
+    BanknoteArrowUp,
 } from "lucide-react";
 
 const tableData = [
@@ -127,25 +131,29 @@ export const CasesDetails = () => {
         </div>
 
         {/* AI Recommendation */}
-        <div className="mt-5 border border-[#D1D5DB] rounded-[10px] bg-[#F8FAFC] p-3">
+        <div className="mt-5 rounded-[6px] border border-[#D8B4FE] bg-[#FCFAFF] p-3">
         <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-[#2563EB] flex items-center justify-center">
-            <Sparkles size={9} className="text-white" />
-            </div>
+            <Sparkles size={15} className="text-[#7C3AED]" />
 
-            <span className="text-[13px] font-semibold text-[#0F172A]">
-            AI Recommendation
+            <span className="text-[12px] font-semibold text-[#4C1D95]">
+            AI Recommended Action
             </span>
         </div>
 
-        <p className="mt-3 text-[12px] leading-5 text-[#475569]">
-            Potential duplicate invoice detected with 92%
-            confidence. Review and confirm as duplicate or
-            false positive.
+        <p className="mt-3 text-[10px] leading-4 text-[#334155]">
+            This is a high-confidence <span className="font-semibold">true duplicate.</span> Both invoices have identical
+            key attributes and amount.
         </p>
 
-        <button className="mt-2 text-[12px] font-medium text-[#2563EB]">
-            View AI Analysis
+        <p className="mt-3 text-[10px] leading-4 text-[#334155]">
+            <span className="font-semibold">Recommended Action:</span><br />
+            Confirm duplicate and initiate recovery. Validate with vendor before
+            payment adjustment.
+        </p>
+
+        <button className="mt-3 inline-flex h-6 items-center gap-1 rounded-[4px] border border-[#C4B5FD] bg-white px-2 text-[10px] font-semibold text-[#6D28D9] hover:bg-[#F5F3FF]">
+            View Full Recommendation
+            <ArrowRight size={12} />
         </button>
         </div>
 
@@ -192,19 +200,26 @@ export const CasesDetails = () => {
         </div>
         </div>
 
-        {/* Buttons */}
-        <div className="grid grid-cols-3 gap-2 mt-5">
-        <button className="h-9 rounded-md bg-[#2563EB] text-white text-[13px] font-medium hover:bg-[#1D4ED8]">
-            Review Case
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 gap-2 mt-5">
+        <button className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md bg-[#2563EB] text-[12px] font-medium text-white hover:bg-[#1D4ED8]">
+            <UserPlus size={14} />
+            Assign
         </button>
 
-        <button className="h-9 rounded-md border border-[#CBD5E1] bg-white text-[13px] font-medium text-[#334155]">
-            Escalate Case
+        <button className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-[#CBD5E1] bg-white text-[12px] font-medium text-[#334155] hover:bg-[#F8FAFC]">
+            <FileSearch size={14} />
+            Request Evidence
         </button>
 
-        <button className="h-9 rounded-md border border-[#CBD5E1] bg-white text-[13px] font-medium text-[#334155] flex items-center justify-center gap-1">
-            More Actions
-            <ChevronDown size={14} />
+        <button className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-[#CBD5E1] bg-white text-[12px] font-medium text-[#334155] hover:bg-[#FEF2F2] hover:text-[#DC2626]">
+            <AlertTriangle size={14} />
+            Escalate
+        </button>
+
+        <button className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-[#CBD5E1] bg-white text-[12px] font-medium text-[#334155] hover:bg-[#ECFDF5] hover:text-[#059669]">
+            <BanknoteArrowUp size={14} />
+            Convert to Recovery
         </button>
         </div>
 

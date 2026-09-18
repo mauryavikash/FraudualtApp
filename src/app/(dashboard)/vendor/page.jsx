@@ -4,6 +4,9 @@ import { VendorTable } from '@/components/vendor/VendorTable';
 import { VendorHeader } from '@/components/vendor/VendorHeader';
 import { VendorInsight } from '@/components/vendor/VendorInsight';
 import { VendorKpiCard }  from '@/components/vendor/VendorKpiCard';
+import VendorRiskControls from '@/components/vendor/VendorRiskControls';
+import VendorExposureAnalytics from '@/components/vendor/VendorExposureAnalytics';
+import VendorFindingsActions from '@/components/vendor/VendorFindingsActions';
 
 export default function Vendor() {
   return (
@@ -24,6 +27,10 @@ export default function Vendor() {
             </div>
     
           </div>
+
+          <VendorRiskControls />
+          <VendorExposureAnalytics />
+          <VendorFindingsActions />
         </div>
   );
 }

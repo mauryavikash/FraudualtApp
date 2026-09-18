@@ -10,7 +10,7 @@ import KpiCardsGrid from "../common/KpiCardsGrid";
 export default function DashboardKpiCards() {
   const kpiData = [
     {
-      title: "DUPLICATES IDENTIFIED",
+      title: "Duplicate Exposure",
       value: "12,458",
       change: "+14.3%",
       comparison: "vs May 7 - May 13",
@@ -22,7 +22,7 @@ export default function DashboardKpiCards() {
       invoiceValue: "$1.86M",
     },
     {
-      title: "ANOMALIES DETECTED",
+      title: "Anomaly Exposure",
       value: "8,392",
       change: "+11.6%",
       comparison: "vs May 7 - May 13",
@@ -34,7 +34,7 @@ export default function DashboardKpiCards() {
       invoiceValue: "$1.24M",
     },
     {
-      title: "OPEN CASES",
+      title: "Prevented Value",
       value: "4,723",
       change: "+9.1%",
       comparison: "vs May 7 - May 13",
@@ -46,7 +46,7 @@ export default function DashboardKpiCards() {
       invoiceValue: "$980K",
     },
     {
-      title: "RECOVERY VALUE (USD)",
+      title: "Recovery Opportunity",
       value: "$3.42M",
       change: "+18.7%",
       comparison: "vs May 7 - May 13",
@@ -57,19 +57,8 @@ export default function DashboardKpiCards() {
       invoiceCount: "2,915",
       invoiceValue: "$3.42M",
     },
-    {
-      title: "AUTOMATION RATE",
-      value: "68.2%",
-      change: "+6.8%",
-      comparison: "vs May 7 - May 13",
-      icon: Settings,
-      iconColor: "#2563EB",
-      iconBg: "#DBEAFE",
-      positive: true,
-      invoiceCount: "17,825",
-      invoiceValue: "$4.68M",
-    },
+   
   ];
 
-  return <KpiCardsGrid items={kpiData} columns="xl:grid-cols-5" />;
+  return <KpiCardsGrid items={kpiData} columns="xl:grid-cols-4" />;
 }

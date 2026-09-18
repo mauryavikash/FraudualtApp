@@ -9,7 +9,7 @@ import KpiCardsGrid from "../common/KpiCardsGrid";
 
 const kpiData = [
   {
-    title: "TOTAL RECOVERY VALUE (USD)",
+    title: "Confirmed Recoverable Value",
     value: "$3.42M",
     change: "+18.7%",
     comparison: "vs May 7 – May 13",
@@ -21,7 +21,7 @@ const kpiData = [
     invoiceValue: "$3.42M",
   },
   {
-    title: "RECOVERIES COMPLETED",
+    title: "Prevented Value",
     value: "$2.45M",
     change: "+21.3%",
     comparison: "vs May 7 – May 13",
@@ -33,7 +33,7 @@ const kpiData = [
     invoiceValue: "$2.45M",
   },
   {
-    title: "RECOVERIES IN PROGRESS",
+    title: "At-Risk Recovery",
     value: "$0.72M",
     change: "+5.6%",
     comparison: "vs May 7 – May 13",
@@ -44,18 +44,7 @@ const kpiData = [
     invoiceCount: "612",
     invoiceValue: "$0.72M",
   },
-  {
-    title: "AVG. RECOVERY CYCLE TIME",
-    value: "18.4 Days",
-    change: "-2.6 Days",
-    comparison: "vs May 7 – May 13",
-    icon: Clock3,
-    iconColor: "#8B5CF6",
-    iconBg: "#F3E8FF",
-    positive: false,
-    invoiceCount: "2,915",
-    invoiceValue: "$3.42M",
-  },
+
   {
     title: "RECOVERY SUCCESS RATE",
     value: "89.3%",
@@ -71,6 +60,6 @@ const kpiData = [
 ];
 
 export const RecoveriesKpiCards = () => (
-  <KpiCardsGrid items={kpiData} columns="xl:grid-cols-5" />
+  <KpiCardsGrid items={kpiData} columns="xl:grid-cols-4" />
 );
 

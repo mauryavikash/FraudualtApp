@@ -7,6 +7,7 @@ import { RecoveriesKpiCards } from "@/components/recoveries/RecoveriesKpiCards";
 import { RecoveriesDetails } from "@/components/recoveries/RecoveriesDetails";
 import { RecoveriesHeader } from "@/components/recoveries/RecoveriesHeader";
 import RecoveriesCharts from "@/components/recoveries/RecoveriesCharts";
+import RecoveryPipelineOverview from "@/components/recoveries/RecoveryPipelineOverview";
 
 const TABS = [
   "All Recoveries",
@@ -189,8 +190,16 @@ export default function Recoveries() {
     <div>
       {/* HEADER */}
       <RecoveriesHeader />
-      {/* KPI */}
-      <RecoveriesKpiCards />
+      <div className="relative">
+        <div className="xl:w-[calc(66.666667%-0.666667rem)]">
+          {/* KPI */}
+          <RecoveriesKpiCards />
+          <RecoveryPipelineOverview />
+        </div>
+        <div className="mt-4 flex xl:absolute xl:right-0 xl:top-0 xl:mt-0 xl:w-[calc(33.333333%-0.666667rem)]">
+          <RecoveriesDetails recovery={selectedRecovery} />
+        </div>
+      </div>
       {/* CONTENT */}
       <div className="grid grid-cols-12 gap-4 mt-4 items-stretch">
         {/* TABLE */}
@@ -479,10 +488,6 @@ export default function Recoveries() {
           <RecoveriesCharts />
         </div>
 
-        {/* RIGHT PANEL */}
-        <div className="col-span-12 xl:col-span-4 flex">
-          <RecoveriesDetails recovery={selectedRecovery} />
-        </div>
       </div>
     </div>
   );

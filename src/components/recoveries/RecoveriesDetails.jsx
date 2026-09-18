@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { X, ChevronDown, Check } from "lucide-react";
+import { X, ChevronDown, Check, CircleCheck, FilePenLine, Sparkles } from "lucide-react";
 
 const DEFAULT_RECOVERY = {
   recoveryId: "REC-2025-000145",
@@ -49,6 +49,7 @@ const statusBadgeClass = (status) => {
 
 export const RecoveriesDetails = ({ recovery }) => {
   const [activeTab, setActiveTab] = useState("Overview");
+  const [isDraftGenerated, setIsDraftGenerated] = useState(false);
 
   const selected = {
     ...DEFAULT_RECOVERY,
@@ -173,6 +174,32 @@ export const RecoveriesDetails = ({ recovery }) => {
           <span className="sr-only">
             Recovery progress: {PROGRESS_STAGES.map((s) => `${s.label} (${s.date})`).join(", ")}.
           </span>
+        </div>
+
+        <div className="mt-5 rounded-md border border-[#DDD6FE] bg-[#FCFAFF] p-3">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#6D28D9]">
+            <Sparkles size={14} />
+            AI Next Best Action
+          </div>
+          <p className="mt-3 text-[10px] leading-4 text-[#475569]">
+            The vendor has not responded for 6 days.
+          </p>
+          <p className="mt-3 text-[10px] leading-4 text-[#475569]">
+            <span className="font-semibold text-[#334155]">Recommendation:</span> Send follow-up email and request expected credit memo date.
+          </p>
+          <div className="mt-3 text-[10px] font-semibold text-[#475569]">Suggested Action:</div>
+          <div className="mt-2 space-y-1.5 text-[10px] text-[#475569]">
+            <div className="flex items-center gap-1.5"><CircleCheck size={12} className="text-[#22C55E]" /> Send follow-up email (Template available)</div>
+            <div className="flex items-center gap-1.5"><CircleCheck size={12} className="text-[#22C55E]" /> Escalate if no response in 3 days</div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsDraftGenerated(true)}
+            className="mt-3 inline-flex h-7 items-center gap-1.5 rounded border border-[#C4B5FD] bg-white px-2 text-[10px] font-semibold text-[#6D28D9] hover:bg-[#F5F3FF]"
+          >
+            <FilePenLine size={12} />
+            {isDraftGenerated ? "Email Draft Generated" : "Generate Email Draft"}
+          </button>
         </div>
 
         {/* Recovery Timeline */}

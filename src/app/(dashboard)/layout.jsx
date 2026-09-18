@@ -3,6 +3,7 @@
 import Footer from '../../components/layout/footer';
 import Header from '../../components/layout/header';
 import Sidebar from '../../components/layout/sidebar';
+import AiCopilot from '../../components/layout/AiCopilot';
 import React, { useState } from 'react';
 
 export default function DashboardLayout({
@@ -20,14 +21,17 @@ export default function DashboardLayout({
             >
                 <Header setIsOpen={setIsSidebarOpen} isOpen={isSidebarOpen} />
 
-                <main className="relative flex-1 overflow-y-auto mt-4 mx-4 rounded-xl overflow-hidden border border-white/10">
-                
+                <div className="flex min-h-0 flex-1 overflow-hidden">
+                    <main className="relative m-4 mr-0 flex-1 overflow-y-auto rounded-l-xl border border-white/10">
+                        <div className="relative z-10">
+                            {children}
+                        </div>
+                    </main>
 
-                    {/* Content */}
-                    <div className="relative z-10">
-                        {children}
+                    <div className="fixed inset-y-0 right-0 z-50 flex min-h-0 w-[min(320px,85vw)] lg:static lg:my-4 lg:mr-4 lg:w-auto">
+                        <AiCopilot />
                     </div>
-                </main>
+                </div>
 
                 <Footer />
             </div>

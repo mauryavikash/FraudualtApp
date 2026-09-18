@@ -36,6 +36,9 @@ export default function cases() {
       slaDue: "May 24, 2025",
       remaining: "2 Days Left",
       investigator: "Sarah Johnson",
+      detectionSource: "Rule-Based",
+      confidenceScore: "92%",
+      similarity: "96%",
     },
     {
       caseId: "INV-2025-000122",
@@ -48,6 +51,9 @@ export default function cases() {
       slaDue: "May 23, 2025",
       remaining: "2 Days Left",
       investigator: "Michael Brown",
+      detectionSource: "Agentic AI",
+      confidenceScore: "88%",
+      similarity: "74%",
     },
     {
       caseId: "INV-2025-000121",
@@ -60,6 +66,9 @@ export default function cases() {
       slaDue: "May 24, 2025",
       remaining: "2 Days Left",
       investigator: "Priya Nair",
+      detectionSource: "Hybrid",
+      confidenceScore: "85%",
+      similarity: "91%",
     },
     {
       caseId: "INV-2025-000120",
@@ -72,6 +81,9 @@ export default function cases() {
       slaDue: "May 22, 2025",
       remaining: "Overdue",
       investigator: "David Lee",
+      detectionSource: "Agentic AI",
+      confidenceScore: "95%",
+      similarity: "68%",
     },
     {
       caseId: "INV-2025-000119",
@@ -84,6 +96,9 @@ export default function cases() {
       slaDue: "May 25, 2025",
       remaining: "2 Days Left",
       investigator: "Emma Wilson",
+      detectionSource: "Rule-Based",
+      confidenceScore: "79%",
+      similarity: "89%",
     },
      {
       caseId: "INV-2025-000118",
@@ -96,6 +111,9 @@ export default function cases() {
       slaDue: "May 25, 2026",
       remaining: "2 Days Left",
       investigator: "Emma Wilson",
+      detectionSource: "Hybrid",
+      confidenceScore: "83%",
+      similarity: "93%",
     },
      {
       caseId: "INV-2025-000117",
@@ -108,6 +126,9 @@ export default function cases() {
       slaDue: "jun 25, 2026",
       remaining: "2 Days Left",
       investigator: "Emma Wilson",
+      detectionSource: "Rule-Based",
+      confidenceScore: "76%",
+      similarity: "87%",
     },
      {
       caseId: "INV-2025-000116",
@@ -120,6 +141,9 @@ export default function cases() {
       slaDue: "jul 25, 2026",
       remaining: "2 Days Left",
       investigator: "Emma Wilson",
+      detectionSource: "Agentic AI",
+      confidenceScore: "90%",
+      similarity: "81%",
     },
   ];
 
@@ -329,9 +353,9 @@ function FilterSelect({
 
             {/* TABLE */}
 
-            <div className="overflow-x-auto flex-1 min-h-[520px]">
+            <div className="table-scrollbar flex-1 min-h-[520px] overflow-x-scroll overflow-y-hidden">
 
-              <table className="w-full">
+              <table className="min-w-[1550px] w-full">
 
                 <thead>
 
@@ -351,6 +375,9 @@ function FilterSelect({
                       "DETECTED ON",
                       "SLA DUE",
                       "INVESTIGATOR",
+                      "DETECTION SOURCE",
+                      "CONFIDENCE SCORE",
+                      "SIMILARITY",
                     ].map((item) => (
                       <th
                         key={item}
@@ -472,6 +499,18 @@ function FilterSelect({
 
                       <td className="text-[12px] text-[#64748B]">
                         {row.investigator}
+                      </td>
+
+                      <td className="text-[12px] text-[#64748B]">
+                        {row.detectionSource}
+                      </td>
+
+                      <td className="text-[12px] font-semibold text-[#0F172A]">
+                        {row.confidenceScore}
+                      </td>
+
+                      <td className="text-[12px] font-semibold text-[#0F172A]">
+                        {row.similarity}
                       </td>
 
                       <td className="pr-4">

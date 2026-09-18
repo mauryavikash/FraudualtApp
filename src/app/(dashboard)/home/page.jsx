@@ -7,6 +7,7 @@ import OperationalReporting from "@/components/home/OperationalReporting";
 import AuditActivitiesPanel from "@/components/home/AuditActivitiesPanel";
 import ExecutiveInsightsPanel from "@/components/home/ExecutiveInsightsPanel";
 import AuditComplianceOverview from "@/components/home/AuditComplianceOverview";
+import AiExecutiveBriefing from "@/components/home/AiExecutiveBriefing";
 
 export default function DashboardPage() {
   return (
@@ -52,6 +53,8 @@ export default function DashboardPage() {
       
         {/* KPI CARDS */}
         <DashboardKpiCards />
+
+        <AiExecutiveBriefing />
 
         {/* MANAGEMENT DASHBOARD */}
         <ManagementDashboard />

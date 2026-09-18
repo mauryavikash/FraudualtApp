@@ -10,7 +10,7 @@ import KpiCardsGrid from "../common/KpiCardsGrid";
 const DISTRIBUTION = [
   { label: "Confirmed", value: 2, color: "#10B981" },
   { label: "Rejected", value: 2, color: "#EF4444" },
-  { label: "Escalated", value: 0, color: "#F59E0B" },
+  // { label: "Escalated", value: 0, color: "#F59E0B" },
 ];
 
 const kpiData = [

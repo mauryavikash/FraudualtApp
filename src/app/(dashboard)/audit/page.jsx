@@ -4,8 +4,9 @@ import { AuditHeader } from "@/components/audit/AuditHeader";
 import { AuditKpiCards } from "@/components/audit/AuditKpiCard";
 import { AuditTable } from "@/components/audit/AuditTable";
 import { AuditChart } from "@/components/audit/AuditCharts";
-import { AuditCardDetails } from "@/components/audit/AuditCardDetails";
 import { AuditInsight } from "@/components/audit/AuditInsight";
+import AuditActivityAnalytics from "@/components/audit/AuditActivityAnalytics";
+import AuditEventDetails from "@/components/audit/AuditEventDetails";
 
 export default function Audit() {
   
@@ -28,7 +29,10 @@ export default function Audit() {
         </div>
 
       </div>
-      <AuditCardDetails/>
+
+      <AuditActivityAnalytics />
+      <AuditEventDetails />
+    
     </div>
   );
 }

@@ -110,6 +110,30 @@ body::before {
   border-radius: 9999px;
 }
 
+.table-scrollbar {
+  scrollbar-color: #94a3b8 #f1f5f9;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+.table-scrollbar::-webkit-scrollbar {
+  height: 10px;
+}
+
+.table-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.table-scrollbar::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border: 2px solid #f1f5f9;
+  border-radius: 9999px;
+}
+
+.table-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
 .top-bar {
   display: flex;
   flex-wrap: wrap;
