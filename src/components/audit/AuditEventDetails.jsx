@@ -3,14 +3,20 @@
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, X } from "lucide-react";
 
-const details = [
-  ["Case ID", "CASE-2025-00891"],
-  ["Invoice", "INV-00023456"],
-  ["Vendor", "VEND-1045 - Global Supplies Inc."],
-  ["Exposure (USD)", "$28,456.00"],
-];
+const formatCurrency = (value) => new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 2,
+}).format(Number(value ?? 0));
 
-export default function AuditEventDetails() {
+export default function AuditEventDetails({ data }) {
+  const details = [
+    ["Case ID", data?.caseId ?? "-"],
+    ["Invoice", data?.invoiceNumber ?? "-"],
+    ["Vendor", data?.vendor || "-"],
+    ["Exposure (USD)", formatCurrency(data?.exposureAmount)],
+  ];
+
   return (
     <section className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
       <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">

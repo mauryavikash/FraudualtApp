@@ -1,38 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { X, ChevronDown, Check, CircleCheck, FilePenLine, Sparkles } from "lucide-react";
-
-const DEFAULT_RECOVERY = {
-  recoveryId: "REC-2025-000145",
-  type: "Duplicate",
-  status: "Completed",
-  vendor: "ABC Solutions",
-  amount: "125,450.00",
-  recoveredOn: "May 20, 2025 02:14 PM",
-  paymentDate: "May 05, 2025",
-  originalPaymentId: "PAY-2025-004567",
-  investigator: "Sarah Johnson",
-  sourceSystem: "SAP",
-  recoveryMethod: "Vendor Refund",
-  notes: "Refund received via ACH.",
-};
-
-const PROGRESS_STAGES = [
-  { key: "identified", label: "Identified", date: "May 05" },
-  { key: "inProgress", label: "In Progress", date: "May 14" },
-  { key: "recovered", label: "Recovered", date: "May 20" },
-  { key: "closed", label: "Closed", date: "May 20" },
-];
-
-const TIMELINE_EVENTS = [
-  { title: "Case Identified", actor: "System", timestamp: "May 05, 2025 10:24 AM" },
-  { title: "Investigation Completed", actor: "Sarah Johnson", timestamp: "May 14, 2025 11:35 AM" },
-  { title: "Recovery Initiated", actor: "Sarah Johnson", timestamp: "May 16, 2025 09:40 AM" },
-  { title: "Funds Recovered", actor: "ABC Solutions", timestamp: "May 20, 2025 02:14 PM" },
-  { title: "Recovery Closed", actor: "System", timestamp: "May 20, 2025 02:20 PM" },
-];
-
-const DETAIL_TABS = ["Overview", "Recovery Details", "Related Case", "Audit Trail"];
+import { X, Check, CircleCheck, FilePenLine, Sparkles } from "lucide-react";
 
 const statusBadgeClass = (status) => {
   switch (status) {
@@ -47,19 +15,16 @@ const statusBadgeClass = (status) => {
   }
 };
 
-export const RecoveriesDetails = ({ recovery }) => {
+const formatDate = (value) => value ? new Date(value).toLocaleString() : "-";
+
+export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
   const [activeTab, setActiveTab] = useState("Overview");
   const [isDraftGenerated, setIsDraftGenerated] = useState(false);
 
-  const selected = {
-    ...DEFAULT_RECOVERY,
-    recoveryId: recovery?.recoveryId ?? DEFAULT_RECOVERY.recoveryId,
-    type: recovery?.type ?? DEFAULT_RECOVERY.type,
-    status: recovery?.status ?? DEFAULT_RECOVERY.status,
-    vendor: recovery?.vendor ?? DEFAULT_RECOVERY.vendor,
-    amount: recovery?.amount ?? DEFAULT_RECOVERY.amount,
-    investigator: recovery?.investigator ?? DEFAULT_RECOVERY.investigator,
-  };
+  const selected = recovery ?? {};
+  const progressStages = Array.isArray(stages) ? stages : [];
+  const timelineEvents = Array.isArray(timeline) ? timeline : [];
+  const detailTabs = Array.isArray(tabs) ? tabs.map((tab) => tab.tab) : [];
 
   const isClosed = selected.status === "Completed";
 
@@ -89,7 +54,7 @@ export const RecoveriesDetails = ({ recovery }) => {
 
         {/* Tabs */}
         <div className="flex gap-4 mt-3 border-b border-[#E5E7EB] overflow-x-auto" role="tablist">
-          {DETAIL_TABS.map((tab) => (
+          {detailTabs.map((tab) => (
             <button
               key={tab}
               role="tab"
@@ -123,15 +88,15 @@ export const RecoveriesDetails = ({ recovery }) => {
               </span>
             }
           />
-          <MetaRow label="Vendor" value={selected.vendor} bold />
+          <MetaRow label="Vendor" value={selected.vendor || "-"} bold />
           <MetaRow label="Amount (USD)" value={selected.amount} bold />
-          <MetaRow label="Recovered On" value={selected.recoveredOn} />
-          <MetaRow label="Payment Date" value={selected.paymentDate} />
+          <MetaRow label="Recovered On" value={formatDate(selected.recoveredOn)} />
+          <MetaRow label="Payment Date" value={formatDate(selected.paymentDate)} />
           <MetaRow
             label="Original Payment ID"
             value={<span className="text-[#2563EB] font-medium">{selected.originalPaymentId}</span>}
           />
-          <MetaRow label="Investigator" value={selected.investigator} />
+          <MetaRow label="Investigator" value={selected.investigator ?? "Unassigned"} />
           <MetaRow label="Source System" value={selected.sourceSystem} />
           <MetaRow label="Recovery Method" value={selected.recoveryMethod} />
           <MetaRow label="Notes" value={selected.notes} />
@@ -144,8 +109,8 @@ export const RecoveriesDetails = ({ recovery }) => {
           </div>
 
           <div className="mt-4 flex items-center">
-            {PROGRESS_STAGES.map((stage, index) => (
-              <React.Fragment key={stage.key}>
+            {progressStages.map((stage, index) => (
+              <React.Fragment key={stage.stage}>
                 <div className="flex flex-col items-center">
                   <div
                     className={`w-6 h-6 rounded-full flex items-center justify-center ${
@@ -155,12 +120,12 @@ export const RecoveriesDetails = ({ recovery }) => {
                     {isClosed && <Check size={12} className="text-white" />}
                   </div>
                   <span className="mt-2 text-[10px] font-medium text-[#334155]">
-                    {stage.label}
+                    {stage.stage}
                   </span>
-                  <span className="text-[9px] text-[#94A3B8]">{stage.date}</span>
+                  <span className="text-[9px] text-[#94A3B8]">{formatDate(stage.date)}</span>
                 </div>
 
-                {index < PROGRESS_STAGES.length - 1 && (
+                {index < progressStages.length - 1 && (
                   <div
                     className={`flex-1 h-[2px] mx-1 -mt-4 ${
                       isClosed ? "bg-[#10B981]" : "bg-[#E2E8F0]"
@@ -172,7 +137,7 @@ export const RecoveriesDetails = ({ recovery }) => {
           </div>
 
           <span className="sr-only">
-            Recovery progress: {PROGRESS_STAGES.map((s) => `${s.label} (${s.date})`).join(", ")}.
+            Recovery progress: {progressStages.map((stage) => `${stage.stage} (${stage.date})`).join(", ")}.
           </span>
         </div>
 
@@ -209,11 +174,11 @@ export const RecoveriesDetails = ({ recovery }) => {
           </div>
 
           <ol className="flex flex-col gap-3.5">
-            {TIMELINE_EVENTS.map((event, index) => (
-              <li key={event.title} className="flex gap-2.5">
+            {timelineEvents.map((event, index) => (
+              <li key={`${event.event}-${event.timestamp}`} className="flex gap-2.5">
                 <div className="flex flex-col items-center">
                   <span className="w-2 h-2 rounded-full bg-[#10B981] mt-1 shrink-0" />
-                  {index < TIMELINE_EVENTS.length - 1 && (
+                  {index < timelineEvents.length - 1 && (
                     <span className="w-px flex-1 bg-[#E2E8F0] mt-1" />
                   )}
                 </div>
@@ -221,12 +186,12 @@ export const RecoveriesDetails = ({ recovery }) => {
                 <div className="flex-1 flex items-start justify-between gap-2 pb-1">
                   <div className="min-w-0">
                     <p className="text-[12px] font-semibold text-[#0F172A]">
-                      {event.title}
+                      {event.event}
                     </p>
                     <p className="text-[11px] text-[#64748B]">{event.actor}</p>
                   </div>
                   <span className="text-[10px] text-[#94A3B8] whitespace-nowrap shrink-0">
-                    {event.timestamp}
+                    {formatDate(event.timestamp)}
                   </span>
                 </div>
               </li>

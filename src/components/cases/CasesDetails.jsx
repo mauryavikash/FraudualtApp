@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Sparkles,
   MoreHorizontal,
@@ -11,24 +11,16 @@ import {
     BanknoteArrowUp,
 } from "lucide-react";
 
-const tableData = [
-  {
-    caseId: "INV-2025-000123",
-    caseType: "Duplicate",
-    priority: "High",
-    status: "In Progress",
-    vendor: "ABC Solutions",
-    amount: "125,450.00",
-    detectedOn: "May 20, 2025 10:24 AM",
-    slaDue: "May 24, 2025",
-    remaining: "2 Days Left",
-    investigator: "Sarah Johnson",
-    sourceSystem: "SAP",
-  },
-];
-
-export const CasesDetails = () => {
-  const [selectedCase] = useState(tableData[0]);
+export const CasesDetails = ({ caseData }) => {
+    const selectedCase = caseData ?? {};
+    const amount = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 2,
+    }).format(Number(selectedCase.amount ?? 0));
+    const detectedOn = selectedCase.detectedOn
+        ? new Date(selectedCase.detectedOn).toLocaleString()
+        : "-";
   return (
    <div className="w-full bg-white rounded-[16px] border border-[#D1D5DB] shadow-[0px_2px_8px_rgba(0,0,0,0.08)] overflow-hidden">
     {/* Header */}
@@ -76,7 +68,7 @@ export const CasesDetails = () => {
             label="STATUS"
             value={
             <span className="inline-flex px-2 py-[2px] rounded text-[10px] font-medium bg-[#DBEAFE] text-[#2563EB]">
-                In Progress
+                {selectedCase.status ?? "-"}
             </span>
             }
         />
@@ -86,7 +78,7 @@ export const CasesDetails = () => {
             value={
             <div className="flex items-center gap-1.5">
                 <span className="w-[6px] h-[6px] rounded-full bg-[#EF4444]" />
-                <span>High</span>
+                <span>{selectedCase.priority ?? "-"}</span>
             </div>
             }
         />
@@ -95,38 +87,38 @@ export const CasesDetails = () => {
             label="AMOUNT (USD)"
             value={
             <span className="font-semibold text-[14px]">
-                125,450.00
+                {amount}
             </span>
             }
         />
 
         <Info
             label="VENDOR"
-            value="ABC Solutions"
+            value={selectedCase.vendor || "-"}
         />
 
         <Info
             label="DETECTED ON"
-            value="May 20, 2025 10:24 AM"
+            value={detectedOn}
         />
 
         <Info
             label="SLA DUE"
             value={
             <span className="text-[#F59E0B]">
-                May 24, 2025 (2 Days Left)
+                {selectedCase.slaDue ?? "-"}
             </span>
             }
         />
 
         <Info
             label="INVESTIGATOR"
-            value="Sarah Johnson"
+            value={selectedCase.investigator ?? "Unassigned"}
         />
 
         <Info
             label="SOURCE SYSTEM"
-            value="SAP"
+            value={selectedCase.sourceSystem ?? "-"}
         />
         </div>
 

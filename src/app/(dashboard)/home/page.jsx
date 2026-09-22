@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import { CalendarDays, SlidersHorizontal } from "lucide-react";
 import { ChevronDown } from "lucide-react";
 import DashboardKpiCards from "@/components/home/DashboardKpiCards";
@@ -7,8 +8,42 @@ import OperationalReporting from "@/components/home/OperationalReporting";
 import AuditActivitiesPanel from "@/components/home/AuditActivitiesPanel";
 import ExecutiveInsightsPanel from "@/components/home/ExecutiveInsightsPanel";
 import AiExecutiveBriefing from "@/components/home/AiExecutiveBriefing";
+import { LoadingState } from "@/components/common/LoadingState";
+import { getHomeDashboard } from "@/app/lib/api";
 
 export default function DashboardPage() {
+  const [homeData, setHomeData] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadHomeData() {
+      try {
+        const data = await getHomeDashboard();
+        const payload = data?.data ?? data;
+        if (isMounted && payload && typeof payload === "object") {
+          setHomeData(payload);
+        }
+      } catch {
+        // Keep static presentation available when the dashboard API is unavailable.
+      }
+    }
+
+    loadHomeData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (!homeData) {
+    return <LoadingState label="Loading dashboard data..." />;
+  }
+
+  const headerData = homeData.header ?? {};
+  const userName = headerData.userName ?? homeData.userName ?? "Vigneshwaran";
+  const dateRange = headerData.dateRange ?? homeData.dateRange ?? "May 14 – May 20, 2025";
+
   return (
     <div className="min-h-screen text-slate-800">
       <div className="mx-auto max-w-[1800px] space-y-3">
@@ -20,7 +55,7 @@ export default function DashboardPage() {
           {/* Left Content */}
           <div>
             <h1 className="text-[20px] font-semibold text-[#0F172A]">
-              Welcome back, Vigneshwaran! 👋
+              Welcome back, {userName}! 👋
             </h1>
 
             <p className="mt-1 text-sm text-slate-500">
@@ -35,7 +70,7 @@ export default function DashboardPage() {
             {/* Date Range */}
             <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
               <CalendarDays size={16} />
-              <span>May 14 – May 20, 2025</span>
+              <span>{dateRange}</span>
               <ChevronDown size={14} />
             </button>
 
@@ -51,24 +86,24 @@ export default function DashboardPage() {
       </div>
       
         {/* KPI CARDS */}
-        <DashboardKpiCards />
+        <DashboardKpiCards data={homeData.kpiCards} />
 
-        <AiExecutiveBriefing />
+        <AiExecutiveBriefing data={homeData.aiExecutiveBriefing} />
 
         {/* MANAGEMENT DASHBOARD */}
-        <ManagementDashboard />
+        <ManagementDashboard data={homeData.managementDashboard} />
                     
         {/* OPERATIONAL REPORTING & AUDIT ACTIVITIES */}
         <div className="grid grid-cols-12 gap-4">
-          <OperationalReporting />
+          <OperationalReporting data={homeData.operationalReports} />
 
           {/* RIGHT SIDE */}
           <div className="col-span-12 space-y-4 xl:col-span-6">
             {/* RECENT AUDIT ACTIVITIES */}
-            <AuditActivitiesPanel />
+            <AuditActivitiesPanel data={homeData.auditActivities} />
 
             {/* EXECUTIVE INSIGHTS */}
-            <ExecutiveInsightsPanel />
+            <ExecutiveInsightsPanel data={homeData.executiveInsights} />
           </div>
         </div>
       </div>

@@ -5,20 +5,22 @@ import { ArrowRight } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useState } from "react";
 
-const exposureTrend = [
-  { month: "Dec '24", value: 9.2 }, { month: "Jan '25", value: 17.6 }, { month: "Feb '25", value: 14.5 }, { month: "Mar '25", value: 18.1 }, { month: "Apr '25", value: 20.2 }, { month: "May '25", value: 24.8 },
-];
-const findings = [
-  { name: "Amount Anomalies", value: 62.45, color: "#e63946" }, { name: "Duplicate Findings", value: 38.21, color: "#f59e0b" }, { name: "Currency Deviations", value: 22.58, color: "#fbbf24" }, { name: "Recurring Deviations", value: 12.44, color: "#16a34a" }, { name: "Other", value: 6.99, color: "#64748b" },
-];
-const currencyUsage = [
-  { name: "USD", vendor: 61, peers: 55 }, { name: "EUR", vendor: 22, peers: 31 }, { name: "GBP", vendor: 10, peers: 21 }, { name: "AUD", vendor: 7, peers: 15 }, { name: "INR", vendor: 4, peers: 6 }, { name: "Others", vendor: 3, peers: 8 },
-];
 const panel = "rounded-lg border border-slate-200 bg-white p-4 shadow-sm";
-const tabs = ["Overview", "Findings", "Duplicates", "Amount Behavior", "Currency Behavior", "Recurring Behavior", "Cases & Recoveries", "Documents", "Notes"];
+const colors = ["#e63946", "#f59e0b", "#fbbf24", "#16a34a", "#64748b"];
 
-export default function VendorExposureAnalytics() {
+export default function VendorExposureAnalytics({ data }) {
   const [activeTab, setActiveTab] = useState("Overview");
+  const tabs = Array.isArray(data?.tabs) ? data.tabs.map((tab) => tab.name) : [];
+  const exposureTrend = Array.isArray(data?.exposureTrend)
+    ? data.exposureTrend.map((item) => ({ month: item.period, value: Number(item["exposure Value"] ?? 0) }))
+    : [];
+  const findings = Array.isArray(data?.findingsDistribution)
+    ? data.findingsDistribution.map((item, index) => ({ name: item.findingType, value: Number(item.value ?? 0), color: colors[index % colors.length] }))
+    : [];
+  const currencyUsage = Array.isArray(data?.currencyUsage)
+    ? data.currencyUsage.map((item) => ({ name: item.currency, vendor: Number(item.vendorPercentage ?? 0), peers: Number(item.peerPercentage ?? 0) }))
+    : [];
+  const totalFindings = findings.reduce((total, item) => total + item.value, 0);
 
   return (
     <section className="mt-4 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -45,7 +47,7 @@ export default function VendorExposureAnalytics() {
 
       <article className={panel}>
         <h2 className="text-xs font-semibold text-slate-900">Exposure by Finding Type (USD)</h2>
-        <div className="mt-3 grid grid-cols-[164px_minmax(0,1fr)] items-center gap-4"><div className="relative h-40 w-40 shrink-0"><div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center"><span className="whitespace-nowrap text-xl font-bold text-slate-900">$142.68M</span><span className="mt-0.5 text-[9px] text-slate-500">Total Exposure</span></div><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={findings} dataKey="value" innerRadius={45} outerRadius={67} paddingAngle={2} stroke="none">{findings.map((item) => <Cell key={item.name} fill={item.color} />)}</Pie></PieChart></ResponsiveContainer></div><div className="min-w-0 space-y-2.5 text-[10px]">{findings.map((item) => <div key={item.name} className="flex gap-1.5"><span className="mt-1 h-2 w-2 shrink-0 rounded-sm" style={{ backgroundColor: item.color }} /><span className="leading-4 text-slate-600">{item.name}<br /><b className="whitespace-nowrap text-slate-800">${item.value.toFixed(2)}M ({((item.value / 142.68) * 100).toFixed(1)}%)</b></span></div>)}</div></div>
+        <div className="mt-3 grid grid-cols-[164px_minmax(0,1fr)] items-center gap-4"><div className="relative h-40 w-40 shrink-0"><div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center"><span className="whitespace-nowrap text-xl font-bold text-slate-900">{totalFindings.toLocaleString()}</span><span className="mt-0.5 text-[9px] text-slate-500">Total Findings</span></div><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={findings} dataKey="value" innerRadius={45} outerRadius={67} paddingAngle={2} stroke="none">{findings.map((item) => <Cell key={item.name} fill={item.color} />)}</Pie></PieChart></ResponsiveContainer></div><div className="min-w-0 space-y-2.5 text-[10px]">{findings.map((item) => <div key={item.name} className="flex gap-1.5"><span className="mt-1 h-2 w-2 shrink-0 rounded-sm" style={{ backgroundColor: item.color }} /><span className="leading-4 text-slate-600">{item.name}<br /><b className="whitespace-nowrap text-slate-800">{item.value.toLocaleString()} ({totalFindings ? ((item.value / totalFindings) * 100).toFixed(1) : "0.0"}%)</b></span></div>)}</div></div>
         <Link href="/cases" className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800">View all findings <ArrowRight size={13} /></Link>
       </article>
 

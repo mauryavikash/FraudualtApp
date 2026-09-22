@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import KpiCardsGrid from "../common/KpiCardsGrid";
 
-const kpiData = [
+const staticKpiData = [
   {
     title: "TOTAL OPEN CASES",
     value: "4,723",
@@ -71,7 +71,39 @@ const kpiData = [
   },
 ];
 
-export const CasesKpiCards = () => (
-  <KpiCardsGrid items={kpiData} columns="xl:grid-cols-5" />
-);
+export const CasesKpiCards = ({ data }) => {
+  const kpiData = Array.isArray(data) && data.length
+    ? staticKpiData.map((item, index) => {
+        const apiKpi = data[index];
+        if (!apiKpi) {
+          return item;
+        }
+
+        const isCycleTime = index === 3;
+        const isCompliance = index === 4;
+        return {
+          ...item,
+          title: apiKpi.metric?.toUpperCase() ?? item.title,
+          value: isCycleTime
+            ? `${apiKpi.value ?? 0} Days`
+            : isCompliance
+              ? `${apiKpi.value ?? 0}%`
+              : Number(apiKpi.value ?? 0).toLocaleString(),
+          change: isCycleTime
+            ? `${apiKpi.changeDays ?? 0} Days`
+            : `${Number(apiKpi.changePercentage ?? 0) >= 0 ? "+" : ""}${apiKpi.changePercentage ?? 0}%`,
+          positive: isCycleTime ? Number(apiKpi.changeDays ?? 0) <= 0 : true,
+          invoiceCount: Number(apiKpi.invoiceCount ?? 0).toLocaleString(),
+          invoiceValue: new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+            notation: "compact",
+            maximumFractionDigits: 1,
+          }).format(Number(apiKpi.invoiceValue ?? 0)),
+        };
+      })
+    : [];
+
+  return <KpiCardsGrid items={kpiData} columns="xl:grid-cols-5" />;
+};
 

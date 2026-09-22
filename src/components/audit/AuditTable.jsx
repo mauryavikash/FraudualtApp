@@ -2,51 +2,6 @@
 import React, { useMemo, useState } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
 
-const auditData = [
-  {
-    id: "AUD-1004",
-    timestamp: "24-May-2025 10:24:27 AM",
-    reviewer: "Vigneshwaran D",
-    action: "Confirmed",
-    reason: "Incorrect Vendor Chosen",
-    clusterId: "#7666611",
-    comments: "",
-    reversal: "No",
-  },
-  {
-    id: "AUD-1003",
-    timestamp: "24-May-2025 10:24:24 AM",
-    reviewer: "Vigneshwaran D",
-    action: "Rejected",
-    reason: "Manual Entry",
-    clusterId: "#7088123",
-    comments: "",
-    reversal: "No",
-  },
-  {
-    id: "AUD-1002",
-    timestamp: "24-May-2025 10:24:20 AM",
-    reviewer: "Vigneshwaran D",
-    action: "Confirmed",
-    reason: "Vendor Error",
-    clusterId: "#7688611",
-    comments: "",
-    reversal: "No",
-  },
-  {
-    id: "AUD-1001",
-    timestamp: "24-May-2025 10:24:16 AM",
-    reviewer: "Vigneshwaran D",
-    action: "Rejected",
-    reason: "Incorrect Vendor Chosen",
-    clusterId: "#7034512",
-    comments: "",
-    reversal: "No",
-  },
-];
-
-const TOTAL_RECORDS = 3216;
-
 const actionClass = (action) => {
   switch (action) {
     case "Confirmed":
@@ -85,7 +40,7 @@ function FilterSelect({ label, children, ...props }) {
   );
 }
 
-export const AuditTable = () => {
+export const AuditTable = ({ data }) => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [reviewerFilter, setReviewerFilter] = useState("All Reviewers");
@@ -94,6 +49,20 @@ export const AuditTable = () => {
   const [runIdFilter, setRunIdFilter] = useState("All Runs");
   const [reasonFilter, setReasonFilter] = useState("All Reasons");
   const pageSize = 8;
+
+  const auditData = useMemo(() => Array.isArray(data?.records)
+    ? data.records.map((item) => ({
+        id: item.auditId,
+        timestamp: new Date(item.timestamp).toLocaleString(),
+        reviewer: item.reviewer ?? "System",
+        action: item.action,
+        reason: item.reason || "-",
+        clusterId: item.clusterId ?? "-",
+        comments: item.comments,
+        reversal: item.reversal ?? "-",
+      }))
+    : [], [data]);
+  const totalRecords = data?.totalRecords ?? auditData.length;
 
   const filteredData = useMemo(() => {
     return auditData.filter((item) => {
@@ -110,10 +79,10 @@ export const AuditTable = () => {
 
       return matchesSearch && matchesAction && matchesReason;
     });
-  }, [search, actionFilter, reasonFilter]);
+  }, [search, actionFilter, reasonFilter, auditData]);
 
-  const totalPages = Math.max(1, Math.ceil(TOTAL_RECORDS / pageSize));
-  const visiblePages = [1, 2, 3];
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
+  const visiblePages = Array.from({ length: totalPages }, (_, index) => index + 1);
 
   return (
     <div className="col-span-12 xl:col-span-9 flex">
@@ -321,8 +290,8 @@ export const AuditTable = () => {
         <div className="border-t border-[#E2E8F0] px-4 py-3 flex items-center justify-between">
           <div className="text-[12px] text-[#64748B]">
             Showing {(page - 1) * pageSize + 1} to{" "}
-            {Math.min(page * pageSize, TOTAL_RECORDS)} of{" "}
-            {TOTAL_RECORDS.toLocaleString()} recoveries
+            {Math.min(page * pageSize, filteredData.length)} of{" "}
+            {totalRecords.toLocaleString()} audit records
           </div>
 
           <div className="flex items-center gap-2">

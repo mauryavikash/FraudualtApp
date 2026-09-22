@@ -2,91 +2,6 @@
 import React, { useMemo, useState } from "react";
 import { Search, SlidersHorizontal, MoreVertical } from "lucide-react";
 
-const alertData = [
-  {
-    id: "ALT-1018",
-    dateTime: "May 18, 2025 10:45 AM",
-    severity: "Critical",
-    title: "High-duplicate cluster detected",
-    subtitle: "Cluster contains 48 matched records",
-    type: "Duplicate Detection",
-    source: "Resolution Studio",
-    assignedTo: "Preethi S.",
-  },
-  {
-    id: "ALT-1017",
-    dateTime: "May 18, 2025 09:31 AM",
-    severity: "Critical",
-    title: "Payment anomaly rule violated",
-    subtitle: "Same address matches 3 bank records",
-    type: "Anomaly",
-    source: "Resolution Studio",
-    assignedTo: "Unassigned",
-  },
-  {
-    id: "ALT-1016",
-    dateTime: "May 18, 2025 08:22 AM",
-    severity: "High",
-    title: "Unusual recovery amount",
-    subtitle: "Recovery value exceeded threshold",
-    type: "Audit Alert",
-    source: "No Source",
-    assignedTo: "Recoveries P.",
-  },
-  {
-    id: "ALT-1015",
-    dateTime: "May 18, 2025 01:15 AM",
-    severity: "Medium",
-    title: "Manual review override spike",
-    subtitle: "Performance below standard threshold",
-    type: "Rules Activity",
-    source: "Audit Log",
-    assignedTo: "Investigators...",
-  },
-  {
-    id: "ALT-1014",
-    dateTime: "May 18, 2025 12:30 PM",
-    severity: "High",
-    title: "Vendor master data change flagged",
-    subtitle: "Audit trail output not processed",
-    type: "Data Change",
-    source: "Vendors",
-    assignedTo: "Investigators...",
-  },
-  {
-    id: "ALT-1013",
-    dateTime: "May 18, 2025 10:15 AM",
-    severity: "Low",
-    title: "Low confidence match rule",
-    subtitle: "Performance below standard threshold",
-    type: "Rules Performance",
-    source: "Resolution Studio",
-    assignedTo: "System",
-  },
-  {
-    id: "ALT-1012",
-    dateTime: "May 17, 2025 04:22 PM",
-    severity: "Medium",
-    title: "Scheduled audit completed",
-    subtitle: "Audit log run finished successfully",
-    type: "Audit Log",
-    source: "Global",
-    assignedTo: "System",
-  },
-  {
-    id: "ALT-1011",
-    dateTime: "May 17, 2025 03:15 PM",
-    severity: "High",
-    title: "File processed successfully",
-    subtitle: "Duplicate detective output processed",
-    type: "System",
-    source: "Audit Log",
-    assignedTo: "System",
-  },
-];
-
-const TOTAL_ALERTS = 18;
-
 const severityClass = (severity) => {
   switch (severity) {
     case "Critical":
@@ -134,7 +49,7 @@ function FilterSelect({ label, children, ...props }) {
   );
 }
 
-export const VendorTable = () => {
+export const VendorTable = ({ data, totalAlerts }) => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [severityFilter, setSeverityFilter] = useState("All Severities");
@@ -142,6 +57,19 @@ export const VendorTable = () => {
   const [sourceFilter, setSourceFilter] = useState("All Sources");
   const [statusFilter, setStatusFilter] = useState("All Statuses");
   const pageSize = 8;
+
+  const alertData = useMemo(() => Array.isArray(data)
+    ? data.map((item) => ({
+        id: item.alertId,
+        dateTime: new Date(item.timestamp).toLocaleString(),
+        severity: item.severity,
+        title: item.title,
+        subtitle: item.description,
+        type: item.alertType,
+        source: item.source,
+        assignedTo: item.assignedTo ?? "Unassigned",
+      }))
+    : [], [data]);
 
   const filteredData = useMemo(() => {
     return alertData.filter((item) => {
@@ -157,9 +85,9 @@ export const VendorTable = () => {
 
       return matchesSearch && matchesSeverity && matchesType;
     });
-  }, [search, severityFilter, typeFilter]);
+  }, [search, severityFilter, typeFilter, alertData]);
 
-  const totalPages = Math.max(1, Math.ceil(TOTAL_ALERTS / pageSize));
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
 
   return (
     <div className="col-span-12 xl:col-span-8 flex">
@@ -349,7 +277,7 @@ export const VendorTable = () => {
         <div className="border-t border-[#E2E8F0] px-4 py-3 flex items-center justify-between">
           <div className="text-[12px] text-[#64748B]">
             Showing {(page - 1) * pageSize + 1}–
-            {Math.min(page * pageSize, TOTAL_ALERTS)} of {TOTAL_ALERTS} alerts
+            {Math.min(page * pageSize, filteredData.length)} of {totalAlerts ?? filteredData.length} alerts
           </div>
 
           <div className="flex items-center gap-2">

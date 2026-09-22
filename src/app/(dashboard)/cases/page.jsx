@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   MoreVertical,
 } from "lucide-react";
@@ -8,13 +8,31 @@ import {CasesKpiCards} from "@/components/cases/CasesKpiCards";
 import {CasesDetails} from "@/components/cases/CasesDetails";
 import {CasesHeader} from "@/components/cases/CasesHeader";
 import CasesAnalyticsRow from "@/components/cases/CasesAnalyticsRow";
-export default function cases() {
+import { LoadingState } from "@/components/common/LoadingState";
+import { getCases } from "@/app/lib/api";
+
+function FilterSelect({ label, children, ...props }) {
+  return (
+    <div>
+      <p className="text-[11px] font-semibold text-[#475569] mb-2">{label}</p>
+      <select
+        {...props}
+        className="w-full h-9 rounded-xl border border-[#D9E1EA] px-3 text-[13px] text-[#334155]"
+      >
+        {children}
+      </select>
+    </div>
+  );
+}
+
+export default function CasesPage() {
   const [activeTab, setActiveTab] = useState("All Cases");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("All");
   const [caseTypeFilter, setCaseTypeFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
+  const [casesData, setCasesData] = useState(null);
   const pageSize = 8;
   const TABS = [
     "All Cases",
@@ -25,7 +43,7 @@ export default function cases() {
     "Watchlist",
   ];
 
-  const tableData = [
+  const staticTableData = [
     {
       caseId: "INV-2025-000123",
       caseType: "Duplicate",
@@ -148,6 +166,29 @@ export default function cases() {
     },
   ];
 
+  useEffect(() => {
+    let isMounted = true;
+
+    getCases().then((data) => {
+      if (isMounted) {
+        setCasesData(data?.data ?? data);
+      }
+    }).catch(() => {
+      if (isMounted) {
+        setCasesData({ caseDetails: [], caseKpis: [], casesOverview: {} });
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const tableData = useMemo(
+    () => casesData?.caseDetails ?? [],
+    [casesData]
+  );
+
   const filteredData = useMemo(() => {
   return tableData.filter((item) => {
     const matchesSearch = Object.values(item)
@@ -179,6 +220,7 @@ export default function cases() {
   statusFilter,
   caseTypeFilter,
   priorityFilter,
+  tableData,
 ]);
 
   const totalPages = Math.ceil(
@@ -209,34 +251,18 @@ export default function cases() {
   }
 };
 
-function FilterSelect({
-  label,
-  children,
-  ...props
-}) {
-  return (
-    <div>
-      <p className="text-[11px] font-semibold text-[#475569] mb-2">
-        {label}
-      </p>
+  const [selectedCase, setSelectedCase] = useState(null);
 
-      <select
-        {...props}
-        className="w-full h-9 rounded-xl border border-[#D9E1EA] px-3 text-[13px] text-[#334155]"
-      >
-        {children}
-      </select>
-    </div>
-  );
-}
-  const [selectedCase, setSelectedCase] = useState(tableData[0]);
+  if (!casesData) {
+    return <LoadingState label="Loading cases..." />;
+  }
 
   return (
     <div>
       {/* HEADER */}
        <CasesHeader/>
       {/* KPI */}
-      <CasesKpiCards />
+      <CasesKpiCards data={casesData.caseKpis} />
       {/* CONTENT */}
       <div className="grid grid-cols-12 gap-4 mt-4 items-stretch">
 
@@ -415,7 +441,7 @@ function FilterSelect({
                         cursor-pointer
                         transition-colors
                         ${
-                          selectedCase.caseId === row.caseId
+                          selectedCase?.caseId === row.caseId
                             ? "bg-[#F8FAFC]"
                             : ""
                         }
@@ -583,12 +609,12 @@ function FilterSelect({
 
         {/* RIGHT PANEL */}
         <div className="col-span-12 xl:col-span-4 flex">
-          <CasesDetails />
+          <CasesDetails caseData={selectedCase ?? tableData[0]} />
         </div>
 
       </div>
 
-      <CasesAnalyticsRow />
+      <CasesAnalyticsRow data={casesData.casesOverview} />
     </div>
   );
 }

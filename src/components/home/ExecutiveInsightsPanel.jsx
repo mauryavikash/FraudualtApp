@@ -8,8 +8,8 @@ import {
   ArrowDown,
 } from "lucide-react";
 
-export default function ExecutiveInsightsPanel() {
-  const executiveInsights = [
+export default function ExecutiveInsightsPanel({ data }) {
+  const staticExecutiveInsights = [
     {
       title: "Duplicate Payment Prevention Rate",
       value: "98.7%",
@@ -51,6 +51,34 @@ export default function ExecutiveInsightsPanel() {
       trend: "up",
     },
   ];
+
+  const apiInsights = Array.isArray(data) ? data : data?.items;
+  const executiveInsights = Array.isArray(apiInsights) && apiInsights.length
+    ? staticExecutiveInsights.map((insight, index) => {
+        const apiInsight = apiInsights[index];
+        if (!apiInsight) {
+          return insight;
+        }
+
+        const isCurrency = index === 1 || index === 3;
+        const isPercentage = index === 0 || index === 4;
+        const value = typeof apiInsight.value === "number"
+          ? isCurrency
+            ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(apiInsight.value)
+            : isPercentage
+              ? `${apiInsight.value}%`
+              : apiInsight.value.toLocaleString()
+          : apiInsight.value;
+
+        return {
+          ...insight,
+          title: apiInsight.metric ?? insight.title,
+          value: value ?? insight.value,
+          change: `${Number(apiInsight.changePercentage ?? 0) >= 0 ? "+" : ""}${apiInsight.changePercentage ?? 0}%`,
+          trend: apiInsight.trend ?? insight.trend,
+        };
+      })
+    : staticExecutiveInsights;
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-4">

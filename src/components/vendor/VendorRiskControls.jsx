@@ -3,15 +3,15 @@
 import Link from "next/link";
 import { ArrowRight, Star } from "lucide-react";
 
-const riskDrivers = [
-  ["Amount Anomalies", 85, "bg-red-500"],
-  ["Currency Deviations", 72, "bg-orange-400"],
-  ["Duplicate Findings", 68, "bg-amber-400"],
-  ["Recurring Deviations", 55, "bg-yellow-400"],
-  ["Vendor Master / Data Quality", 30, "bg-emerald-500"],
-];
+const driverColors = ["bg-red-500", "bg-orange-400", "bg-amber-400", "bg-yellow-400", "bg-emerald-500"];
 
-export default function VendorRiskControls() {
+export default function VendorRiskControls({ data }) {
+  const riskDrivers = Array.isArray(data)
+    ? data.map((item, index) => [item.driver, Number(item.score ?? 0), driverColors[index % driverColors.length]])
+    : [];
+  const riskScore = riskDrivers.length
+    ? Math.round(riskDrivers.reduce((total, [, score]) => total + score, 0) / riskDrivers.length)
+    : 0;
   return (
     <section className="mt-4 grid gap-4 xl:grid-cols-3">
       <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -20,7 +20,7 @@ export default function VendorRiskControls() {
           <div className="absolute inset-x-5 top-0 h-28 rounded-t-full border-[13px] border-slate-200 border-b-0" />
           <div className="absolute left-5 top-0 h-28 w-[calc(50%_-_20px)] rounded-tl-full border-l-[13px] border-t-[13px] border-red-500" />
           <div className="absolute inset-x-0 top-10 text-center">
-            <div className="text-4xl font-bold text-red-500">72</div>
+            <div className="text-4xl font-bold text-red-500">{riskScore}</div>
             <div className="mt-1 text-xs font-semibold text-slate-800">High Risk</div>
           </div>
           <span className="absolute bottom-0 left-0 text-[10px] font-semibold text-slate-500">0</span>

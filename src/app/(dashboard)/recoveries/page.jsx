@@ -1,13 +1,15 @@
 
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { MoreVertical, RefreshCw, TriangleAlert } from "lucide-react";
 import { RecoveriesKpiCards } from "@/components/recoveries/RecoveriesKpiCards";
 import { RecoveriesDetails } from "@/components/recoveries/RecoveriesDetails";
 import { RecoveriesHeader } from "@/components/recoveries/RecoveriesHeader";
 import RecoveriesCharts from "@/components/recoveries/RecoveriesCharts";
 import RecoveryPipelineOverview from "@/components/recoveries/RecoveryPipelineOverview";
+import { LoadingState } from "@/components/common/LoadingState";
+import { getRecoveries } from "@/app/lib/api";
 
 const TABS = [
   "All Recoveries",
@@ -18,106 +20,32 @@ const TABS = [
   "Prevention (Duplicates Stopped)",
 ];
 
-const recoveryData = [
-  {
-    recoveryId: "REC-2025-000145",
-    type: "Duplicate",
-    status: "Completed",
-    vendor: "ABC Solutions",
-    relatedCaseId: "INV-2025-000123",
-    amount: "125,450.00",
-    recoveryDate: "May 20, 2025",
-    slaDue: "May 24, 2025",
-    slaState: "",
-    investigator: "Sarah Johnson",
-  },
-  {
-    recoveryId: "REC-2025-000144",
-    type: "Anomaly",
-    status: "In Progress",
-    vendor: "Global Supplies Inc.",
-    relatedCaseId: "INV-2025-000122",
-    amount: "78,900.00",
-    recoveryDate: "-",
-    slaDue: "May 23, 2025",
-    slaState: "2 Days Left",
-    investigator: "Michael Brown",
-  },
-  {
-    recoveryId: "REC-2025-000143",
-    type: "Duplicate",
-    status: "Completed",
-    vendor: "TechWorks LLC",
-    relatedCaseId: "INV-2025-000121",
-    amount: "42,600.00",
-    recoveryDate: "May 19, 2025",
-    slaDue: "May 24, 2025",
-    slaState: "2 Days Left",
-    investigator: "Priya Nair",
-  },
-  {
-    recoveryId: "REC-2025-000142",
-    type: "Anomaly",
-    status: "In Progress",
-    vendor: "Alpha Traders",
-    relatedCaseId: "INV-2025-000120",
-    amount: "210,000.00",
-    recoveryDate: "-",
-    slaDue: "May 22, 2025",
-    slaState: "Overdue",
-    investigator: "David Lee",
-  },
-  {
-    recoveryId: "REC-2025-000141",
-    type: "Duplicate",
-    status: "Completed",
-    vendor: "Office Needs Co.",
-    relatedCaseId: "INV-2025-000119",
-    amount: "12,350.00",
-    recoveryDate: "May 18, 2025",
-    slaDue: "May 25, 2025",
-    slaState: "3 Days Left",
-    investigator: "Emma Wilson",
-  },
-  {
-    recoveryId: "REC-2025-000140",
-    type: "Anomaly",
-    status: "In Progress",
-    vendor: "BluePeak Industries",
-    relatedCaseId: "INV-2025-000118",
-    amount: "64,120.00",
-    recoveryDate: "-",
-    slaDue: "May 23, 2025",
-    slaState: "2 Days Left",
-    investigator: "James Carter",
-  },
-  {
-    recoveryId: "REC-2025-000139",
-    type: "Duplicate",
-    status: "Completed",
-    vendor: "Sunrise Retail",
-    relatedCaseId: "INV-2025-000117",
-    amount: "9,850.00",
-    recoveryDate: "May 17, 2025",
-    slaDue: "May 22, 2025",
-    slaState: "",
-    investigator: "Sophia Martinez",
-  },
-  {
-    recoveryId: "REC-2025-000138",
-    type: "Anomaly",
-    status: "Failed",
-    vendor: "Vertex Components",
-    relatedCaseId: "INV-2025-000116",
-    amount: "135,750.00",
-    recoveryDate: "-",
-    slaDue: "May 21, 2025",
-    slaState: "Overdue",
-    investigator: "Dan Kim",
-  },
-];
+const formatCurrency = (value) => new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 2,
+}).format(Number(value ?? 0));
 
-const TOTAL_RECOVERIES = 3216;
+const formatDate = (value) => value ? new Date(value).toLocaleDateString() : "-";
+
+function normalizeRecovery(recovery) {
+  if (!recovery) {
+    return null;
+  }
+
+  return {
+    ...recovery,
+    recoveryId: `REC-${String(recovery.recoveryId).padStart(8, "0")}`,
+    type: recovery.type?.includes("DUPLICATE") ? "Duplicate" : "Anomaly",
+    status: recovery.status === "CLOSED" ? "Completed" : recovery.status,
+    vendor: recovery.vendor || "-",
+    relatedCaseId: recovery.relatedCaseId ?? "-",
+    amount: formatCurrency(recovery.amount),
+    recoveryDate: formatDate(recovery.recoveredOn),
+    slaDue: recovery.slaDue ? formatDate(recovery.slaDue) : "-",
+    investigator: recovery.investigator ?? "Unassigned",
+  };
+}
 
 const statusClass = (status) => {
   switch (status) {
@@ -156,8 +84,34 @@ export default function Recoveries() {
   const [typeFilter, setTypeFilter] = useState("All");
   const [sourceFilter, setSourceFilter] = useState("All");
   const [investigatorFilter, setInvestigatorFilter] = useState("All");
-  const [selectedRecovery, setSelectedRecovery] = useState(recoveryData[0]);
+  const [recoveriesData, setRecoveriesData] = useState(null);
+  const [selectedRecovery, setSelectedRecovery] = useState(null);
   const pageSize = 8;
+
+  useEffect(() => {
+    let isMounted = true;
+
+    getRecoveries().then((data) => {
+      if (isMounted) {
+        const payload = data?.data ?? data;
+        setRecoveriesData(payload);
+        setSelectedRecovery(normalizeRecovery(payload.recoveryDetails));
+      }
+    }).catch(() => {
+      if (isMounted) {
+        setRecoveriesData({});
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const recoveryData = useMemo(() => {
+    const recovery = normalizeRecovery(recoveriesData?.recoveryDetails);
+    return recovery ? [recovery] : [];
+  }, [recoveriesData]);
 
   const filteredData = useMemo(() => {
     return recoveryData.filter((item) => {
@@ -179,12 +133,17 @@ export default function Recoveries() {
         matchesTab &&
         matchesStatus &&
         matchesType &&
+        (sourceFilter === "All" || item.sourceSystem === sourceFilter) &&
         matchesInvestigator
       );
     });
-  }, [search, activeTab, statusFilter, typeFilter, investigatorFilter]);
+  }, [search, activeTab, statusFilter, typeFilter, sourceFilter, investigatorFilter, recoveryData]);
 
-  const totalPages = Math.max(1, Math.ceil(TOTAL_RECOVERIES / pageSize));
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
+
+  if (!recoveriesData) {
+    return <LoadingState label="Loading recoveries..." />;
+  }
 
   return (
     <div>
@@ -192,12 +151,17 @@ export default function Recoveries() {
       <RecoveriesHeader />
       {/* KPI */}
       <div className="mt-4">
-        <RecoveriesKpiCards />
+        <RecoveriesKpiCards data={recoveriesData.recoveryKpis} />
       </div>
 
       {/* Recovery overview and selected recovery */}
       <div className="mt-4">
-        <RecoveryPipelineOverview />
+        <RecoveryPipelineOverview
+          pipeline={recoveriesData.recoveryPipeline}
+          aging={recoveriesData.recoveryAging}
+          priorities={recoveriesData.recoveriesByPriority}
+          metrics={recoveriesData.recoveryMetrics}
+        />
 
         <div className="mt-4 grid grid-cols-12 gap-4 items-stretch">
           {/* CONTENT */}
@@ -344,7 +308,7 @@ export default function Recoveries() {
                       key={row.recoveryId}
                       onClick={() => setSelectedRecovery(row)}
                       className={`h-[52px] border-b border-[#E2E8F0] hover:bg-[#F8FAFC] cursor-pointer transition-colors ${
-                        selectedRecovery.recoveryId === row.recoveryId
+                        selectedRecovery?.recoveryId === row.recoveryId
                           ? "bg-[#F8FAFC]"
                           : ""
                       }`}
@@ -430,8 +394,8 @@ export default function Recoveries() {
             <div className="border-t border-[#E2E8F0] px-5 py-3 flex items-center justify-between flex-wrap gap-2">
               <div className="text-[12px] text-[#64748B]">
                 Showing {(page - 1) * pageSize + 1} to{" "}
-                {Math.min(page * pageSize, TOTAL_RECOVERIES)} of{" "}
-                {TOTAL_RECOVERIES.toLocaleString()} recoveries
+                {Math.min(page * pageSize, filteredData.length)} of{" "}
+                {filteredData.length.toLocaleString()} recoveries
               </div>
 
               <div className="flex items-center gap-2">
@@ -442,7 +406,7 @@ export default function Recoveries() {
                   ‹
                 </button>
 
-                {[1, 2, 3].map((n) => (
+                {Array.from({ length: totalPages }, (_, index) => index + 1).map((n) => (
                   <button
                     key={n}
                     onClick={() => setPage(n)}
@@ -455,19 +419,6 @@ export default function Recoveries() {
                     {n}
                   </button>
                 ))}
-
-                <span className="text-[12px] text-[#94A3B8]">…</span>
-
-                <button
-                  onClick={() => setPage(totalPages)}
-                  className={`w-7 h-7 rounded-lg text-[12px] font-medium ${
-                    page === totalPages
-                      ? "bg-[#2563EB] text-white"
-                      : "border border-[#D9E1EA] text-[#475569]"
-                  }`}
-                >
-                  {totalPages}
-                </button>
 
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
@@ -483,11 +434,20 @@ export default function Recoveries() {
             </div>
           </div>
 
-          <RecoveriesCharts />
+          <RecoveriesCharts
+            summary={recoveriesData.recoverySummary}
+            trend={recoveriesData.recoveryTrend}
+            vendors={recoveriesData.vendorRecoveries}
+          />
           </div>
 
           <div className="col-span-12 xl:col-span-4">
-            <RecoveriesDetails recovery={selectedRecovery} />
+            <RecoveriesDetails
+              recovery={selectedRecovery}
+              stages={recoveriesData.recoveryProgressStages}
+              timeline={recoveriesData.recoveryTimeline}
+              tabs={recoveriesData.detailTabs}
+            />
           </div>
         </div>
       </div>

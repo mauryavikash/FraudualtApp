@@ -8,46 +8,42 @@ import {
   BadgeCheck,
 } from "lucide-react";
 
-const INSIGHTS = [
+const visualConfig = [
   {
     icon: ShieldCheck,
-    label: "Decision Accuracy",
-    value: "98.6%",
-    trend: "+2.6%",
   },
   {
     icon: Users,
-    label: "Reviewer Consistency",
-    value: "96.2%",
-    trend: "+3.1%",
   },
   {
     icon: CircleDollarSign,
-    label: "Duplicate Recovery Identified",
-    value: "$93.7K",
-    trend: "+8.4%",
   },
   {
     icon: TrendingUp,
-    label: "Recovery Realization Rate",
-    value: "89.4%",
-    trend: "+4.7%",
   },
   {
     icon: History,
-    label: "Audit Traceability",
-    value: "100%",
-    trend: null,
   },
   {
     icon: BadgeCheck,
-    label: "Process Compliance",
-    value: "99.1%",
-    trend: "+1.8%",
   },
 ];
 
-export const AuditInsight = () => {
+export const AuditInsight = ({ data }) => {
+  const insights = Array.isArray(data)
+    ? data.map((item, index) => {
+        const isCurrency = item.metric === "Duplicate Recovery Identified";
+        return {
+          ...(visualConfig[index] ?? visualConfig[0]),
+          label: item.metric,
+          value: isCurrency
+            ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(Number(item.value ?? 0))
+            : `${item.value ?? 0}%`,
+          trend: item.trend === undefined ? null : `${Number(item.trend) >= 0 ? "+" : ""}${item.trend}%`,
+        };
+      })
+    : [];
+
   return (
     <div className="w-full bg-white rounded-[16px] border border-[#D9E1EA] shadow-[0px_2px_8px_rgba(15,23,42,0.05)] p-5">
       <h2 className="text-[15px] font-semibold text-[#0F172A]">
@@ -55,7 +51,7 @@ export const AuditInsight = () => {
       </h2>
 
       <div className="mt-4 flex flex-col gap-4">
-        {INSIGHTS.map((item, index) => {
+        {insights.map((item, index) => {
           const Icon = item.icon;
           return (
             <div key={item.label}>
@@ -81,7 +77,7 @@ export const AuditInsight = () => {
                 </div>
               </div>
 
-              {index < INSIGHTS.length - 1 && (
+              {index < insights.length - 1 && (
                 <div className="mt-4 border-t border-[#F1F5F9]" />
               )}
             </div>

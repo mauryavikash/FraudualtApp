@@ -7,8 +7,17 @@ import {
 } from "lucide-react";
 import KpiCardsGrid from "../common/KpiCardsGrid";
 
-export default function DashboardKpiCards() {
-  const kpiData = [
+function formatCurrency(value) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(Number(value || 0));
+}
+
+export default function DashboardKpiCards({ data }) {
+  const staticKpiData = [
     {
       title: "Duplicate Exposure",
       value: "12,458",
@@ -59,6 +68,30 @@ export default function DashboardKpiCards() {
     },
    
   ];
+
+  const apiKpis = Array.isArray(data) ? data : data?.items;
+  const kpiData = Array.isArray(apiKpis) && apiKpis.length
+    ? staticKpiData.map((item, index) => {
+        const apiKpi = apiKpis[index];
+        if (!apiKpi) {
+          return item;
+        }
+
+        const isCurrency = item.title === "Recovery Opportunity";
+        return {
+          ...item,
+          title: apiKpi.metric ?? item.title,
+          value: isCurrency
+            ? formatCurrency(apiKpi.value)
+            : Number(apiKpi.value ?? 0).toLocaleString(),
+          change: `${Number(apiKpi.changePercentage ?? 0) >= 0 ? "+" : ""}${apiKpi.changePercentage ?? 0}%`,
+          comparison: apiKpi.comparisonPeriod ?? item.comparison,
+          positive: apiKpi.trend !== "negative",
+          invoiceCount: Number(apiKpi.invoiceCount ?? 0).toLocaleString(),
+          invoiceValue: formatCurrency(apiKpi.invoiceValue),
+        };
+      })
+    : staticKpiData;
 
   return <KpiCardsGrid items={kpiData} columns="xl:grid-cols-4" />;
 }

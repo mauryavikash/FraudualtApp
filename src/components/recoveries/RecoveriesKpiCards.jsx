@@ -7,12 +7,8 @@ import {
 } from "lucide-react";
 import KpiCardsGrid from "../common/KpiCardsGrid";
 
-const kpiData = [
+const visualConfig = [
   {
-    title: "Confirmed Recoverable Value",
-    value: "$3.42M",
-    change: "+18.7%",
-    comparison: "vs May 7 – May 13",
     icon: DollarSign,
     iconColor: "#10B981",
     iconBg: "#DCFCE7",
@@ -21,10 +17,6 @@ const kpiData = [
     invoiceValue: "$3.42M",
   },
   {
-    title: "Prevented Value",
-    value: "$2.45M",
-    change: "+21.3%",
-    comparison: "vs May 7 – May 13",
     icon: CheckCircle2,
     iconColor: "#3B82F6",
     iconBg: "#DBEAFE",
@@ -33,10 +25,6 @@ const kpiData = [
     invoiceValue: "$2.45M",
   },
   {
-    title: "At-Risk Recovery",
-    value: "$0.72M",
-    change: "+5.6%",
-    comparison: "vs May 7 – May 13",
     icon: TrendingUp,
     iconColor: "#F59E0B",
     iconBg: "#FEF3C7",
@@ -46,10 +34,6 @@ const kpiData = [
   },
 
   {
-    title: "RECOVERY SUCCESS RATE",
-    value: "89.3%",
-    change: "+6.8%",
-    comparison: "vs May 7 – May 13",
     icon: ShieldCheck,
     iconColor: "#06B6D4",
     iconBg: "#CFFAFE",
@@ -59,7 +43,31 @@ const kpiData = [
   },
 ];
 
-export const RecoveriesKpiCards = () => (
-  <KpiCardsGrid items={kpiData} columns="xl:grid-cols-4" />
-);
+const formatCurrency = (value) => new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  notation: "compact",
+  maximumFractionDigits: 1,
+}).format(Number(value ?? 0));
+
+export const RecoveriesKpiCards = ({ data }) => {
+  const kpiData = Array.isArray(data)
+    ? data.map((item, index) => {
+        const config = visualConfig[index] ?? visualConfig[0];
+        const isRate = item.metric === "Recovery Success Rate";
+
+        return {
+          ...config,
+          title: item.metric,
+          value: isRate ? `${item.value ?? 0}%` : formatCurrency(item.value),
+          change: `${Number(item.changePercentage ?? 0) >= 0 ? "+" : ""}${item.changePercentage ?? 0}%`,
+          comparison: "vs prior period",
+          invoiceCount: Number(item.invoiceCount ?? 0).toLocaleString(),
+          invoiceValue: formatCurrency(item.invoiceValue),
+        };
+      })
+    : [];
+
+  return <KpiCardsGrid items={kpiData} columns="xl:grid-cols-4" />;
+};
 

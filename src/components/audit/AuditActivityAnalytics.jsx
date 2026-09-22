@@ -4,12 +4,6 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-const events = [
-  { day: "May 1", detections: 2100, recommendations: 2900, actions: 1500, overrides: 620 }, { day: "May 6", detections: 4800, recommendations: 3900, actions: 2700, overrides: 900 }, { day: "May 11", detections: 5400, recommendations: 4100, actions: 3100, overrides: 850 }, { day: "May 16", detections: 6100, recommendations: 4600, actions: 3500, overrides: 1200 }, { day: "May 21", detections: 5700, recommendations: 4200, actions: 3000, overrides: 980 }, { day: "May 26", detections: 6800, recommendations: 4900, actions: 3400, overrides: 1060 }, { day: "May 31", detections: 7000, recommendations: 5000, actions: 3600, overrides: 1100 },
-];
-const types = [{ name: "Detections", value: 6321, color: "#2563eb" }, { name: "AI Recommendations", value: 5842, color: "#6d28d9" }, { name: "User Actions", value: 8036, color: "#16a34a" }, { name: "Overrides", value: 1203, color: "#ef4444" }, { name: "Recovery Events", value: 1114, color: "#f59e0b" }, { name: "System / Others", value: 1189, color: "#64748b" }];
-const actors = [{ name: "AI Agent", value: 8733, color: "#2563eb" }, { name: "Users", value: 7875, color: "#6d28d9" }, { name: "System", value: 5232, color: "#14b8a6" }, { name: "Rules Engine", value: 2701, color: "#fbbf24" }];
-const risks = [["High Risk", "8,421 (34.3%)", 85, "bg-red-500"], ["Medium Risk", "10,582 (43.1%)", 92, "bg-amber-400"], ["Low Risk", "5,572 (22.7%)", 54, "bg-emerald-500"]];
 const panel = "rounded-lg border border-slate-200 bg-white p-4 shadow-sm";
 
 function DonutPanel({ title, data, action }) {
@@ -17,7 +11,21 @@ function DonutPanel({ title, data, action }) {
   return <article className={panel}><h2 className="text-xs font-semibold text-slate-900">{title}</h2><div className="mt-4 flex items-center gap-3"><div className="h-32 w-32 shrink-0"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={data} dataKey="value" innerRadius={34} outerRadius={53} paddingAngle={2} stroke="none">{data.map((item) => <Cell key={item.name} fill={item.color} />)}</Pie></PieChart></ResponsiveContainer></div><div className="space-y-2 text-[9px] text-slate-600">{data.map((item) => <div key={item.name} className="flex gap-1.5"><span className="mt-0.5 h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: item.color }} /><span>{item.name} <b className="text-slate-800">{((item.value / total) * 100).toFixed(1)}% ({item.value.toLocaleString()})</b></span></div>)}</div></div><Link href="/audit" className="mt-4 inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600">{action} <ArrowRight size={13} /></Link></article>;
 }
 
-export default function AuditActivityAnalytics() {
+const colors = ["#2563eb", "#6d28d9", "#16a34a", "#ef4444", "#f59e0b", "#64748b"];
+
+export default function AuditActivityAnalytics({ data }) {
+  const events = Array.isArray(data?.eventTrends)
+    ? data.eventTrends.map((item) => ({ ...item, day: item.date }))
+    : [];
+  const types = Array.isArray(data?.activityTypes)
+    ? data.activityTypes.map((item, index) => ({ name: item.type, value: Number(item.count ?? 0), color: colors[index % colors.length] }))
+    : [];
+  const actors = Array.isArray(data?.actorDistribution)
+    ? data.actorDistribution.map((item, index) => ({ name: item.actor, value: Number(item.count ?? 0), color: colors[index % colors.length] }))
+    : [];
+  const risks = Array.isArray(data?.riskDistribution)
+    ? data.riskDistribution.map((item) => [item.riskLevel, `${item.count} (${item.percentage}%)`, item.percentage, item.riskLevel === "CRITICAL" ? "bg-red-500" : item.riskLevel === "HIGH" ? "bg-orange-500" : "bg-emerald-500"])
+    : [];
   return <section className="mt-4 grid gap-3 xl:grid-cols-4">
     <article className={panel}><h2 className="text-xs font-semibold text-slate-900">Events Over Time</h2><div className="mt-2 flex flex-wrap gap-2 text-[9px] text-slate-600">{[["Detections", "#2563eb"], ["AI Recommendations", "#6d28d9"], ["User Actions", "#16a34a"], ["Overrides", "#ef4444"]].map(([label, color]) => <span key={label}><i className="mr-1 inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />{label}</span>)}</div><div className="mt-2 h-32"><ResponsiveContainer width="100%" height="100%"><LineChart data={events} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}><CartesianGrid vertical={false} stroke="#e2e8f0" /><XAxis dataKey="day" tick={{ fontSize: 8, fill: "#64748b" }} axisLine={false} tickLine={false} /><YAxis tick={{ fontSize: 8, fill: "#64748b" }} axisLine={false} tickLine={false} tickFormatter={(value) => `${value / 1000}K`} /><Tooltip /><Line dataKey="detections" stroke="#2563eb" strokeWidth={2} dot={false} /><Line dataKey="recommendations" stroke="#6d28d9" strokeWidth={2} dot={false} /><Line dataKey="actions" stroke="#16a34a" strokeWidth={2} dot={false} /><Line dataKey="overrides" stroke="#ef4444" strokeWidth={2} dot={false} /></LineChart></ResponsiveContainer></div><Link href="/audit" className="mt-4 inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600">View full trend <ArrowRight size={13} /></Link></article>
     <DonutPanel title="Event Type Distribution" data={types} action="View type analysis" />

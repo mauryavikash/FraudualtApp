@@ -1,7 +1,7 @@
 import { ExternalLink } from "lucide-react";
 
-export default function AuditActivitiesPanel() {
-  const auditActivities = [
+export default function AuditActivitiesPanel({ data }) {
+  const staticAuditActivities = [
     {
       time: "May 20, 2025 10:24 AM",
       activity: "Case Status Updated",
@@ -38,6 +38,19 @@ export default function AuditActivitiesPanel() {
       badge: "bg-indigo-100 text-indigo-700",
     },
   ];
+
+  const apiActivities = Array.isArray(data) ? data : data?.items;
+  const auditActivities = Array.isArray(apiActivities) && apiActivities.length
+    ? apiActivities.map((activity) => ({
+        time: activity.time ?? (activity.timestamp ? new Date(activity.timestamp).toLocaleString() : "-"),
+        badge: activity.source === "Integration"
+          ? "bg-purple-100 text-purple-700"
+          : activity.source === "System"
+            ? "bg-indigo-100 text-indigo-700"
+            : "bg-blue-100 text-blue-700",
+        ...activity,
+      }))
+    : staticAuditActivities;
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-4">
