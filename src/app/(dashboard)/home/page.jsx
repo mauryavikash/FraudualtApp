@@ -6,7 +6,6 @@ import ManagementDashboard from "@/components/home/ManagementDashboard";
 import OperationalReporting from "@/components/home/OperationalReporting";
 import AuditActivitiesPanel from "@/components/home/AuditActivitiesPanel";
 import ExecutiveInsightsPanel from "@/components/home/ExecutiveInsightsPanel";
-import AuditComplianceOverview from "@/components/home/AuditComplianceOverview";
 import AiExecutiveBriefing from "@/components/home/AiExecutiveBriefing";
 
 export default function DashboardPage() {
@@ -41,10 +40,10 @@ export default function DashboardPage() {
             </button>
 
             {/* Filters */}
-            <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+            {/* <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
               <SlidersHorizontal size={16} />
               <span>Filters</span>
-            </button>
+            </button> */}
             
           </div>
 
@@ -72,12 +71,6 @@ export default function DashboardPage() {
             <ExecutiveInsightsPanel />
           </div>
         </div>
-      
-        {/* AUDIT & COMPLIANCE OVERVIEW */}
-        <div className="grid grid-cols-12 gap-4">
-          <AuditComplianceOverview />
-        </div>
-
       </div>
     </div>
   );

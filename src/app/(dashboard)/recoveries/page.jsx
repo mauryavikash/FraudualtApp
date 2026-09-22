@@ -190,20 +190,18 @@ export default function Recoveries() {
     <div>
       {/* HEADER */}
       <RecoveriesHeader />
-      <div className="relative">
-        <div className="xl:w-[calc(66.666667%-0.666667rem)]">
-          {/* KPI */}
-          <RecoveriesKpiCards />
-          <RecoveryPipelineOverview />
-        </div>
-        <div className="mt-4 flex xl:absolute xl:right-0 xl:top-0 xl:mt-0 xl:w-[calc(33.333333%-0.666667rem)]">
-          <RecoveriesDetails recovery={selectedRecovery} />
-        </div>
+      {/* KPI */}
+      <div className="mt-4">
+        <RecoveriesKpiCards />
       </div>
-      {/* CONTENT */}
-      <div className="grid grid-cols-12 gap-4 mt-4 items-stretch">
-        {/* TABLE */}
-        <div className="col-span-12 xl:col-span-8 flex flex-col gap-3">
+
+      {/* Recovery overview and selected recovery */}
+      <div className="mt-4">
+        <RecoveryPipelineOverview />
+
+        <div className="mt-4 grid grid-cols-12 gap-4 items-stretch">
+          {/* CONTENT */}
+          <div className="col-span-12 xl:col-span-8 flex min-h-0 flex-col gap-4">
           <div
             className="
               w-full
@@ -486,8 +484,12 @@ export default function Recoveries() {
           </div>
 
           <RecoveriesCharts />
-        </div>
+          </div>
 
+          <div className="col-span-12 xl:col-span-4">
+            <RecoveriesDetails recovery={selectedRecovery} />
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -56,7 +56,7 @@ export const VendorHeader = () => {
                     Upload File
                     </button>
 
-                    <button
+                    {/* <button
                     className="
                         h-9
                         px-3.5
@@ -89,7 +89,7 @@ export const VendorHeader = () => {
                     >
                     <Bell size={15} />
                     Alert Preferences
-                    </button>
+                    </button> */}
                 </div>
                 </div>
             </div>

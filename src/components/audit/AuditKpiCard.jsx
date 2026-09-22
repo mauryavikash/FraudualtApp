@@ -4,14 +4,10 @@ import {
   CircleDollarSign,
   RotateCcw,
   Users,
+  Sparkles
 } from "lucide-react";
 import KpiCardsGrid from "../common/KpiCardsGrid";
 
-const DISTRIBUTION = [
-  { label: "Confirmed", value: 2, color: "#10B981" },
-  { label: "Rejected", value: 2, color: "#EF4444" },
-  // { label: "Escalated", value: 0, color: "#F59E0B" },
-];
 
 const kpiData = [
   {
@@ -25,14 +21,17 @@ const kpiData = [
     invoiceCount: "4",
     invoiceValue: "$93,720",
   },
+
   {
-    title: "Decision Distribution",
-    icon: PieChart,
-    iconColor: "#F59E0B",
-    iconBg: "#FEF3C7",
-    distribution: DISTRIBUTION,
+    title: "Users Decision",
+    icon: Users,
+    iconColor: "#2563EB",
+    iconBg: "#DBEAFE",
+    value: "7892",
+    supporting: "+16% vs Last Period",
+    supportingColor: "text-[#10B981]",
     invoiceCount: "4",
-    invoiceValue: "$93,720",
+    invoiceValue: "7892",
   },
   {
     title: "Recovery Value (USD)",
@@ -46,26 +45,26 @@ const kpiData = [
     invoiceValue: "$93,720",
   },
   {
-    title: "Reversal Rate",
+    title: "Overrides",
     icon: RotateCcw,
-    iconColor: "#8B5CF6",
-    iconBg: "#F3E8FF",
-    value: "0%",
-    supporting: "No reopened decisions",
-    supportingColor: "text-[#64748B]",
-    invoiceCount: "0",
-    invoiceValue: "$0",
+    iconColor: "#2563EB",
+    iconBg: "#DBEAFE",
+    value: "1203",
+    supporting: "4.8% vs Last Period",
+    supportingColor: "text-[#10B981]",
+    invoiceCount: "1203",
+    invoiceValue: "1203",
   },
   {
-    title: "Reviewer Compliance",
-    icon: Users,
-    iconColor: "#06B6D4",
-    iconBg: "#CFFAFE",
-    value: "100%",
-    supporting: "Following review workflow",
-    supportingColor: "text-[#64748B]",
-    invoiceCount: "4",
-    invoiceValue: "$93,720",
+    title: "AI Recommendations",
+    icon: Sparkles,
+    iconColor: "#ffffff",
+    iconBg: "#7C3AED",
+    value: "5842",
+    supporting: "18% vs Last Period",
+    supportingColor: "text-[#10B981]",
+    invoiceCount: "6842",
+    invoiceValue: "5842",
   },
 ];
 

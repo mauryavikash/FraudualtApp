@@ -201,7 +201,7 @@ export const CasesDetails = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-2 mt-5">
+        {/* <div className="grid grid-cols-2 gap-2 mt-5">
         <button className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md bg-[#2563EB] text-[12px] font-medium text-white hover:bg-[#1D4ED8]">
             <UserPlus size={14} />
             Assign
@@ -221,7 +221,7 @@ export const CasesDetails = () => {
             <BanknoteArrowUp size={14} />
             Convert to Recovery
         </button>
-        </div>
+        </div> */}
 
         {/* Notes */}
         <div className="mt-6 pb-4">

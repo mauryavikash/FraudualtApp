@@ -172,13 +172,13 @@ export const AuditTable = () => {
               <option>Escalated</option>
             </FilterSelect>
 
-            <FilterSelect
+            {/* <FilterSelect
               label="Run ID"
               value={runIdFilter}
               onChange={(e) => setRunIdFilter(e.target.value)}
             >
               <option>All Runs</option>
-            </FilterSelect>
+            </FilterSelect> */}
 
             <FilterSelect
               label="Reason"
@@ -193,7 +193,7 @@ export const AuditTable = () => {
 
             <div>
               <p className="text-[11px] font-semibold text-[#475569] mb-1.5">
-                Search Comments
+                Comments
               </p>
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
@@ -210,13 +210,6 @@ export const AuditTable = () => {
                   />
                 </div>
 
-                <button
-                  className="h-9 px-3 rounded-xl border border-[#D9E1EA] bg-white text-[12px] font-medium text-[#475569] flex items-center gap-1.5 shrink-0"
-                  aria-haspopup="true"
-                >
-                  <SlidersHorizontal size={14} />
-                  Filters
-                </button>
               </div>
             </div>
           </div>

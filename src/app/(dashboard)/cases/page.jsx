@@ -7,6 +7,7 @@ import {
 import {CasesKpiCards} from "@/components/cases/CasesKpiCards";
 import {CasesDetails} from "@/components/cases/CasesDetails";
 import {CasesHeader} from "@/components/cases/CasesHeader";
+import CasesAnalyticsRow from "@/components/cases/CasesAnalyticsRow";
 export default function cases() {
   const [activeTab, setActiveTab] = useState("All Cases");
   const [search, setSearch] = useState("");
@@ -586,6 +587,8 @@ function FilterSelect({
         </div>
 
       </div>
+
+      <CasesAnalyticsRow />
     </div>
   );
 }

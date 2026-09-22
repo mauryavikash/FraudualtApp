@@ -38,7 +38,7 @@ export const CasesHeader = () => {
                     May 14 – May 20, 2025
                     </button>
 
-                    <button
+                    {/* <button
                     className="
                         h-10
                         px-4
@@ -54,7 +54,7 @@ export const CasesHeader = () => {
                     >
                     <SlidersHorizontal size={16} />
                     Filters
-                    </button>
+                    </button> */}
 
                     <button
                     className="
@@ -74,7 +74,7 @@ export const CasesHeader = () => {
                     Export
                     </button>
 
-                    <button
+                    {/* <button
                     className="
                         h-10
                         px-5
@@ -89,7 +89,7 @@ export const CasesHeader = () => {
                     >
                     <Plus size={16} />
                     New Recovery
-                    </button>
+                    </button> */}
                 </div>
                 </div>
             </div>

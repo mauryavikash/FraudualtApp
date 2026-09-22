@@ -37,7 +37,7 @@ export const RecoveriesHeader = () => {
                     <CalendarDays size={16} />
                     May 14 – May 20, 2025
                     </button>
-
+{/* 
                     <button
                     className="
                         h-10
@@ -54,7 +54,7 @@ export const RecoveriesHeader = () => {
                     >
                     <SlidersHorizontal size={16} />
                     Filters
-                    </button>
+                    </button> */}
 
                     <button
                     className="
@@ -74,7 +74,7 @@ export const RecoveriesHeader = () => {
                     Export
                     </button>
 
-                    <button
+                    {/* <button
                     className="
                         h-10
                         px-5
@@ -89,7 +89,7 @@ export const RecoveriesHeader = () => {
                     >
                     <Plus size={16} />
                     New Recovery
-                    </button>
+                    </button> */}
                 </div>
                 </div>
             </div>

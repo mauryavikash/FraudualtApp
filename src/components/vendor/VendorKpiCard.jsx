@@ -21,14 +21,14 @@ const kpiData = [
     invoiceValue: "$142K",
   },
   {
-    title: "CRITICAL",
-    value: "3",
-    supporting: "Needs immediate attention",
+    title: "VENDOR HIGH SCORE",
+    value: "72",
+    supporting: "+1.8% vs Last 7 Days",
     supportingColor: "text-[#EF4444]",
     icon: ShieldAlert,
     iconColor: "#EF4444",
     iconBg: "#FEE2E2",
-    invoiceCount: "3",
+    invoiceCount: "72",
     invoiceValue: "$58K",
   },
   {

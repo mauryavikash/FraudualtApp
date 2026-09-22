@@ -19,7 +19,7 @@ export const AuditHeader = () => {
                 </div>
 
                 <div className="flex gap-2.5">
-                    <button
+                    {/* <button
                     className="
                         h-9
                         px-3.5
@@ -54,7 +54,7 @@ export const AuditHeader = () => {
                     >
                     <FlaskConical size={15} />
                     Sample Validation
-                    </button>
+                    </button> */}
 
                     <button
                     className="

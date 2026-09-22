@@ -236,7 +236,7 @@ export const RecoveriesDetails = ({ recovery }) => {
       </div>
 
       {/* Footer actions */}
-      <div className="border-t border-[#E2E8F0] p-3 flex items-center gap-2">
+      {/* <div className="border-t border-[#E2E8F0] p-3 flex items-center gap-2">
         <button className="flex-[2] h-9 rounded-lg bg-[#2563EB] text-white text-[12px] font-medium hover:bg-[#1D4ED8]">
           View Related Case
         </button>
@@ -252,7 +252,7 @@ export const RecoveriesDetails = ({ recovery }) => {
         >
           <ChevronDown size={14} />
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

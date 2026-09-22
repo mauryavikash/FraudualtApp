@@ -81,7 +81,7 @@ export default function Header({ setIsOpen, isOpen }) {
             />
           </div>
 
-          {headerActions.map((action) => {
+          {/* {headerActions.map((action) => {
             const ActionIcon = action.icon;
             return (
               <button
@@ -93,7 +93,7 @@ export default function Header({ setIsOpen, isOpen }) {
                 {action.label}
               </button>
             );
-          })}
+          })} */}
 
           <button
             className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:text-dgem-blue hover:shadow-md"
@@ -104,21 +104,21 @@ export default function Header({ setIsOpen, isOpen }) {
             <span className="absolute -right-0.5 -top-0.5 flex h-3 w-3 items-center justify-center rounded-full border-2 border-white bg-red-500 select-none" />
           </button>
 
-          <button
+          {/* <button
             className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:text-dgem-blue hover:shadow-md"
             type="button"
             title="Help"
           >
             <HelpCircle size={16} />
-          </button>
+          </button> */}
 
-          <button
+          {/* <button
             className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:text-dgem-blue hover:shadow-md"
             type="button"
             title="Settings"
           >
             <Settings size={16} />
-          </button>
+          </button> */}
 
           <div className="relative" ref={dropdownRef}>
             <button
