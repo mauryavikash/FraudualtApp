@@ -47,7 +47,7 @@ export const CasesDetails = ({ caseData }) => {
             Details
         </button>
 
-        <button className="pb-2 text-[12px] text-[#475569]">
+        {/* <button className="pb-2 text-[12px] text-[#475569]">
             Transactions (4)
         </button>
 
@@ -57,7 +57,7 @@ export const CasesDetails = ({ caseData }) => {
 
         <button className="pb-2 text-[12px] text-[#475569]">
             Audit Trail
-        </button>
+        </button> */}
         </div>
     </div>
 
@@ -192,28 +192,7 @@ export const CasesDetails = ({ caseData }) => {
         </div>
         </div>
 
-        {/* Quick Actions */}
-        {/* <div className="grid grid-cols-2 gap-2 mt-5">
-        <button className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md bg-[#2563EB] text-[12px] font-medium text-white hover:bg-[#1D4ED8]">
-            <UserPlus size={14} />
-            Assign
-        </button>
-
-        <button className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-[#CBD5E1] bg-white text-[12px] font-medium text-[#334155] hover:bg-[#F8FAFC]">
-            <FileSearch size={14} />
-            Request Evidence
-        </button>
-
-        <button className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-[#CBD5E1] bg-white text-[12px] font-medium text-[#334155] hover:bg-[#FEF2F2] hover:text-[#DC2626]">
-            <AlertTriangle size={14} />
-            Escalate
-        </button>
-
-        <button className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-[#CBD5E1] bg-white text-[12px] font-medium text-[#334155] hover:bg-[#ECFDF5] hover:text-[#059669]">
-            <BanknoteArrowUp size={14} />
-            Convert to Recovery
-        </button>
-        </div> */}
+        
 
         {/* Notes */}
         <div className="mt-6 pb-4">

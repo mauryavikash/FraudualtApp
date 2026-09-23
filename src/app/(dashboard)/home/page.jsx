@@ -9,6 +9,7 @@ import AuditActivitiesPanel from "@/components/home/AuditActivitiesPanel";
 import ExecutiveInsightsPanel from "@/components/home/ExecutiveInsightsPanel";
 import AiExecutiveBriefing from "@/components/home/AiExecutiveBriefing";
 import { LoadingState } from "@/components/common/LoadingState";
+import PdfDownloadButton from "@/components/common/PdfDownloadButton";
 import { getHomeDashboard } from "@/app/lib/api";
 
 export default function DashboardPage() {
@@ -68,18 +69,12 @@ export default function DashboardPage() {
           <div className="flex items-center gap-3">
             
             {/* Date Range */}
-            <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+            {/* <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
               <CalendarDays size={16} />
               <span>{dateRange}</span>
               <ChevronDown size={14} />
-            </button>
-
-            {/* Filters */}
-            {/* <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
-              <SlidersHorizontal size={16} />
-              <span>Filters</span>
             </button> */}
-            
+            <PdfDownloadButton fileName="home-dashboard" />
           </div>
 
         </div>

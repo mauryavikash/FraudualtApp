@@ -22,7 +22,7 @@ export default function DashboardLayout({
                 <Header setIsOpen={setIsSidebarOpen} isOpen={isSidebarOpen} />
 
                 <div className="flex min-h-0 flex-1 overflow-hidden">
-                    <main className="relative m-4 mr-0 flex-1 overflow-y-auto rounded-l-xl border border-white/10">
+                    <main data-pdf-content className="relative m-4 mr-0 flex-1 overflow-y-auto rounded-l-xl border border-white/10">
                         <div className="relative z-10">
                             {children}
                         </div>

@@ -1,4 +1,5 @@
 import { ExternalLink } from "lucide-react";
+import Link from "next/link";
 
 export default function AuditActivitiesPanel({ data }) {
   const staticAuditActivities = [
@@ -98,10 +99,10 @@ export default function AuditActivitiesPanel({ data }) {
         </div>
       ))}
 
-      <button className="mt-3 flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white py-2 text-xs font-medium text-slate-600">
+      <Link href="/audit" className="mt-3 flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white py-2 text-xs font-medium text-slate-600">
         <ExternalLink size={14} />
         Go to Audit Trail
-      </button>
+      </Link>
     </div>
   );
 }

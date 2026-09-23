@@ -113,10 +113,10 @@ export default function OperationalReporting({ data }) {
         ))}
       </div>
 
-      <button className="mt-4 flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-blue-600 py-3 text-sm font-medium text-white hover:bg-blue-700">
+      {/* <button className="mt-4 flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-blue-600 py-3 text-sm font-medium text-white hover:bg-blue-700">
         <Calendar size={16} />
         Schedule Report
-      </button>
+      </button> */}
     </div>
   );
 }

@@ -18,13 +18,13 @@ const statusBadgeClass = (status) => {
 const formatDate = (value) => value ? new Date(value).toLocaleString() : "-";
 
 export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
-  const [activeTab, setActiveTab] = useState("Overview");
+  // const [activeTab, setActiveTab] = useState("Overview");
   const [isDraftGenerated, setIsDraftGenerated] = useState(false);
 
   const selected = recovery ?? {};
   const progressStages = Array.isArray(stages) ? stages : [];
   const timelineEvents = Array.isArray(timeline) ? timeline : [];
-  const detailTabs = Array.isArray(tabs) ? tabs.map((tab) => tab.tab) : [];
+  // const detailTabs = Array.isArray(tabs) ? tabs.map((tab) => tab.tab) : [];
 
   const isClosed = selected.status === "Completed";
 
@@ -54,7 +54,7 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
 
         {/* Tabs */}
         <div className="flex gap-4 mt-3 border-b border-[#E5E7EB] overflow-x-auto" role="tablist">
-          {detailTabs.map((tab) => (
+          {/* {detailTabs.map((tab) => (
             <button
               key={tab}
               role="tab"
@@ -68,7 +68,9 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
             >
               {tab}
             </button>
-          ))}
+          ))} */}
+
+          <h5 className="pb-2 text-[12px] font-medium text-[#2563EB] border-b border-[#2563EB]">Overview</h5>
         </div>
       </div>
 
