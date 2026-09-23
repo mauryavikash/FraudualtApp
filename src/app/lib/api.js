@@ -13,6 +13,7 @@ export const CASES_URL = "http://localhost:8000/api/cases";
 export const RECOVERIES_URL = "http://localhost:8000/api/recoveries";
 export const AUDIT_URL = "http://localhost:8000/api/audit";
 export const VENDORS_URL = "http://localhost:8000/api/vendors";
+export const COPILOT_CHAT_URL = "http://localhost:8000/api/v1/copilot/chat";
 
 let homeDashboardRequest;
 let casesRequest;
@@ -88,6 +89,17 @@ export async function getVendors() {
   }
 
   return vendorsRequest;
+}
+
+export async function sendCopilotMessage(message, userId, userName) {
+  const response = await axios.post(COPILOT_CHAT_URL, {
+    userId,
+    userName,
+    message,
+    timestamp: new Date().toISOString(),
+  });
+
+  return response.data;
 }
 
 export default axiosInstance;

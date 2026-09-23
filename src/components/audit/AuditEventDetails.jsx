@@ -9,32 +9,39 @@ const formatCurrency = (value) => new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 }).format(Number(value ?? 0));
 
-export default function AuditEventDetails({ data }) {
+export default function AuditEventDetails({ data, riskDistribution }) {
   const details = [
     ["Case ID", data?.caseId ?? "-"],
     ["Invoice", data?.invoiceNumber ?? "-"],
     ["Vendor", data?.vendor || "-"],
     ["Exposure (USD)", formatCurrency(data?.exposureAmount)],
   ];
+  const risks = Array.isArray(riskDistribution) ? riskDistribution : [];
 
   return (
-    <section className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-      <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex items-start justify-between"><h2 className="text-sm font-semibold text-slate-900">Event Details</h2><X size={15} className="text-slate-400" /></div>
-        <div className="mt-3 flex items-center justify-between"><span className="rounded bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-700">User Decision</span><span className="text-[10px] font-semibold text-slate-700">EVT-2025-0056789</span></div>
-        <div className="mt-2 flex justify-between text-[10px] text-slate-500"><span>May 31, 2025 14:32:18 (UTC)</span><span>2 minutes ago</span></div>
-        <div className="mt-4 border-t border-slate-100 pt-3"><p className="text-[10px] font-semibold text-slate-700">Summary</p><p className="mt-2 text-xs font-medium text-slate-900">Marked as True Duplicate</p></div>
-      </article>
-
+    <section className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
       <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">Case / Invoice / Vendor</h2>
         <dl className="mt-4 space-y-2 text-[10px]">{details.map(([label, value]) => <div key={label} className="grid grid-cols-[88px_1fr] gap-2"><dt className="text-slate-500">{label}</dt><dd className={label === "Exposure (USD)" ? "font-semibold text-slate-800" : "font-medium text-blue-600"}>{value}</dd></div>)}</dl>
       </article>
 
       <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-semibold text-slate-900">Risk &amp; Confidence</h2>
-        <div className="mt-4 space-y-4 text-[11px]"><div className="flex justify-between"><span className="text-slate-500">Risk Level</span><span className="rounded bg-red-50 px-2 py-0.5 font-medium text-red-600">Critical</span></div><div className="grid grid-cols-[70px_1fr_auto] items-center gap-2"><span className="text-slate-500">Confidence</span><div className="h-1.5 overflow-hidden rounded-full bg-slate-100"><div className="h-full w-[98%] rounded-full bg-emerald-500" /></div><span className="font-semibold text-emerald-700">98%</span></div></div>
-        <div className="mt-5 border-t border-slate-100 pt-3"><p className="text-[10px] font-semibold text-slate-700">Actor</p><div className="mt-2 flex items-center gap-2"><span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-[9px] font-semibold text-white">SJ</span><div><p className="text-xs font-semibold text-slate-800">Sarah Johnson</p><p className="text-[10px] text-slate-500">Investigator</p></div></div></div>
+        <h2 className="text-sm font-semibold text-slate-900">Risk &amp; Confidence Overview</h2>
+        <p className="mt-4 text-[10px] font-semibold text-slate-700">Risk Level (by Events)</p>
+        <div className="mt-3 space-y-3">
+          {risks.map((risk) => {
+            const score = Number(risk.percentage ?? 0);
+            const color = risk.riskLevel === "CRITICAL" ? "bg-red-500" : risk.riskLevel === "HIGH" ? "bg-orange-500" : "bg-emerald-500";
+            const label = risk.riskLevel === "CRITICAL" ? "High Risk" : `${risk.riskLevel[0]}${risk.riskLevel.slice(1).toLowerCase()} Risk`;
+
+            return <div key={risk.riskLevel} className="grid grid-cols-[70px_1fr_76px] items-center gap-2 text-[10px]">
+              <span className="text-slate-600">{label}</span>
+              <div className="h-1.5 overflow-hidden rounded-full bg-slate-100"><div className={`h-full rounded-full ${color}`} style={{ width: `${score}%` }} /></div>
+              <span className="text-right text-slate-600">{risk.count} ({score}%)</span>
+            </div>;
+          })}
+        </div>
+        <Link href="/audit" className="mt-4 inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600">View details <ArrowRight size={13} /></Link>
       </article>
 
       <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">

@@ -43,26 +43,44 @@ function FilterSelect({ label, children, ...props }) {
 export const AuditTable = ({ data }) => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [dateFilter, setDateFilter] = useState("All Dates");
   const [reviewerFilter, setReviewerFilter] = useState("All Reviewers");
   const [vendorFilter, setVendorFilter] = useState("All Vendors");
   const [actionFilter, setActionFilter] = useState("All Actions");
-  const [runIdFilter, setRunIdFilter] = useState("All Runs");
   const [reasonFilter, setReasonFilter] = useState("All Reasons");
-  const pageSize = 8;
+  const pageSize = 10;
 
   const auditData = useMemo(() => Array.isArray(data?.records)
-    ? data.records.map((item) => ({
-        id: item.auditId,
-        timestamp: new Date(item.timestamp).toLocaleString(),
-        reviewer: item.reviewer ?? "System",
-        action: item.action,
-        reason: item.reason || "-",
-        clusterId: item.clusterId ?? "-",
-        comments: item.comments,
-        reversal: item.reversal ?? "-",
-      }))
+    ? data.records.map((item) => {
+        let reasonDetails = {};
+
+        try {
+          reasonDetails = JSON.parse(item.reason);
+        } catch {
+          // API reasons may be plain text rather than JSON.
+        }
+
+        const timestamp = new Date(item.timestamp);
+        return {
+          id: item.auditId,
+          timestamp: timestamp.toLocaleString(),
+          dateKey: Number.isNaN(timestamp.getTime()) ? "Unknown date" : timestamp.toLocaleDateString(),
+          reviewer: item.reviewer ?? "System",
+          vendor: reasonDetails.vendor ?? reasonDetails.vendor_name ?? "Unassigned",
+          action: item.action,
+          reason: item.reason || "-",
+          clusterId: item.clusterId ?? "-",
+          comments: item.comments,
+          reversal: item.reversal ?? "-",
+        };
+      })
     : [], [data]);
   const totalRecords = data?.totalRecords ?? auditData.length;
+  const dateOptions = useMemo(() => [...new Set(auditData.map((item) => item.dateKey))], [auditData]);
+  const reviewerOptions = useMemo(() => [...new Set(auditData.map((item) => item.reviewer))], [auditData]);
+  const vendorOptions = useMemo(() => [...new Set(auditData.map((item) => item.vendor))], [auditData]);
+  const actionOptions = useMemo(() => [...new Set(auditData.map((item) => item.action))], [auditData]);
+  const reasonOptions = useMemo(() => [...new Set(auditData.map((item) => item.reason))], [auditData]);
 
   const filteredData = useMemo(() => {
     return auditData.filter((item) => {
@@ -70,6 +88,9 @@ export const AuditTable = ({ data }) => {
         .join(" ")
         .toLowerCase()
         .includes(search.toLowerCase());
+      const matchesDate = dateFilter === "All Dates" || item.dateKey === dateFilter;
+      const matchesReviewer = reviewerFilter === "All Reviewers" || item.reviewer === reviewerFilter;
+      const matchesVendor = vendorFilter === "All Vendors" || item.vendor === vendorFilter;
 
       const matchesAction =
         actionFilter === "All Actions" || item.action === actionFilter;
@@ -77,12 +98,18 @@ export const AuditTable = ({ data }) => {
       const matchesReason =
         reasonFilter === "All Reasons" || item.reason === reasonFilter;
 
-      return matchesSearch && matchesAction && matchesReason;
+      return matchesSearch && matchesDate && matchesReviewer && matchesVendor && matchesAction && matchesReason;
     });
-  }, [search, actionFilter, reasonFilter, auditData]);
+  }, [search, dateFilter, reviewerFilter, vendorFilter, actionFilter, reasonFilter, auditData]);
 
   const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
   const visiblePages = Array.from({ length: totalPages }, (_, index) => index + 1);
+  const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
+
+  const updateFilter = (setter) => (event) => {
+    setter(event.target.value);
+    setPage(1);
+  };
 
   return (
     <div className="col-span-12 xl:col-span-9 flex">
@@ -109,55 +136,45 @@ export const AuditTable = ({ data }) => {
         {/* Filters */}
         <div className="px-4 py-4 border-b border-[#E2E8F0]">
           <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
-            <FilterSelect label="Date Range">
-              <option>May 14 - May 20, 2025</option>
+            <FilterSelect label="Date Range" value={dateFilter} onChange={updateFilter(setDateFilter)}>
+              <option>All Dates</option>
+              {dateOptions.map((date) => <option key={date}>{date}</option>)}
             </FilterSelect>
 
             <FilterSelect
               label="Reviewer"
               value={reviewerFilter}
-              onChange={(e) => setReviewerFilter(e.target.value)}
+              onChange={updateFilter(setReviewerFilter)}
             >
               <option>All Reviewers</option>
-              <option>Vigneshwaran D</option>
+              {reviewerOptions.map((reviewer) => <option key={reviewer}>{reviewer}</option>)}
             </FilterSelect>
 
             <FilterSelect
               label="Vendor"
               value={vendorFilter}
-              onChange={(e) => setVendorFilter(e.target.value)}
+              onChange={updateFilter(setVendorFilter)}
             >
               <option>All Vendors</option>
+              {vendorOptions.map((vendor) => <option key={vendor}>{vendor}</option>)}
             </FilterSelect>
 
             <FilterSelect
               label="Action Type"
               value={actionFilter}
-              onChange={(e) => setActionFilter(e.target.value)}
+              onChange={updateFilter(setActionFilter)}
             >
               <option>All Actions</option>
-              <option>Confirmed</option>
-              <option>Rejected</option>
-              <option>Escalated</option>
+              {actionOptions.map((action) => <option key={action}>{action}</option>)}
             </FilterSelect>
-
-            {/* <FilterSelect
-              label="Run ID"
-              value={runIdFilter}
-              onChange={(e) => setRunIdFilter(e.target.value)}
-            >
-              <option>All Runs</option>
-            </FilterSelect> */}
 
             <FilterSelect
               label="Reason"
               value={reasonFilter}
-              onChange={(e) => setReasonFilter(e.target.value)}
+              onChange={updateFilter(setReasonFilter)}
             >
               <option>All Reasons</option>
-              <option>Incorrect Vendor Chosen</option>
-              <option>Manual Entry</option>
-              <option>Vendor Error</option>
+              {reasonOptions.map((reason) => <option key={reason}>{reason}</option>)}
             </FilterSelect>
 
             <div>
@@ -173,7 +190,10 @@ export const AuditTable = ({ data }) => {
                   <input
                     type="text"
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(event) => {
+                      setSearch(event.target.value);
+                      setPage(1);
+                    }}
                     placeholder="Search..."
                     className="w-full h-9 rounded-xl border border-[#D9E1EA] bg-white pl-8 pr-2 text-[12px] text-[#334155] placeholder:text-[#94A3B8] focus:outline-none"
                   />
@@ -228,7 +248,7 @@ export const AuditTable = ({ data }) => {
                   </td>
                 </tr>
               ) : (
-                filteredData.map((row) => (
+                paginatedData.map((row) => (
                   <tr
                     key={row.id}
                     tabIndex={0}
@@ -291,7 +311,7 @@ export const AuditTable = ({ data }) => {
           <div className="text-[12px] text-[#64748B]">
             Showing {(page - 1) * pageSize + 1} to{" "}
             {Math.min(page * pageSize, filteredData.length)} of{" "}
-            {totalRecords.toLocaleString()} audit records
+            {filteredData.length.toLocaleString()} of {totalRecords.toLocaleString()} audit records
           </div>
 
           <div className="flex items-center gap-2">
@@ -319,20 +339,6 @@ export const AuditTable = ({ data }) => {
               </button>
             ))}
 
-            <span className="text-[12px] text-[#94A3B8]">…</span>
-
-            <button
-              onClick={() => setPage(totalPages)}
-              aria-current={page === totalPages ? "page" : undefined}
-              className={`w-7 h-7 rounded-lg text-[12px] font-medium ${
-                page === totalPages
-                  ? "bg-[#2563EB] text-white"
-                  : "border border-[#D9E1EA] text-[#475569]"
-              }`}
-            >
-              {totalPages}
-            </button>
-
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
@@ -342,8 +348,8 @@ export const AuditTable = ({ data }) => {
               ›
             </button>
 
-            <select className="h-7 rounded-lg border border-[#D9E1EA] px-2 text-[12px]">
-              <option>10 / page</option>
+            <select className="h-7 rounded-lg border border-[#D9E1EA] px-2 text-[12px]" value={pageSize} disabled>
+              <option value={10}>10 / page</option>
             </select>
           </div>
         </div>

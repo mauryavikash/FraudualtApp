@@ -1,8 +1,8 @@
 "use client";
 
 import { Bot, SendHorizontal, Sparkles, X } from "lucide-react";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { sendCopilotMessage } from "@/app/lib/api";
 
 const suggestedPrompts = [
   "Summarize critical open exposure",
@@ -12,52 +12,37 @@ const suggestedPrompts = [
   "Show top recovery opportunities",
 ];
 
-function getResponse(question, pathname) {
-  const topic = question.toLowerCase();
-
-  if (topic.includes("duplicate")) {
-    return "Duplicate exposure is concentrated in recently submitted invoices. Prioritize high-value matches with the same vendor, invoice amount, and payment reference before their next payment run.";
-  }
-
-  if (topic.includes("vendor")) {
-    return "Review vendors with repeated high-value exceptions first. Compare payment terms, bank-account changes, and invoice frequency to identify the largest preventable exposure.";
-  }
-
-  if (topic.includes("recovery") || topic.includes("recover")) {
-    return "Focus recovery outreach on validated cases that have not reached the payment-dispute window. Group cases by vendor so investigators can resolve related invoices in one conversation.";
-  }
-
-  if (topic.includes("unpaid") || topic.includes("finding") || topic.includes("exposure")) {
-    return "The highest-priority items are unpaid, high-confidence findings with a near-term payment date. Escalate items above your materiality threshold and assign an owner before the next approval cycle.";
-  }
-
-  if (pathname.includes("/cases")) {
-    return "For the active case queue, start with escalated and overdue high-priority cases. They carry the greatest risk of missing the investigation SLA.";
-  }
-
-  if (pathname.includes("/audit")) {
-    return "Use the audit view to validate unusual payment patterns and document the evidence trail before you close a finding.";
-  }
-
-  return "I can help prioritize exposures, explain duplicate patterns, identify vendor risk, and prepare recovery actions. Try one of the suggested prompts for a focused view.";
-}
-
 export default function AiCopilot() {
-  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(true);
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState([]);
+  const [isSending, setIsSending] = useState(false);
 
-  function askCopilot(rawQuestion) {
+  async function askCopilot(rawQuestion) {
     const prompt = rawQuestion.trim();
-    if (!prompt) return;
+    if (!prompt || isSending) return;
 
     setMessages((currentMessages) => [
       ...currentMessages,
       { role: "user", text: prompt },
-      { role: "assistant", text: getResponse(prompt, pathname) },
     ]);
     setQuestion("");
+    setIsSending(true);
+
+    try {
+      const result = await sendCopilotMessage(prompt, "vigneshwaran", "Vigneshwaran");
+      setMessages((currentMessages) => [
+        ...currentMessages,
+        { role: "assistant", text: result.response ?? "No response was returned by the copilot." },
+      ]);
+    } catch {
+      setMessages((currentMessages) => [
+        ...currentMessages,
+        { role: "assistant", text: "The AI Copilot is unavailable. Please try again." },
+      ]);
+    } finally {
+      setIsSending(false);
+    }
   }
 
   function handleSubmit(event) {
@@ -134,6 +119,7 @@ export default function AiCopilot() {
                 {message.text}
               </div>
             ))}
+            {isSending && <div className="mr-3 rounded-lg bg-slate-100 px-3 py-2.5 text-xs text-slate-500">Thinking...</div>}
           </div>
         )}
       </div>
@@ -151,7 +137,7 @@ export default function AiCopilot() {
             <button
               type="submit"
               className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-violet-600 text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-violet-300"
-              disabled={!question.trim()}
+              disabled={!question.trim() || isSending}
               aria-label="Send question"
               title="Send question"
             >

@@ -32,8 +32,10 @@ export default function CasesPage() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [caseTypeFilter, setCaseTypeFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
+  const [investigatorFilter, setInvestigatorFilter] = useState("All");
+  const [vendorFilter, setVendorFilter] = useState("All");
   const [casesData, setCasesData] = useState(null);
-  const pageSize = 8;
+  const pageSize = 10;
   const TABS = [
     "All Cases",
     "Duplicate Cases",
@@ -41,129 +43,6 @@ export default function CasesPage() {
     "Escalated Cases",
     "My Assignments",
     "Watchlist",
-  ];
-
-  const staticTableData = [
-    {
-      caseId: "INV-2025-000123",
-      caseType: "Duplicate",
-      priority: "High",
-      status: "In Progress",
-      vendor: "ABC Solutions",
-      amount: "125,450.00",
-      detectedOn: "May 20, 2025",
-      slaDue: "May 24, 2025",
-      remaining: "2 Days Left",
-      investigator: "Sarah Johnson",
-      detectionSource: "Rule-Based",
-      confidenceScore: "92%",
-      similarity: "96%",
-    },
-    {
-      caseId: "INV-2025-000122",
-      caseType: "Anomaly",
-      priority: "High",
-      status: "In Progress",
-      vendor: "Global Supplies Inc.",
-      amount: "78,900.00",
-      detectedOn: "May 20, 2025",
-      slaDue: "May 23, 2025",
-      remaining: "2 Days Left",
-      investigator: "Michael Brown",
-      detectionSource: "Agentic AI",
-      confidenceScore: "88%",
-      similarity: "74%",
-    },
-    {
-      caseId: "INV-2025-000121",
-      caseType: "Duplicate",
-      priority: "Medium",
-      status: "Pending Review",
-      vendor: "TechWorks LLC",
-      amount: "42,600.00",
-      detectedOn: "May 19, 2025",
-      slaDue: "May 24, 2025",
-      remaining: "2 Days Left",
-      investigator: "Priya Nair",
-      detectionSource: "Hybrid",
-      confidenceScore: "85%",
-      similarity: "91%",
-    },
-    {
-      caseId: "INV-2025-000120",
-      caseType: "Anomaly",
-      priority: "High",
-      status: "Escalated",
-      vendor: "Alpha Traders",
-      amount: "210,000.00",
-      detectedOn: "May 19, 2025",
-      slaDue: "May 22, 2025",
-      remaining: "Overdue",
-      investigator: "David Lee",
-      detectionSource: "Agentic AI",
-      confidenceScore: "95%",
-      similarity: "68%",
-    },
-    {
-      caseId: "INV-2025-000119",
-      caseType: "Duplicate",
-      priority: "Low",
-      status: "Open",
-      vendor: "Office Needs Co.",
-      amount: "12,350.00",
-      detectedOn: "May 18, 2025",
-      slaDue: "May 25, 2025",
-      remaining: "2 Days Left",
-      investigator: "Emma Wilson",
-      detectionSource: "Rule-Based",
-      confidenceScore: "79%",
-      similarity: "89%",
-    },
-     {
-      caseId: "INV-2025-000118",
-      caseType: "Duplicate",
-      priority: "Low",
-      status: "Open",
-      vendor: "Office Needs Co.",
-      amount: "12,350.00",
-      detectedOn: "May 18, 2026",
-      slaDue: "May 25, 2026",
-      remaining: "2 Days Left",
-      investigator: "Emma Wilson",
-      detectionSource: "Hybrid",
-      confidenceScore: "83%",
-      similarity: "93%",
-    },
-     {
-      caseId: "INV-2025-000117",
-      caseType: "Duplicate",
-      priority: "Low",
-      status: "Open",
-      vendor: "Office Needs Co.",
-      amount: "12,350.00",
-      detectedOn: "jun 18, 2026",
-      slaDue: "jun 25, 2026",
-      remaining: "2 Days Left",
-      investigator: "Emma Wilson",
-      detectionSource: "Rule-Based",
-      confidenceScore: "76%",
-      similarity: "87%",
-    },
-     {
-      caseId: "INV-2025-000116",
-      caseType: "Duplicate",
-      priority: "Low",
-      status: "Open",
-      vendor: "Office Needs Co.",
-      amount: "12,350.00",
-      detectedOn: "jul 18, 2026",
-      slaDue: "jul 25, 2026",
-      remaining: "2 Days Left",
-      investigator: "Emma Wilson",
-      detectionSource: "Agentic AI",
-      confidenceScore: "90%",
-      similarity: "81%",
-    },
   ];
 
   useEffect(() => {
@@ -188,6 +67,11 @@ export default function CasesPage() {
     () => casesData?.caseDetails ?? [],
     [casesData]
   );
+  const statusOptions = useMemo(() => [...new Set(tableData.map((item) => item.status))], [tableData]);
+  const caseTypeOptions = useMemo(() => [...new Set(tableData.map((item) => item.caseType))], [tableData]);
+  const priorityOptions = useMemo(() => [...new Set(tableData.map((item) => item.priority))], [tableData]);
+  const investigatorOptions = useMemo(() => [...new Set(tableData.map((item) => item.investigator ?? "Unassigned"))], [tableData]);
+  const vendorOptions = useMemo(() => [...new Set(tableData.map((item) => item.vendor || "Unassigned"))], [tableData]);
 
   const filteredData = useMemo(() => {
   return tableData.filter((item) => {
@@ -207,12 +91,25 @@ export default function CasesPage() {
     const matchesPriority =
       priorityFilter === "All" ||
       item.priority === priorityFilter;
+    const investigator = item.investigator ?? "Unassigned";
+    const vendor = item.vendor || "Unassigned";
+    const matchesInvestigator = investigatorFilter === "All" || investigator === investigatorFilter;
+    const matchesVendor = vendorFilter === "All" || vendor === vendorFilter;
+    const matchesTab = activeTab === "All Cases"
+      || (activeTab === "Duplicate Cases" && item.caseType?.includes("DUPLICATE"))
+      || (activeTab === "Anomaly Cases" && item.caseType?.includes("ANOMALY"))
+      || (activeTab === "Escalated Cases" && item.status?.includes("ESCALATED"))
+      || (activeTab === "My Assignments" && investigator !== "Unassigned")
+      || (activeTab === "Watchlist" && item.watchlist === true);
 
     return (
       matchesSearch &&
       matchesStatus &&
       matchesType &&
-      matchesPriority
+      matchesPriority &&
+      matchesInvestigator &&
+      matchesVendor &&
+      matchesTab
     );
   });
 }, [
@@ -220,12 +117,13 @@ export default function CasesPage() {
   statusFilter,
   caseTypeFilter,
   priorityFilter,
+  investigatorFilter,
+  vendorFilter,
+  activeTab,
   tableData,
 ]);
 
-  const totalPages = Math.ceil(
-    filteredData.length / pageSize
-  );
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
 
   const paginatedData = filteredData.slice(
     (page - 1) * pageSize,
@@ -250,6 +148,11 @@ export default function CasesPage() {
       return "";
   }
 };
+
+  const updateFilter = (setter) => (event) => {
+    setter(event.target.value);
+    setPage(1);
+  };
 
   const [selectedCase, setSelectedCase] = useState(null);
 
@@ -291,7 +194,10 @@ export default function CasesPage() {
                 {TABS.map((tab) => (
                   <button
                     key={tab}
-                    onClick={() => setActiveTab(tab)}
+                    onClick={() => {
+                      setActiveTab(tab);
+                      setPage(1);
+                    }}
                     className={`pb-3 text-[13px] font-medium transition-all ${
                       activeTab === tab
                         ? "text-[#2563EB] border-b-2 border-[#2563EB]"
@@ -313,48 +219,38 @@ export default function CasesPage() {
                 <FilterSelect
                   label="Status"
                   value={statusFilter}
-                  onChange={(e) =>
-                    setStatusFilter(e.target.value)
-                  }
+                  onChange={updateFilter(setStatusFilter)}
                 >
                   <option>All</option>
-                  <option>In Progress</option>
-                  <option>Pending Review</option>
-                  <option>Escalated</option>
-                  <option>Open</option>
+                  {statusOptions.map((status) => <option key={status}>{status}</option>)}
                 </FilterSelect>
 
                 <FilterSelect
                   label="Case Type"
                   value={caseTypeFilter}
-                  onChange={(e) =>
-                    setCaseTypeFilter(e.target.value)
-                  }
+                  onChange={updateFilter(setCaseTypeFilter)}
                 >
                   <option>All</option>
-                  <option>Duplicate</option>
-                  <option>Anomaly</option>
+                  {caseTypeOptions.map((caseType) => <option key={caseType}>{caseType}</option>)}
                 </FilterSelect>
 
                 <FilterSelect
                   label="Priority"
                   value={priorityFilter}
-                  onChange={(e) =>
-                    setPriorityFilter(e.target.value)
-                  }
+                  onChange={updateFilter(setPriorityFilter)}
                 >
                   <option>All</option>
-                  <option>High</option>
-                  <option>Medium</option>
-                  <option>Low</option>
+                  {priorityOptions.map((priority) => <option key={priority}>{priority}</option>)}
                 </FilterSelect>
 
-                <FilterSelect label="Investigator">
+                <FilterSelect label="Investigator" value={investigatorFilter} onChange={updateFilter(setInvestigatorFilter)}>
                   <option>All</option>
+                  {investigatorOptions.map((investigator) => <option key={investigator}>{investigator}</option>)}
                 </FilterSelect>
 
-                <FilterSelect label="Vendor">
-                  <option>Select vendor</option>
+                <FilterSelect label="Vendor" value={vendorFilter} onChange={updateFilter(setVendorFilter)}>
+                  <option>All</option>
+                  {vendorOptions.map((vendor) => <option key={vendor}>{vendor}</option>)}
                 </FilterSelect>
 
                 <div className="flex items-end gap-3">
@@ -366,8 +262,11 @@ export default function CasesPage() {
                     onClick={() => {
                       setStatusFilter("All");
                       setPriorityFilter("All");
+                      setInvestigatorFilter("All");
+                      setVendorFilter("All");
                       setCaseTypeFilter("All");
                       setSearch("");
+                      setPage(1);
                     }}
                     className="text-[#2563EB] text-[12px] font-medium"
                   >
@@ -428,7 +327,9 @@ export default function CasesPage() {
 
                 <tbody>
 
-                  {paginatedData.map((row) => (
+                  {paginatedData.length === 0 ? (
+                    <tr><td colSpan={13} className="px-5 py-10 text-center text-[13px] text-[#94A3B8]">No matching cases found.</td></tr>
+                  ) : paginatedData.map((row) => (
 
                     <tr
                       key={row.caseId}
@@ -562,7 +463,7 @@ export default function CasesPage() {
             <div className="border-t border-[#E2E8F0] px-5 py-3 flex items-center justify-between">
 
               <div className="text-[12px] text-[#64748B]">
-                Showing {(page - 1) * pageSize + 1} to{" "}
+                Showing {filteredData.length ? (page - 1) * pageSize + 1 : 0} to{" "}
                 {Math.min(
                   page * pageSize,
                   filteredData.length
@@ -572,7 +473,7 @@ export default function CasesPage() {
 
               <div className="flex items-center gap-2">
 
-                <button className="w-7 h-7 rounded-lg border border-[#D9E1EA]">
+                <button onClick={() => setPage((currentPage) => Math.max(1, currentPage - 1))} disabled={page === 1} className="w-7 h-7 rounded-lg border border-[#D9E1EA] disabled:opacity-40">
                   ‹
                 </button>
 
@@ -592,12 +493,12 @@ export default function CasesPage() {
                   </button>
                 ))}
 
-                <button className="w-7 h-7 rounded-lg border border-[#D9E1EA]">
+                <button onClick={() => setPage((currentPage) => Math.min(totalPages, currentPage + 1))} disabled={page === totalPages} className="w-7 h-7 rounded-lg border border-[#D9E1EA] disabled:opacity-40">
                   ›
                 </button>
 
-                <select className="h-7 rounded-lg border border-[#D9E1EA] px-2 text-[12px]">
-                  <option>10 / page</option>
+                <select className="h-7 rounded-lg border border-[#D9E1EA] px-2 text-[12px]" value={pageSize} disabled>
+                  <option value={10}>10 / page</option>
                 </select>
 
               </div>

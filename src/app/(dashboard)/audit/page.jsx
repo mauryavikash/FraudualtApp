@@ -57,7 +57,10 @@ export default function Audit() {
       </div>
 
       <AuditActivityAnalytics data={auditData.auditOverview} />
-      <AuditEventDetails data={auditData.auditCaseDetails} />
+      <AuditEventDetails
+        data={auditData.auditCaseDetails}
+        riskDistribution={auditData.auditOverview?.riskDistribution}
+      />
     
     </div>
   );
