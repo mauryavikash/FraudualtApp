@@ -3,9 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BarChart3, Eye, LockKeyhole, Mail } from "lucide-react";
+import { BarChart3, Eye, LockKeyhole, Mail, UserRound } from "lucide-react";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
 
   function handleSubmit(event) {
@@ -33,10 +33,18 @@ export default function LoginPage() {
         </section>
 
         <section className="mx-auto w-full max-w-[440px] rounded-2xl bg-white p-7 shadow-[0_14px_34px_rgba(15,23,42,0.2)]">
-          <h2 className="text-lg font-semibold text-black">Sign in</h2>
-          <p className="mt-1 text-sm text-neutral-500">Access the Finance Analytics Solutions</p>
+          <h2 className="text-lg font-semibold text-black">Create account</h2>
+          <p className="mt-1 text-sm text-neutral-500">Register for the Finance Analytics Solutions</p>
 
           <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+            <label className="block">
+              <span className="mb-2 block text-sm font-semibold text-black">Full Name</span>
+              <div className="relative">
+                <UserRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input type="text" defaultValue="Vigneshwaran D" className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10 text-sm text-neutral-700 outline-none" />
+              </div>
+            </label>
+
             <label className="block">
               <span className="mb-2 block text-sm font-semibold text-black">Email</span>
               <div className="relative">
@@ -54,21 +62,22 @@ export default function LoginPage() {
               </div>
             </label>
 
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 text-black">
-                <input type="checkbox" defaultChecked className="h-4 w-4 accent-blue-600" />
-                Remember Me
-              </label>
-              <button type="button" className="font-medium text-blue-600">Forget Password?</button>
-            </div>
+            <label className="block">
+              <span className="mb-2 block text-sm font-semibold text-black">Confirm Password</span>
+              <div className="relative">
+                <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input type="password" defaultValue="12345" className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10 pr-10 text-sm text-neutral-700 outline-none" />
+                <Eye className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+              </div>
+            </label>
 
             <button type="submit" className="h-11 w-full cursor-pointer rounded-md bg-blue-600 text-sm font-semibold text-white transition hover:bg-blue-700">
-              Sign In
+              Register
             </button>
           </form>
 
-          <Link href="/register" className="mt-3 block text-center text-sm font-medium text-blue-600">
-            Create a new account
+          <Link href="/login" className="mt-3 block text-center text-sm font-medium text-blue-600">
+            Already have an account? Sign in
           </Link>
 
           <div className="my-5 flex items-center gap-4 text-sm text-neutral-500">
