@@ -34,11 +34,11 @@ export const AuditChart = ({ data }) => {
     ? data.recoveryValueTrend.map((item) => ({ name: item.date, value: Number(item.value ?? 0) }))
     : [];
   const rejectionReasons = Array.isArray(data?.rejectionReasons) ? data.rejectionReasons : [];
-  const maxRejectionCount = Math.max(...rejectionReasons.map((item) => Number(item.count ?? 0)), 1);
+  // const maxRejectionCount = Math.max(...rejectionReasons.map((item) => Number(item.count ?? 0)), 1);
 
   return (
     <div className="mt-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 items-stretch">
         {/* ACTIONS BY DAY */}
         <div className={panelClass}>
           <h3 className="text-[13px] font-semibold text-[#0F172A]">
@@ -208,7 +208,7 @@ export const AuditChart = ({ data }) => {
         </div>
 
         {/* TOP REJECTION REASONS */}
-        <div className={panelClass}>
+        {/* <div className={panelClass}>
           <h3 className="text-[13px] font-semibold text-[#0F172A]">
             Top Rejection Reasons
           </h3>
@@ -234,7 +234,7 @@ export const AuditChart = ({ data }) => {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

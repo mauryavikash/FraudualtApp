@@ -1,22 +1,59 @@
 "use client";
-
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BarChart3, Eye, LockKeyhole, Mail, UserRound } from "lucide-react";
-
+import { BarChart3, Eye,EyeOff, LockKeyhole, Mail, UserRound } from "lucide-react";
+import { registerUser } from "@/app/lib/api";
 export default function RegisterPage() {
   const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+//   function handleSubmit(event) {
+//     event.preventDefault();
+//     router.push("/home");
+//   }
+async function handleSubmit(event) {
+  event.preventDefault();
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    router.push("/home");
+  setError("");
+
+  if (password !== confirmPassword) {
+    setError("Passwords do not match");
+    return;
   }
 
+  try {
+    setLoading(true);
+
+    const data = await registerUser(
+      email,
+      password,
+      confirmPassword
+    );
+
+    alert(data.message || "Registration Successful");
+
+    router.push("/login");
+    } catch (err) {
+        setError(
+        err.response?.data?.detail ||
+        "Registration Failed"
+        );
+    } finally {
+        setLoading(false);
+    }
+    }
   return (
     <main className="min-h-screen bg-gradient-to-br from-white via-cyan-50 to-indigo-300 px-6 py-5 text-slate-950">
-      <div className="absolute right-8 top-5 flex items-center gap-4">
-        <Image src="/cg.png" width={58} height={24} alt="i360" className="object-contain" />
+      <div className="absolute right-8 top-5 flex items-center gap-1">
+        <BarChart3 size={16} className="text-emerald-500" />
+        <span className="text-[13px] font-bold text-dgem-blue">i360</span>
         <Image src="/capgemini_icon.png" width={32} height={32} alt="Capgemini" className="object-contain" />
       </div>
 
@@ -41,7 +78,7 @@ export default function RegisterPage() {
               <span className="mb-2 block text-sm font-semibold text-black">Full Name</span>
               <div className="relative">
                 <UserRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input type="text" defaultValue="Vigneshwaran D" className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10 text-sm text-neutral-700 outline-none" />
+                <input type="text" placeholder="Full Name" className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10 text-sm text-neutral-700 outline-none" />
               </div>
             </label>
 
@@ -49,31 +86,103 @@ export default function RegisterPage() {
               <span className="mb-2 block text-sm font-semibold text-black">Email</span>
               <div className="relative">
                 <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input type="email" defaultValue="VigneshwaranD@capgemini.com" className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10 text-sm text-neutral-700 outline-none" />
+                {/* <input type="email" defaultValue="VigneshwaranD@capgemini.com" className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10 text-sm text-neutral-700 outline-none" /> */}
+                <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10"
+                />
               </div>
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-black">Password</span>
-              <div className="relative">
+                <span className="mb-2 block text-sm font-semibold text-black">
+                Password
+                </span>
+                
+                <div className="relative">
                 <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input type="password" defaultValue="12345" className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10 pr-10 text-sm text-neutral-700 outline-none" />
-                <Eye className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-              </div>
-            </label>
+                
+                {/* <input
+                type={showPassword ? "text" : "password"}
+                defaultValue="12345"
+                className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10 pr-10 text-sm text-neutral-700 outline-none focus:ring-2 focus:ring-blue-500"
+                /> */}
+                 <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10 pr-10 text-sm text-neutral-700 outline-none focus:ring-2 focus:ring-blue-500"
 
-            <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-black">Confirm Password</span>
-              <div className="relative">
+                    />
+                <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                >
+                {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+                ) : (
+                <Eye className="h-4 w-4" />
+                )}
+                </button>
+                </div>
+                </label>
+                
+                {/* Confirm Password */}
+                <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-black">
+                Confirm Password
+                </span>
+                
+                <div className="relative">
                 <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input type="password" defaultValue="12345" className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10 pr-10 text-sm text-neutral-700 outline-none" />
-                <Eye className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-              </div>
-            </label>
+                
+                {/* <input
+                type={showConfirmPassword ? "text" : "password"}
+                defaultValue="12345"
+                className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10 pr-10 text-sm text-neutral-700 outline-none focus:ring-2 focus:ring-blue-500"
+                /> */}
+                <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) =>
+                    setConfirmPassword(e.target.value)
+                    }
+                    className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10 pr-10 text-sm text-neutral-700 outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                <button
+                type="button"
+                onClick={() =>
+                setShowConfirmPassword(!showConfirmPassword)
+                }
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                >
+                {showConfirmPassword ? (
+                <EyeOff className="h-4 w-4" />
+                ) : (
+                <Eye className="h-4 w-4" />
+                )}
+                </button>
+                </div>
+                </label>
 
-            <button type="submit" className="h-11 w-full cursor-pointer rounded-md bg-blue-600 text-sm font-semibold text-white transition hover:bg-blue-700">
+            {/* <button type="submit" className="h-11 w-full cursor-pointer rounded-md bg-blue-600 text-sm font-semibold text-white transition hover:bg-blue-700">
               Register
-            </button>
+            </button> */}
+            {error && (
+                <p className="text-sm text-red-500">
+                {error}
+                </p>
+                )}
+            <button
+                type="submit"
+                disabled={loading}
+                className="h-11 w-full rounded-md bg-blue-600 text-white"
+                >
+                {loading ? "Registering..." : "Register"}
+                </button>
           </form>
 
           <Link href="/login" className="mt-3 block text-center text-sm font-medium text-blue-600">

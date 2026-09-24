@@ -28,7 +28,7 @@ export default function DashboardLayout({
                         </div>
                     </main>
 
-                    <div className="fixed inset-y-0 right-0 z-50 flex min-h-0 w-[min(320px,85vw)] lg:static lg:my-4 lg:mr-4 lg:w-auto">
+                    <div className="fixed inset-y-0 right-0 z-1 flex min-h-0 w-[min(320px,85vw)] lg:static lg:my-4 lg:mr-4 lg:w-auto">
                         <AiCopilot />
                     </div>
                 </div>

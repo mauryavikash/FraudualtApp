@@ -244,9 +244,9 @@ export const VendorTable = ({ data, totalAlerts }) => {
                     <div className="text-[12px] font-medium text-[#0F172A]">
                       {row.title}
                     </div>
-                    <div className="text-[11px] text-[#94A3B8]">
+                    {/* <div className="text-[11px] text-[#94A3B8]">
                       {row.subtitle}
-                    </div>
+                    </div> */}
                   </td>
 
                   <td className="px-4 text-[12px] text-[#334155] whitespace-nowrap">

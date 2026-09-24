@@ -1,22 +1,51 @@
 "use client";
-
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BarChart3, Eye, LockKeyhole, Mail } from "lucide-react";
-
+import { BarChart3, Eye,EyeOff, LockKeyhole, Mail } from "lucide-react";
+import { loginUser } from "@/app/lib/api";
 export default function LoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+//   function handleSubmit(event) {
+//     event.preventDefault();
+//     router.push("/home");
+//   }
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    router.push("/home");
-  }
+async function handleSubmit(event) {
+  event.preventDefault();
 
+  try {
+    setLoading(true);
+    setError("");
+
+    const data = await loginUser(email, password);
+
+    localStorage.setItem("access_token", data.access_token);
+    localStorage.setItem("refresh_token", data.refresh_token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+        router.push("/home");
+    } catch (err) {
+        setError(
+        err.response?.data?.detail ||
+        "Invalid Email or Password"
+        );
+    } finally {
+        setLoading(false);
+    }
+      
+    }
   return (
     <main className="min-h-screen bg-gradient-to-br from-white via-cyan-50 to-indigo-300 px-6 py-5 text-slate-950">
-      <div className="absolute right-8 top-5 flex items-center gap-4">
-        <Image src="/cg.png" width={58} height={24} alt="i360" className="object-contain" />
+      <div className="absolute right-8 top-5 flex items-center gap-1">
+        <BarChart3 size={16} className="text-emerald-500" />
+        <span className="text-[13px] font-bold text-dgem-blue">i360</span>
         <Image src="/capgemini_icon.png" width={32} height={32} alt="Capgemini" className="object-contain" />
       </div>
 
@@ -41,17 +70,43 @@ export default function LoginPage() {
               <span className="mb-2 block text-sm font-semibold text-black">Email</span>
               <div className="relative">
                 <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input type="email" defaultValue="VigneshwaranD@capgemini.com" className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10 text-sm text-neutral-700 outline-none" />
+                {/* <input type="email" defaultValue="VigneshwaranD@capgemini.com" className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10 text-sm text-neutral-700 outline-none" /> */}
+               <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10"
+                />
               </div>
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-black">Password</span>
-              <div className="relative">
+            <span className="mb-2 block text-sm font-semibold text-black">
+                Password
+            </span>
+
+            <div className="relative">
                 <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input type="password" defaultValue="12345" className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10 pr-10 text-sm text-neutral-700 outline-none" />
-                <Eye className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-              </div>
+
+                {/* <input
+                type={showPassword ? "text" : "password"}
+                defaultValue="12345"
+                className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10 pr-10 text-sm text-neutral-700 outline-none"
+                /> */}
+               <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="h-11 w-full rounded-xl bg-neutral-100 px-4 pl-10 pr-10"
+                />
+                <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+            </div>
             </label>
 
             <div className="flex items-center justify-between text-sm">
@@ -62,9 +117,21 @@ export default function LoginPage() {
               <button type="button" className="font-medium text-blue-600">Forget Password?</button>
             </div>
 
-            <button type="submit" className="h-11 w-full cursor-pointer rounded-md bg-blue-600 text-sm font-semibold text-white transition hover:bg-blue-700">
+            {/* <button type="submit" className="h-11 w-full cursor-pointer rounded-md bg-blue-600 text-sm font-semibold text-white transition hover:bg-blue-700">
               Sign In
-            </button>
+            </button> */}
+            {error && (
+            <p className="text-sm text-red-500">
+            {error}
+            </p>
+            )}
+            <button
+                type="submit"
+                disabled={loading}
+                className="h-11 w-full rounded-md bg-blue-600 text-white"
+                >
+                {loading ? "Signing In..." : "Sign In"}
+                </button>
           </form>
 
           <Link href="/register" className="mt-3 block text-center text-sm font-medium text-blue-600">

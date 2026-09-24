@@ -7,19 +7,58 @@ const axiosInstance = axios.create({
   },
 });
 
-export const HOME_DASHBOARD_URL =
-  "http://localhost:8000/api/home";
+export const HOME_DASHBOARD_URL = "http://localhost:8000/api/home";
 export const CASES_URL = "http://localhost:8000/api/cases";
 export const RECOVERIES_URL = "http://localhost:8000/api/recoveries";
 export const AUDIT_URL = "http://localhost:8000/api/audit";
 export const VENDORS_URL = "http://localhost:8000/api/vendors";
 export const COPILOT_CHAT_URL = "http://localhost:8000/api/v1/copilot/chat";
-
+export const LOGIN_URL = "http://localhost:8000/auth/login";
+export const REGISTER_URL = "http://localhost:8000/auth/register";
 let homeDashboardRequest;
 let casesRequest;
 let recoveriesRequest;
 let auditRequest;
 let vendorsRequest;
+
+axiosInstance.interceptors.request.use(
+  (config) => {
+  if (typeof window !== "undefined") {
+  const token = localStorage.getItem("access_token");
+
+  if (token) {
+  config.headers.Authorization = `Bearer ${token}`;
+  }
+  }
+
+  return config;
+  },
+  (error) => Promise.reject(error)
+);
+export async function loginUser(email, password) {
+const response = await axiosInstance.post("/auth/login", {
+email,
+password,
+});
+ 
+return response.data;
+}
+
+export async function registerUser(
+email,
+password,
+confirm_password
+) {
+const response = await axiosInstance.post("/auth/register", {
+email,
+password,
+confirm_password,
+});
+return response.data;
+}
+
+// homeDashboardRequest = axiosInstance
+// .get(HOME_DASHBOARD_URL)
 
 export async function getHomeDashboard() {
   if (!homeDashboardRequest) {

@@ -13,7 +13,7 @@ const suggestedPrompts = [
 ];
 
 export default function AiCopilot() {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState([]);
   const [isSending, setIsSending] = useState(false);
@@ -55,7 +55,7 @@ export default function AiCopilot() {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-5 right-5 z-30 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-violet-600 text-white shadow-lg transition hover:bg-violet-700"
+        className="fixed bottom-1 right-10 z-30 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-violet-600 text-white shadow-lg transition hover:bg-violet-700"
         aria-label="Open AI Copilot"
         title="Open AI Copilot"
       >

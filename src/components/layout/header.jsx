@@ -101,10 +101,10 @@ export default function Header({ setIsOpen, isOpen }) {
             title="Notifications"
           >
             <Bell size={16} />
-            <span className="absolute -right-0.5 -top-0.5 flex h-3 w-3 items-center justify-center rounded-full border-2 border-white bg-red-500 select-none" />
+            <span className="absolute -right-0.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white text-white text-xs bg-red-500 select-none">2</span>
           </button>
 
-          {/* <button
+          {/* <button8
             className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:text-dgem-blue hover:shadow-md"
             type="button"
             title="Help"
