@@ -52,14 +52,12 @@ async function handleSubmit(event) {
   return (
     <main className="min-h-screen bg-gradient-to-br from-white via-cyan-50 to-indigo-300 px-6 py-5 text-slate-950">
       <div className="absolute right-8 top-5 flex items-center gap-1">
-        <BarChart3 size={16} className="text-emerald-500" />
-        <span className="text-[13px] font-bold text-dgem-blue">i360</span>
-        <Image src="/capgemini_icon.png" width={32} height={32} alt="Capgemini" className="object-contain" />
+        <img src="/cgI.png" alt="Brand" className="h-[34px]" />
       </div>
 
       <div className="mx-auto grid min-h-[calc(100vh-40px)] max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_.95fr]">
         <section className="hidden text-center lg:block">
-          <Image src="/Login.png" width={460} height={360} alt="Finance analytics illustration" className="mx-auto object-contain" priority />
+          <Image src="/LoginImg.png" width={460} height={360} alt="Finance analytics illustration" className="mx-auto object-contain" priority />
           <h1 className="mt-5 text-[42px] font-semibold leading-tight tracking-normal text-black">
             Intelligent Insights.<br />
             <span className="text-indigo-600">Stronger Decisions</span>

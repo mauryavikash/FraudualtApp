@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Sparkles,
   MoreHorizontal,
@@ -12,7 +12,37 @@ import {
 } from "lucide-react";
 
 export const CasesDetails = ({ caseData }) => {
+    
     const selectedCase = caseData ?? {};
+    const [reason, setReason] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handleAction = async (action) => {
+    try {
+        if (action === "approve" && !reason) {
+        alert("Please select a reason code.");
+        return;
+        }
+
+    const payload = {
+      recordId: selectedRecord?.id,
+      action: action,
+      reasonCode: reason || null,
+      comment: "",
+      actionedBy: session?.user,
+      actionedAt: new Date().toISOString(),
+    };
+
+    console.log("Payload:", payload);
+
+    // API call
+    await axios.post("/api/duplicate-detection/action", payload);
+
+    } catch (error) {
+        console.error(error);
+    }
+    };
+ 
     const amount = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
@@ -143,10 +173,10 @@ export const CasesDetails = ({ caseData }) => {
             payment adjustment.
         </p>
 
-        <button className="mt-3 inline-flex h-6 items-center gap-1 rounded-[4px] border border-[#C4B5FD] bg-white px-2 text-[10px] font-semibold text-[#6D28D9] hover:bg-[#F5F3FF]">
+        {/* <button className="mt-3 inline-flex h-6 items-center gap-1 rounded-[4px] border border-[#C4B5FD] bg-white px-2 text-[10px] font-semibold text-[#6D28D9] hover:bg-[#F5F3FF]">
             View Full Recommendation
             <ArrowRight size={12} />
-        </button>
+        </button> */}
         </div>
 
         {/* Progress */}
@@ -195,7 +225,7 @@ export const CasesDetails = ({ caseData }) => {
         
 
         {/* Notes */}
-        <div className="mt-6 pb-4">
+        {/* <div className="mt-6 pb-4">
         <div className="flex items-center justify-between">
             <div className="text-[11px] font-semibold tracking-wide text-[#64748B]">
             NOTES
@@ -230,6 +260,102 @@ export const CasesDetails = ({ caseData }) => {
         <button className="mt-3 text-[12px] font-medium text-[#2563EB]">
             View all notes
         </button>
+        </div> */}
+
+        {/* Quick Actions */}
+        <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-2">
+        <h3 className="text-sm font-semibold text-slate-900">
+            Quick Actions
+        </h3>
+
+        <div className="mt-2">
+            <label className="text-xs font-medium text-slate-600">
+            Reason Code (Required for Confirm)
+            </label>
+
+            <select
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-2 py-2 text-sm outline-none focus:border-blue-500"
+            >
+            <option value="">Select a reason...</option>
+            <option value="EXACT_MATCH">Exact Match</option>
+            <option value="DUPLICATE_INVOICE">Duplicate Invoice</option>
+            <option value="PAYMENT_ERROR">Payment Error</option>
+            <option value="VENDOR_ISSUE">Vendor Issue</option>
+            </select>
+        </div>
+
+        <div className="mt-2 grid grid-cols-3 gap-3">
+            {/* Confirm */}
+            <button
+            disabled={loading}
+            onClick={() => handleAction("approve")}
+            className="flex flex-col items-center justify-center rounded-lg bg-emerald-600 py-2 text-white hover:bg-emerald-700"
+            >
+            <FileSearch size={18} />
+            <span className="mt-1 text-xs font-medium">
+                Approved
+            </span>
+            </button>
+
+            {/* Reject */}
+            <button
+            disabled={loading}
+            onClick={() => handleAction("reject")}
+            className="flex flex-col items-center justify-center rounded-lg bg-rose-600 py-2 text-white hover:bg-rose-700"
+            >
+            <X size={18} />
+            <span className="mt-1 text-xs font-medium">
+                Reject
+            </span>
+            </button>
+
+            {/* Escalate */}
+            <button
+            disabled={loading}
+            onClick={() => handleAction("escalate")}
+            className="flex flex-col items-center justify-center rounded-lg border border-amber-500 bg-white py-2 text-amber-600 hover:bg-amber-50"
+            >
+            <AlertTriangle size={18} />
+            <span className="mt-1 text-xs font-medium">
+                Escalate
+            </span>
+            </button>
+        </div>
+
+        <p className="mt-2 text-xs text-slate-500">
+            Confirm requires a reason code. Reject and Escalate do not.
+        </p>
+
+        <div className="mt-2 border-t pt-2">
+            <div className="grid grid-cols-2 gap-y-2 text-sm">
+            <span className="text-slate-500">Category</span>
+            <span className="font-medium text-right">Exact Match</span>
+
+            <span className="text-slate-500">Rule</span>
+            <span className="font-medium text-right">Rule_1</span>
+
+            <span className="text-slate-500">Similarity</span>
+            <span className="font-medium text-right">Rule Match</span>
+
+            <span className="text-slate-500">Total Amount</span>
+            <span className="font-medium text-right">$48,720</span>
+
+            <span className="text-slate-500">Records</span>
+            <span className="font-medium text-right">2</span>
+            </div>
+
+            <div className="mt-4 rounded-lg bg-slate-100 p-3">
+            <div className="text-xs font-semibold text-slate-600">
+                Rule Explanation
+            </div>
+
+            <p className="mt-1 text-sm text-slate-700">
+                Exact match on all fields.
+            </p>
+            </div>
+        </div>
         </div>
     </div>
     </div>

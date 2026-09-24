@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "/api",
+  baseURL: "http://localhost:8000/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -13,8 +13,8 @@ export const RECOVERIES_URL = "http://localhost:8000/api/recoveries";
 export const AUDIT_URL = "http://localhost:8000/api/audit";
 export const VENDORS_URL = "http://localhost:8000/api/vendors";
 export const COPILOT_CHAT_URL = "http://localhost:8000/api/v1/copilot/chat";
-export const LOGIN_URL = "http://localhost:8000/auth/login";
-export const REGISTER_URL = "http://localhost:8000/auth/register";
+export const LOGIN_URL = "http://localhost:8000/api/auth/login";
+export const REGISTER_URL = "http://localhost:8000/api/auth/register";
 let homeDashboardRequest;
 let casesRequest;
 let recoveriesRequest;

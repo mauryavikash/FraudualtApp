@@ -1,13 +1,50 @@
 "use client";
 
-import { Bell, Menu, ChevronDown, Settings, User, LogOut, HelpCircle, Download, Upload, BarChart3 } from "lucide-react";
+import { Bell, Menu,Zap,Bot, ChevronDown,AlertTriangle,CheckCircle2,FileText,Mail, Settings, User, LogOut, HelpCircle, Download, Upload, BarChart3 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+  const NOTIF_ICONS = {
+    warning:  { icon: AlertTriangle, color: "text-amber-500",   bg: "bg-amber-50" },
+    success:  { icon: CheckCircle2,  color: "text-emerald-500", bg: "bg-emerald-50" },
+    info:     { icon: FileText,      color: "text-blue-500",    bg: "bg-blue-50" },
+    email:    { icon: Mail,          color: "text-sky-500",     bg: "bg-sky-50" },
+    default:  { icon: Bell,          color: "text-slate-500",   bg: "bg-slate-50" },
+  };
 
+  function getNotifStyle(type) {
+    return NOTIF_ICONS[type] || NOTIF_ICONS.default;
+  }
+
+  // ── Agent definitions ──────────────────────────────────────────────────────────
+  const LIVE_AGENTS = [
+    { name: "Statement Extraction Agent", role: "OCR · PDF · Email parsing", icon: "📄" },
+    { name: "AI Matching Engine",         role: "Auto-match supplier invoices", icon: "🔗" },
+    { name: "Follow-up Email Agent",      role: "Automated supplier outreach", icon: "📧" },
+    { name: "Reconciliation Processor",   role: "Batch reconciliation runs", icon: "⚙️" },
+  ];
+
+  const STANDBY_AGENTS = [
+    { name: "Root Cause Analysis Agent", role: "Exception pattern analysis", icon: "🔍" },
+    { name: "Predictive Exception Agent", role: "Pre-emptive issue detection", icon: "🔮" },
+    { name: "Learning Mode Agent",        role: "Continuous model training", icon: "🧠" },
+  ];
 export default function Header({ setIsOpen, isOpen }) {
   const pathname = usePathname();
   const [profileOpen, setProfileOpen] = useState(false);
+  const [agentsOpen,   setAgentsOpen]   = useState(false);
+  const [standbyOpen,  setStandbyOpen]  = useState(false);
+  const [notifOpen,    setNotifOpen]    = useState(false);
   const dropdownRef = useRef(null);
+   const agentsRef  = useRef(null);
+  const standbyRef = useRef(null);
+  // const notifRef   = useRef(null);
+  // const notifications = Array.isArray(dashData?.mockNotifications) && dashData.mockNotifications.length > 0
+  //   ? dashData.mockNotifications
+  //   : [
+  //       { type: "warning", message: "3 exceptions pending review", time: "2 min ago" },
+  //       { type: "success", message: "Reconciliation batch completed", time: "15 min ago" },
+  //       { type: "email",   message: "New statement from Kumar Textiles", time: "1 hr ago" },
+  //     ];
 
   let title = "Home";
 
@@ -59,7 +96,90 @@ export default function Header({ setIsOpen, isOpen }) {
 
         {/* Right section */}
         <div className="flex items-center gap-2 flex-wrap justify-end">
-          <div className="relative w-60">
+          
+          <div className="relative" ref={agentsRef}>
+            <button
+              type="button"
+              onClick={() => { setAgentsOpen((v) => !v); setStandbyOpen(false); }}
+              className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700 shadow-sm transition-all hover:bg-emerald-100 hover:shadow-md cursor-pointer"
+            >
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+              </span>
+              Agents Live
+              <span className="ml-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-600 px-1 text-[9px] font-bold text-white">
+                {LIVE_AGENTS.length}
+              </span>
+            </button>
+
+            {/* Live agents dropdown */}
+            <div className={`absolute left-0 top-full mt-2 w-72 overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-xl transition-all duration-200 z-50 ${
+              agentsOpen ? "visible translate-y-0 opacity-100" : "invisible -translate-y-2 opacity-0 pointer-events-none"
+            }`}>
+              <div className="border-b border-slate-100 bg-emerald-50 px-4 py-2.5">
+                <div className="flex items-center gap-2">
+                  <Zap size={13} className="text-emerald-600" />
+                  <span className="text-xs font-bold uppercase tracking-wide text-emerald-700">Live Agents ({LIVE_AGENTS.length})</span>
+                </div>
+              </div>
+              {LIVE_AGENTS.map((agent) => (
+                <div key={agent.name} className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
+                  <span className="mt-0.5 text-base leading-none">{agent.icon}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[12px] font-semibold text-slate-800">{agent.name}</p>
+                    <p className="text-[11px] text-slate-500">{agent.role}</p>
+                  </div>
+                  <span className="relative flex h-2 w-2 mt-1.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Standby pill + dropdown */}
+          <div className="relative" ref={standbyRef}>
+            <button
+              type="button"
+              onClick={() => { setStandbyOpen((v) => !v); setAgentsOpen(false); }}
+              className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[11px] font-semibold text-amber-700 shadow-sm transition-all hover:bg-amber-100 hover:shadow-md cursor-pointer"
+            >
+              <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+              Standby
+              <span className="ml-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] font-bold text-white">
+                {STANDBY_AGENTS.length}
+              </span>
+            </button>
+
+            {/* Standby agents dropdown */}
+            <div className={`absolute left-0 top-full mt-2 w-72 overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-xl transition-all duration-200 z-50 ${
+              standbyOpen ? "visible translate-y-0 opacity-100" : "invisible -translate-y-2 opacity-0 pointer-events-none"
+            }`}>
+              <div className="border-b border-slate-100 bg-amber-50 px-4 py-2.5">
+                <div className="flex items-center gap-2">
+                  <Bot size={13} className="text-amber-600" />
+                  <span className="text-xs font-bold uppercase tracking-wide text-amber-700">Standby Agents ({STANDBY_AGENTS.length})</span>
+                </div>
+              </div>
+              {STANDBY_AGENTS.map((agent) => (
+                <div key={agent.name} className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
+                  <span className="mt-0.5 text-base leading-none">{agent.icon}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[12px] font-semibold text-slate-800">{agent.name}</p>
+                    <p className="text-[11px] text-slate-500">{agent.role}</p>
+                  </div>
+                  <span className="h-2 w-2 mt-1.5 rounded-full bg-amber-400" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Notifications bell + dropdown */}
+       
+          
+          {/* <div className="relative w-60">
             <svg
               className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
               fill="none"
@@ -79,7 +199,7 @@ export default function Header({ setIsOpen, isOpen }) {
               placeholder="Search cases, recoveries, vendors..."
               className="h-9 w-full rounded-full border border-slate-200 bg-white py-2 pl-9 pr-3 text-[13px] text-slate-700 placeholder:text-slate-400 shadow-sm focus:outline-none"
             />
-          </div>
+          </div> */}
 
           {/* {headerActions.map((action) => {
             const ActionIcon = action.icon;
@@ -170,22 +290,17 @@ export default function Header({ setIsOpen, isOpen }) {
           </div>
 
           <div className="hidden md:flex items-center gap-1.5 pl-2 border-l border-slate-200">
-            <BarChart3 size={16} className="text-emerald-500" />
-            <span className="text-[13px] font-bold text-dgem-blue">i360</span>
+            {/* <BarChart3 size={16} className="text-emerald-500" /> */}
+            {/* <span className="text-[13px] font-bold text-dgem-blue">i360</span> */}
             {/* <img
                 src="/pw.png"
                 alt="User avatar"
                 className="h-8 w-12"
               /> */}
           </div>
-          <div>
-            <img
-                src="/capgemini_icon.png"
-                alt="capgemini icon"
-                className="h-10 w-12"
-              />
-          </div> 
-          {/* <div className="hidden md:block h-6 w-6 rounded-full bg-gradient-to-br from-sky-500 via-indigo-500 to-fuchsia-500 shrink-0" /> */}
+          <div className="flex items-center gap-2 pl-1">
+            <img src="/cgI.png" alt="Brand" className="h-[34px]" />
+          </div>
         </div>
       </div>
     </header>

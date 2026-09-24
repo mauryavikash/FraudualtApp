@@ -11,6 +11,8 @@ import AiExecutiveBriefing from "@/components/home/AiExecutiveBriefing";
 import { LoadingState } from "@/components/common/LoadingState";
 import PdfDownloadButton from "@/components/common/PdfDownloadButton";
 import { getHomeDashboard } from "@/app/lib/api";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 export default function DashboardPage() {
   const [homeData, setHomeData] = useState(null);
@@ -45,12 +47,91 @@ export default function DashboardPage() {
   const userName = headerData.userName ?? homeData.userName ?? "Vigneshwaran";
   const dateRange = headerData.dateRange ?? homeData.dateRange ?? "May 14 – May 20, 2025";
 
+const downloadExcel = () => {
+  if (!homeData) return;
+
+  const workbook = XLSX.utils.book_new();
+
+  // KPI Cards
+  if (homeData.kpiCards?.length) {
+    const ws = XLSX.utils.json_to_sheet(homeData.kpiCards);
+    XLSX.utils.book_append_sheet(workbook, ws, "KPI Cards");
+  }
+
+  // Audit Activities
+  if (homeData.auditActivities?.length) {
+    const ws = XLSX.utils.json_to_sheet(homeData.auditActivities);
+    XLSX.utils.book_append_sheet(workbook, ws, "Audit Activities");
+  }
+
+  // Executive Insights
+  if (homeData.executiveInsights?.length) {
+    const ws = XLSX.utils.json_to_sheet(homeData.executiveInsights);
+    XLSX.utils.book_append_sheet(workbook, ws, "Executive Insights");
+  }
+
+  // Operational Reports
+  if (homeData.operationalReports?.length) {
+    const ws = XLSX.utils.json_to_sheet(homeData.operationalReports);
+    XLSX.utils.book_append_sheet(workbook, ws, "Operational Reports");
+  }
+
+  // Vendors
+  if (homeData.aiExecutiveBriefing?.vendors?.length) {
+    const ws = XLSX.utils.json_to_sheet(
+      homeData.aiExecutiveBriefing.vendors
+    );
+    XLSX.utils.book_append_sheet(workbook, ws, "Vendors");
+  }
+
+  // Risk Matrix
+  if (homeData.aiExecutiveBriefing?.riskMatrix?.length) {
+    const ws = XLSX.utils.json_to_sheet(
+      homeData.aiExecutiveBriefing.riskMatrix
+    );
+    XLSX.utils.book_append_sheet(workbook, ws, "Risk Matrix");
+  }
+
+  // Recommendations
+  if (homeData.aiExecutiveBriefing?.recommendations?.length) {
+    const ws = XLSX.utils.json_to_sheet(
+      homeData.aiExecutiveBriefing.recommendations
+    );
+    XLSX.utils.book_append_sheet(workbook, ws, "Recommendations");
+  }
+
+  // Dashboard Summary
+  if (homeData.managementDashboard?.dashboardSummary) {
+    const ws = XLSX.utils.json_to_sheet([
+      homeData.managementDashboard.dashboardSummary,
+    ]);
+    XLSX.utils.book_append_sheet(workbook, ws, "Summary");
+  }
+
+  // Open Closed Data
+  if (homeData.managementDashboard?.openClosedData?.length) {
+    const ws = XLSX.utils.json_to_sheet(
+      homeData.managementDashboard.openClosedData
+    );
+    XLSX.utils.book_append_sheet(workbook, ws, "Open Closed");
+  }
+
+  // Priority Data
+  if (homeData.managementDashboard?.priorityData?.length) {
+    const ws = XLSX.utils.json_to_sheet(
+      homeData.managementDashboard.priorityData
+    );
+    XLSX.utils.book_append_sheet(workbook, ws, "Priority");
+    }
+
+    XLSX.writeFile(workbook, "HomeDashboard.xlsx");
+  };
   return (
     <div className="min-h-screen text-slate-800">
       <div className="mx-auto max-w-[1800px] space-y-3">
       
         {/* HEADER */}
-       <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+       <div className="contentHeader rounded-2xl border border-slate-200 bg-white px-4 py-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           
           {/* Left Content */}
@@ -74,7 +155,14 @@ export default function DashboardPage() {
               <span>{dateRange}</span>
               <ChevronDown size={14} />
             </button> */}
-            <PdfDownloadButton fileName="home-dashboard" />
+            <div className="flex gap-2">
+              <button
+                onClick={downloadExcel}
+                className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+              >
+                Download Excel
+              </button>
+            </div>
           </div>
 
         </div>

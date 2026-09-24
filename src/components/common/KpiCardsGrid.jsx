@@ -59,6 +59,24 @@ export default function KpiCardsGrid({
                 justify-between
               `}
             >
+            {/* <div
+      className="
+        rounded-[10px]
+        bg-white
+        shadow-[0px_1px_4px_rgba(15,23,42,0.05)]
+        px-4
+        py-3.5
+        min-h-[104px]
+        flex
+        flex-col
+        justify-between
+      "
+      style={{
+        border: "1.5px solid",
+        borderImage:
+          "linear-gradient(135deg,#2563EB 0%,#06B6D4 60%,#10B981 100%) 1",
+      }}
+    > */}
               <div className="flex items-start justify-between gap-2">
                 <p className={style.titleClass}>{item.title}</p>
 
