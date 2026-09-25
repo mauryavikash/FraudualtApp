@@ -2,91 +2,6 @@
 import React, { useMemo, useState } from "react";
 import { Search, SlidersHorizontal, MoreVertical } from "lucide-react";
 
-const alertData = [
-  {
-    id: "ALT-1018",
-    dateTime: "May 18, 2025 10:45 AM",
-    severity: "Critical",
-    title: "High-duplicate cluster detected",
-    subtitle: "Cluster contains 48 matched records",
-    type: "Duplicate Detection",
-    source: "Resolution Studio",
-    assignedTo: "Preethi S.",
-  },
-  {
-    id: "ALT-1017",
-    dateTime: "May 18, 2025 09:31 AM",
-    severity: "Critical",
-    title: "Payment anomaly rule violated",
-    subtitle: "Same address matches 3 bank records",
-    type: "Anomaly",
-    source: "Resolution Studio",
-    assignedTo: "Unassigned",
-  },
-  {
-    id: "ALT-1016",
-    dateTime: "May 18, 2025 08:22 AM",
-    severity: "High",
-    title: "Unusual recovery amount",
-    subtitle: "Recovery value exceeded threshold",
-    type: "Audit Alert",
-    source: "No Source",
-    assignedTo: "Recoveries P.",
-  },
-  {
-    id: "ALT-1015",
-    dateTime: "May 18, 2025 01:15 AM",
-    severity: "Medium",
-    title: "Manual review override spike",
-    subtitle: "Performance below standard threshold",
-    type: "Rules Activity",
-    source: "Audit Log",
-    assignedTo: "Investigators...",
-  },
-  {
-    id: "ALT-1014",
-    dateTime: "May 18, 2025 12:30 PM",
-    severity: "High",
-    title: "Vendor master data change flagged",
-    subtitle: "Audit trail output not processed",
-    type: "Data Change",
-    source: "Vendors",
-    assignedTo: "Investigators...",
-  },
-  {
-    id: "ALT-1013",
-    dateTime: "May 18, 2025 10:15 AM",
-    severity: "Low",
-    title: "Low confidence match rule",
-    subtitle: "Performance below standard threshold",
-    type: "Rules Performance",
-    source: "Resolution Studio",
-    assignedTo: "System",
-  },
-  {
-    id: "ALT-1012",
-    dateTime: "May 17, 2025 04:22 PM",
-    severity: "Medium",
-    title: "Scheduled audit completed",
-    subtitle: "Audit log run finished successfully",
-    type: "Audit Log",
-    source: "Global",
-    assignedTo: "System",
-  },
-  {
-    id: "ALT-1011",
-    dateTime: "May 17, 2025 03:15 PM",
-    severity: "High",
-    title: "File processed successfully",
-    subtitle: "Duplicate detective output processed",
-    type: "System",
-    source: "Audit Log",
-    assignedTo: "System",
-  },
-];
-
-const TOTAL_ALERTS = 18;
-
 const severityClass = (severity) => {
   switch (severity) {
     case "Critical":
@@ -134,14 +49,35 @@ function FilterSelect({ label, children, ...props }) {
   );
 }
 
-export const VendorTable = () => {
+export const VendorTable = ({ data, totalAlerts }) => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [severityFilter, setSeverityFilter] = useState("All Severities");
   const [typeFilter, setTypeFilter] = useState("All Types");
   const [sourceFilter, setSourceFilter] = useState("All Sources");
-  const [statusFilter, setStatusFilter] = useState("All Statuses");
-  const pageSize = 8;
+  const [dateFilter, setDateFilter] = useState("All Dates");
+  const pageSize = 10;
+
+  const alertData = useMemo(() => Array.isArray(data)
+    ? data.map((item) => {
+        const timestamp = new Date(item.timestamp);
+        return {
+          id: item.alertId,
+          dateTime: timestamp.toLocaleString(),
+          dateKey: Number.isNaN(timestamp.getTime()) ? "Unknown date" : timestamp.toLocaleDateString(),
+          severity: item.severity,
+          title: item.title,
+          subtitle: item.description,
+          type: item.alertType,
+          source: item.source,
+          assignedTo: item.assignedTo ?? "Unassigned",
+        };
+      })
+    : [], [data]);
+  const dateOptions = useMemo(() => [...new Set(alertData.map((item) => item.dateKey))], [alertData]);
+  const severityOptions = useMemo(() => [...new Set(alertData.map((item) => item.severity))], [alertData]);
+  const typeOptions = useMemo(() => [...new Set(alertData.map((item) => item.type))], [alertData]);
+  const sourceOptions = useMemo(() => [...new Set(alertData.map((item) => item.source))], [alertData]);
 
   const filteredData = useMemo(() => {
     return alertData.filter((item) => {
@@ -152,14 +88,21 @@ export const VendorTable = () => {
 
       const matchesSeverity =
         severityFilter === "All Severities" || item.severity === severityFilter;
-
       const matchesType = typeFilter === "All Types" || item.type === typeFilter;
+      const matchesSource = sourceFilter === "All Sources" || item.source === sourceFilter;
+      const matchesDate = dateFilter === "All Dates" || item.dateKey === dateFilter;
 
-      return matchesSearch && matchesSeverity && matchesType;
+      return matchesSearch && matchesDate && matchesSeverity && matchesType && matchesSource;
     });
-  }, [search, severityFilter, typeFilter]);
+  }, [search, dateFilter, severityFilter, typeFilter, sourceFilter, alertData]);
 
-  const totalPages = Math.max(1, Math.ceil(TOTAL_ALERTS / pageSize));
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
+  const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
+
+  const updateFilter = (setter) => (event) => {
+    setter(event.target.value);
+    setPage(1);
+  };
 
   return (
     <div className="col-span-12 xl:col-span-8 flex">
@@ -180,56 +123,36 @@ export const VendorTable = () => {
         {/* Filters */}
         <div className="px-4 py-4 border-b border-[#E2E8F0]">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <FilterSelect label="Date Range">
-              <option>May 14 – May 20, 2025</option>
+            <FilterSelect label="Date Range" value={dateFilter} onChange={updateFilter(setDateFilter)}>
+              <option>All Dates</option>
+              {dateOptions.map((date) => <option key={date}>{date}</option>)}
             </FilterSelect>
 
             <FilterSelect
               label="Severity"
               value={severityFilter}
-              onChange={(e) => setSeverityFilter(e.target.value)}
+              onChange={updateFilter(setSeverityFilter)}
             >
               <option>All Severities</option>
-              <option>Critical</option>
-              <option>High</option>
-              <option>Medium</option>
-              <option>Low</option>
+              {severityOptions.map((severity) => <option key={severity}>{severity}</option>)}
             </FilterSelect>
 
             <FilterSelect
               label="Alert Type"
               value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
+              onChange={updateFilter(setTypeFilter)}
             >
               <option>All Types</option>
-              <option>Duplicate Detection</option>
-              <option>Anomaly</option>
-              <option>Audit Alert</option>
-              <option>Rules Activity</option>
-              <option>Data Change</option>
-              <option>System</option>
+              {typeOptions.map((type) => <option key={type}>{type}</option>)}
             </FilterSelect>
 
             <FilterSelect
               label="Source"
               value={sourceFilter}
-              onChange={(e) => setSourceFilter(e.target.value)}
+              onChange={updateFilter(setSourceFilter)}
             >
               <option>All Sources</option>
-              <option>Resolution Studio</option>
-              <option>Audit Log</option>
-              <option>Vendors</option>
-              <option>Global</option>
-            </FilterSelect>
-
-            <FilterSelect
-              label="Status"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option>All Statuses</option>
-              <option>Unread</option>
-              <option>Read</option>
+              {sourceOptions.map((source) => <option key={source}>{source}</option>)}
             </FilterSelect>
           </div>
 
@@ -242,16 +165,16 @@ export const VendorTable = () => {
               <input
                 type="text"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setPage(1);
+                }}
                 placeholder="Search alerts..."
                 className="w-full h-9 rounded-xl border border-[#D9E1EA] bg-white pl-9 pr-3 text-[12px] text-[#334155] placeholder:text-[#94A3B8] focus:outline-none"
               />
             </div>
 
-            <button className="h-9 px-4 rounded-xl border border-[#D9E1EA] bg-white text-[12px] font-medium text-[#475569] flex items-center gap-2 shrink-0">
-              <SlidersHorizontal size={14} />
-              Filters
-            </button>
+           
           </div>
         </div>
 
@@ -289,7 +212,9 @@ export const VendorTable = () => {
             </thead>
 
             <tbody>
-              {filteredData.map((row) => (
+              {paginatedData.length === 0 ? (
+                <tr><td colSpan={7} className="px-4 py-10 text-center text-[13px] text-[#94A3B8]">No matching alerts found.</td></tr>
+              ) : paginatedData.map((row) => (
                 <tr
                   key={row.id}
                   className="h-[44px] border-b border-[#E2E8F0] hover:bg-[#F8FAFC] cursor-pointer transition-colors"
@@ -319,9 +244,9 @@ export const VendorTable = () => {
                     <div className="text-[12px] font-medium text-[#0F172A]">
                       {row.title}
                     </div>
-                    <div className="text-[11px] text-[#94A3B8]">
+                    {/* <div className="text-[11px] text-[#94A3B8]">
                       {row.subtitle}
-                    </div>
+                    </div> */}
                   </td>
 
                   <td className="px-4 text-[12px] text-[#334155] whitespace-nowrap">
@@ -336,9 +261,9 @@ export const VendorTable = () => {
                     {row.assignedTo}
                   </td>
 
-                  <td className="pr-4">
+                  {/* <td className="pr-4">
                     <MoreVertical size={15} className="text-[#94A3B8]" />
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>
@@ -349,17 +274,18 @@ export const VendorTable = () => {
         <div className="border-t border-[#E2E8F0] px-4 py-3 flex items-center justify-between">
           <div className="text-[12px] text-[#64748B]">
             Showing {(page - 1) * pageSize + 1}–
-            {Math.min(page * pageSize, TOTAL_ALERTS)} of {TOTAL_ALERTS} alerts
+            {Math.min(page * pageSize, filteredData.length)} of {filteredData.length} of {totalAlerts ?? filteredData.length} alerts
           </div>
 
           <div className="flex items-center gap-2">
-            <select className="h-7 rounded-lg border border-[#D9E1EA] px-2 text-[12px]">
-              <option>10 rows per page</option>
+            <select className="h-7 rounded-lg border border-[#D9E1EA] px-2 text-[12px]" value={pageSize} disabled>
+              <option value={10}>10 rows per page</option>
             </select>
 
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="w-7 h-7 rounded-lg border border-[#D9E1EA] text-[#475569]"
+              disabled={page === 1}
+              className="w-7 h-7 rounded-lg border border-[#D9E1EA] text-[#475569] disabled:opacity-40"
             >
               ‹
             </button>
@@ -380,7 +306,8 @@ export const VendorTable = () => {
 
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="w-7 h-7 rounded-lg border border-[#D9E1EA] text-[#475569]"
+              disabled={page === totalPages}
+              className="w-7 h-7 rounded-lg border border-[#D9E1EA] text-[#475569] disabled:opacity-40"
             >
               ›
             </button>

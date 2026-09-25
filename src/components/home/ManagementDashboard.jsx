@@ -12,7 +12,20 @@ import {
   Cell,
 } from "recharts";
 
-export default function ManagementDashboard() {
+function formatCurrency(value) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(Number(value || 0));
+}
+
+function formatPercent(value) {
+  return `${Number(value ?? 0).toFixed(1)}%`;
+}
+
+export default function ManagementDashboard({ data }) {
   const cardClass = `
     rounded-xl
     border
@@ -28,18 +41,18 @@ export default function ManagementDashboard() {
     hover:shadow-[0_12px_30px_rgba(15,23,42,0.12)]
   `;
 
-  const openClosedData = [
+  const staticOpenClosedData = [
     { name: "Open", value: 4723, percent: "47.9%", color: "#6886d1" },
     { name: "Closed", value: 5119, percent: "52.1%", color: "#5ed3af" },
   ];
 
-  const priorityData = [
+  const staticPriorityData = [
     { name: "High", value: 1892, percent: "19.2%", color: "#e28282" },
     { name: "Medium", value: 3913, percent: "39.7%", color: "#ebbc62" },
     { name: "Low", value: 4037, percent: "41.1%", color: "#5ed3af" },
   ];
 
-  const recoveryTrendData = [
+  const staticRecoveryTrendData = [
     { name: "May 14", value: 1.1 },
     { name: "May 15", value: 1.5 },
     { name: "May 16", value: 1.4 },
@@ -49,7 +62,7 @@ export default function ManagementDashboard() {
     { name: "May 20", value: 1.95 },
   ];
 
-  const investigationCycleData = [
+  const staticInvestigationCycleData = [
     { name: "May 14", value: 5.1 },
     { name: "May 15", value: 6.0 },
     { name: "May 16", value: 5.5 },
@@ -59,7 +72,7 @@ export default function ManagementDashboard() {
     { name: "May 20", value: 6.5 },
   ];
 
-  const vendorTrendData = [
+  const staticVendorTrendData = [
     { name: "May 14", value: 180 },
     { name: "May 15", value: 220 },
     { name: "May 16", value: 215 },
@@ -69,7 +82,7 @@ export default function ManagementDashboard() {
     { name: "May 20", value: 270 },
   ];
 
-  const dashboardSummary = {
+  const staticDashboardSummary = {
     totalCases: "9,842",
     recoveryValue: "$3.42M",
     recoveryGrowth: "+18.7%",
@@ -80,6 +93,48 @@ export default function ManagementDashboard() {
     automationGrowth: "+6.8%",
     highRiskVendors: "245",
     highRiskGrowth: "+8.4%",
+  };
+
+  const openClosedData = Array.isArray(data?.openClosedData) && data.openClosedData.length
+    ? data.openClosedData.map((item, index) => ({
+        name: item.name ?? item.status,
+        value: Number(item.value ?? item.count ?? 0),
+        percent: item.percent ?? formatPercent(item.percentage),
+        color: staticOpenClosedData[index]?.color ?? "#6886d1",
+      }))
+    : staticOpenClosedData;
+  const priorityData = Array.isArray(data?.priorityData) && data.priorityData.length
+    ? data.priorityData.map((item, index) => ({
+        name: item.name ?? item.priority,
+        value: Number(item.value ?? item.count ?? 0),
+        percent: item.percent ?? formatPercent(item.percentage),
+        color: staticPriorityData[index]?.color ?? "#e28282",
+      }))
+    : staticPriorityData;
+  const recoveryTrendData = Array.isArray(data?.recoveryTrendData) && data.recoveryTrendData.length
+    ? data.recoveryTrendData
+    : staticRecoveryTrendData;
+  const investigationCycleData = Array.isArray(data?.investigationCycleTrend) && data.investigationCycleTrend.length
+    ? data.investigationCycleTrend
+    : staticInvestigationCycleData;
+  const vendorTrendData = Array.isArray(data?.vendorTrend) && data.vendorTrend.length
+    ? data.vendorTrend
+    : staticVendorTrendData;
+  const apiSummary = data?.summary ?? data?.dashboardSummary;
+  const dashboardSummary = {
+    ...staticDashboardSummary,
+    ...(apiSummary && {
+      totalCases: Number(apiSummary.totalCases ?? 0).toLocaleString(),
+      recoveryValue: formatCurrency(apiSummary.recoveryValue),
+      recoveryGrowth: `${Number(apiSummary.recoveryGrowth ?? 0) >= 0 ? "+" : ""}${apiSummary.recoveryGrowth ?? 0}%`,
+      cycleTime: `${apiSummary.cycleTimeDays ?? 0} Days`,
+      cycleImprovement: `${apiSummary.cycleImprovementDays ?? 0} Days`,
+      slaCompliance: formatPercent(apiSummary.slaCompliance),
+      automationRate: formatPercent(apiSummary.automationRate),
+      automationGrowth: `${Number(apiSummary.automationGrowth ?? 0) >= 0 ? "+" : ""}${apiSummary.automationGrowth ?? 0}%`,
+      highRiskVendors: Number(apiSummary.highRiskVendors ?? 0).toLocaleString(),
+      highRiskGrowth: `${Number(apiSummary.highRiskVendorGrowth ?? 0) >= 0 ? "+" : ""}${apiSummary.highRiskVendorGrowth ?? 0}%`,
+    }),
   };
 
   return (
@@ -331,7 +386,7 @@ export default function ManagementDashboard() {
                   {/* Center Content */}
                   <div className="absolute top-[60px] inset-0 flex flex-col items-center justify-center">
                     <div className="text-[26px] font-bold leading-none text-[#26334D]">
-                      68.2%
+                      {dashboardSummary.automationRate}
                     </div>
 
                     <div className="mt-2 text-[13px] font-medium text-[#66758C]">
@@ -351,7 +406,7 @@ export default function ManagementDashboard() {
                         leading-none
                       "
                     >
-                      ↗ +6.8%
+                      ↗ {dashboardSummary.automationGrowth}
                     </div>
                   </div>
                 </div>
@@ -449,14 +504,14 @@ export default function ManagementDashboard() {
                   strokeWidth="12"
                   strokeLinecap="round"
                   pathLength="100"
-                  strokeDasharray="92.4 100"
+                  strokeDasharray={`${parseFloat(dashboardSummary.slaCompliance) || 0} 100`}
                 />
               </svg>
 
               {/* Center Content */}
               <div className="absolute top-[90px] inset-0 flex flex-col items-center justify-center">
                 <div className="text-[28px] font-bold leading-none text-[#1E293B]">
-                  92.4%
+                  {dashboardSummary.slaCompliance}
                 </div>
 
                 <div className="mt-1 text-[14px] font-medium text-[#64748B]">

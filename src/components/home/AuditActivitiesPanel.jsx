@@ -1,7 +1,8 @@
 import { ExternalLink } from "lucide-react";
+import Link from "next/link";
 
-export default function AuditActivitiesPanel() {
-  const auditActivities = [
+export default function AuditActivitiesPanel({ data }) {
+  const staticAuditActivities = [
     {
       time: "May 20, 2025 10:24 AM",
       activity: "Case Status Updated",
@@ -38,6 +39,19 @@ export default function AuditActivitiesPanel() {
       badge: "bg-indigo-100 text-indigo-700",
     },
   ];
+
+  const apiActivities = Array.isArray(data) ? data : data?.items;
+  const auditActivities = Array.isArray(apiActivities) && apiActivities.length
+    ? apiActivities.map((activity) => ({
+        time: activity.time ?? (activity.timestamp ? new Date(activity.timestamp).toLocaleString() : "-"),
+        badge: activity.source === "Integration"
+          ? "bg-purple-100 text-purple-700"
+          : activity.source === "System"
+            ? "bg-indigo-100 text-indigo-700"
+            : "bg-blue-100 text-blue-700",
+        ...activity,
+      }))
+    : staticAuditActivities;
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-4">
@@ -85,10 +99,10 @@ export default function AuditActivitiesPanel() {
         </div>
       ))}
 
-      <button className="mt-3 flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white py-2 text-xs font-medium text-slate-600">
+      <Link href="/audit" className="mt-3 flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white py-2 text-xs font-medium text-slate-600">
         <ExternalLink size={14} />
         Go to Audit Trail
-      </button>
+      </Link>
     </div>
   );
 }

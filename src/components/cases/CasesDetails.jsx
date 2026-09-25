@@ -4,27 +4,55 @@ import {
   MoreHorizontal,
   X,
   Plus,
-  ChevronDown,
+    ArrowRight,
+    UserPlus,
+    FileSearch,
+    AlertTriangle,
+    BanknoteArrowUp,
 } from "lucide-react";
 
-const tableData = [
-  {
-    caseId: "INV-2025-000123",
-    caseType: "Duplicate",
-    priority: "High",
-    status: "In Progress",
-    vendor: "ABC Solutions",
-    amount: "125,450.00",
-    detectedOn: "May 20, 2025 10:24 AM",
-    slaDue: "May 24, 2025",
-    remaining: "2 Days Left",
-    investigator: "Sarah Johnson",
-    sourceSystem: "SAP",
-  },
-];
+import { submitCaseAction } from "@/app/lib/api";
+export const CasesDetails = ({ caseData }) => {
+    
+    const selectedCase = caseData ?? {};
+    const [reason, setReason] = useState("");
+    const [loading, setLoading] = useState(false);
 
-export const CasesDetails = () => {
-  const [selectedCase] = useState(tableData[0]);
+    const handleAction = async (action) => {
+    try {
+        if (action === "approve" && !reason) {
+        alert("Please select a reason code.");
+        return;
+        }
+
+        setLoading(true);
+
+        const payload = {
+        caseId: selectedCase?.case_id,
+        action,
+        reason: reason ,
+        comment: "",
+        actionedAt: new Date().toISOString(),
+        };
+
+        const response = await submitCaseAction(payload);
+
+        console.log("Success:", response);
+    } catch (error) {
+        console.error(error);
+    } finally {
+        setLoading(false);
+    }
+    };
+ 
+    const amount = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 2,
+    }).format(Number(selectedCase.amount ?? 0));
+    const detectedOn = selectedCase.detectedOn
+        ? new Date(selectedCase.detectedOn).toLocaleString()
+        : "-";
   return (
    <div className="w-full bg-white rounded-[16px] border border-[#D1D5DB] shadow-[0px_2px_8px_rgba(0,0,0,0.08)] overflow-hidden">
     {/* Header */}
@@ -32,11 +60,11 @@ export const CasesDetails = () => {
         <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
             <h2 className="text-[18px] leading-[24px] font-semibold text-[#0F172A]">
-            {selectedCase.caseId}
+            {selectedCase.case_id}
             </h2>
 
             <span className="px-2 py-[2px] text-[10px] font-medium rounded bg-[#F3E8FF] text-[#9333EA]">
-            {selectedCase.caseType}
+            {selectedCase.case_type}
             </span>
         </div>
 
@@ -51,7 +79,7 @@ export const CasesDetails = () => {
             Details
         </button>
 
-        <button className="pb-2 text-[12px] text-[#475569]">
+        {/* <button className="pb-2 text-[12px] text-[#475569]">
             Transactions (4)
         </button>
 
@@ -61,7 +89,7 @@ export const CasesDetails = () => {
 
         <button className="pb-2 text-[12px] text-[#475569]">
             Audit Trail
-        </button>
+        </button> */}
         </div>
     </div>
 
@@ -72,7 +100,7 @@ export const CasesDetails = () => {
             label="STATUS"
             value={
             <span className="inline-flex px-2 py-[2px] rounded text-[10px] font-medium bg-[#DBEAFE] text-[#2563EB]">
-                In Progress
+                {selectedCase.risk_level ?? "-"}
             </span>
             }
         />
@@ -82,7 +110,7 @@ export const CasesDetails = () => {
             value={
             <div className="flex items-center gap-1.5">
                 <span className="w-[6px] h-[6px] rounded-full bg-[#EF4444]" />
-                <span>High</span>
+                <span>{selectedCase.priority ?? "-"}</span>
             </div>
             }
         />
@@ -91,63 +119,67 @@ export const CasesDetails = () => {
             label="AMOUNT (USD)"
             value={
             <span className="font-semibold text-[14px]">
-                125,450.00
+                {selectedCase?.invoice_1?.amount}
             </span>
             }
         />
 
         <Info
             label="VENDOR"
-            value="ABC Solutions"
+            value={selectedCase.vendor || "-"}
         />
 
         <Info
             label="DETECTED ON"
-            value="May 20, 2025 10:24 AM"
+            value={detectedOn}
         />
 
         <Info
-            label="SLA DUE"
+            label="INVOICE DATE"
             value={
             <span className="text-[#F59E0B]">
-                May 24, 2025 (2 Days Left)
+                {selectedCase.invoice_1?.invoice_date ?? "-"}
             </span>
             }
         />
 
         <Info
-            label="INVESTIGATOR"
-            value="Sarah Johnson"
+            label="INVOICE ID"
+            value={selectedCase.invoice_1?.invoice_id ?? "-"}
         />
 
         <Info
-            label="SOURCE SYSTEM"
-            value="SAP"
+            label="INVOICE NUMBER"
+            value={selectedCase.invoice_1?.invoice_number ?? "-"}
         />
         </div>
 
         {/* AI Recommendation */}
-        <div className="mt-5 border border-[#D1D5DB] rounded-[10px] bg-[#F8FAFC] p-3">
+        {/* <div className="mt-5 rounded-[6px] border border-[#D8B4FE] bg-[#FCFAFF] p-3">
         <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-[#2563EB] flex items-center justify-center">
-            <Sparkles size={9} className="text-white" />
-            </div>
+            <Sparkles size={15} className="text-[#7C3AED]" />
 
-            <span className="text-[13px] font-semibold text-[#0F172A]">
-            AI Recommendation
+            <span className="text-[12px] font-semibold text-[#4C1D95]">
+            AI Recommended Action
             </span>
         </div>
 
-        <p className="mt-3 text-[12px] leading-5 text-[#475569]">
-            Potential duplicate invoice detected with 92%
-            confidence. Review and confirm as duplicate or
-            false positive.
+        <p className="mt-3 text-[10px] leading-4 text-[#334155]">
+            This is a high-confidence <span className="font-semibold">true duplicate.</span> Both invoices have identical
+            key attributes and amount.
         </p>
 
-        <button className="mt-2 text-[12px] font-medium text-[#2563EB]">
-            View AI Analysis
+        <p className="mt-3 text-[10px] leading-4 text-[#334155]">
+            <span className="font-semibold">Recommended Action:</span><br />
+            Confirm duplicate and initiate recovery. Validate with vendor before
+            payment adjustment.
+        </p>
+
+        <button className="mt-3 inline-flex h-6 items-center gap-1 rounded-[4px] border border-[#C4B5FD] bg-white px-2 text-[10px] font-semibold text-[#6D28D9] hover:bg-[#F5F3FF]">
+            View Full Recommendation
+            <ArrowRight size={12} />
         </button>
-        </div>
+        </div> */}
 
         {/* Progress */}
         <div className="mt-5">
@@ -192,24 +224,10 @@ export const CasesDetails = () => {
         </div>
         </div>
 
-        {/* Buttons */}
-        <div className="grid grid-cols-3 gap-2 mt-5">
-        <button className="h-9 rounded-md bg-[#2563EB] text-white text-[13px] font-medium hover:bg-[#1D4ED8]">
-            Review Case
-        </button>
-
-        <button className="h-9 rounded-md border border-[#CBD5E1] bg-white text-[13px] font-medium text-[#334155]">
-            Escalate Case
-        </button>
-
-        <button className="h-9 rounded-md border border-[#CBD5E1] bg-white text-[13px] font-medium text-[#334155] flex items-center justify-center gap-1">
-            More Actions
-            <ChevronDown size={14} />
-        </button>
-        </div>
+        
 
         {/* Notes */}
-        <div className="mt-6 pb-4">
+        {/* <div className="mt-6 pb-4">
         <div className="flex items-center justify-between">
             <div className="text-[11px] font-semibold tracking-wide text-[#64748B]">
             NOTES
@@ -244,6 +262,100 @@ export const CasesDetails = () => {
         <button className="mt-3 text-[12px] font-medium text-[#2563EB]">
             View all notes
         </button>
+        </div> */}
+
+        {/* Quick Actions */}
+        <div className="mt-2 mb-2 rounded-xl border border-slate-200 bg-slate-50 p-2">
+          <h3 className="text-sm font-semibold text-slate-900">Quick Actions</h3>
+
+          <div className="mt-2">
+            <label className="text-xs font-medium text-slate-600">
+            Reason Code (Required for Confirm)
+            </label>
+
+            <select
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-2 py-2 text-sm outline-none focus:border-blue-500"
+            >
+            <option value="">Select a reason...</option>
+            <option value="EXACT_MATCH">Exact Match</option>
+            <option value="DUPLICATE_INVOICE">Duplicate Invoice</option>
+            <option value="PAYMENT_ERROR">Payment Error</option>
+            <option value="VENDOR_ISSUE">Vendor Issue</option>
+            </select>
+        </div>
+
+        <div className="mt-2 grid grid-cols-3 gap-3">
+            {/* Confirm */}
+            <button
+            disabled={loading}
+            onClick={() => handleAction("approve")}
+            className="flex flex-col items-center justify-center rounded-lg bg-emerald-600 py-2 text-white hover:bg-emerald-700"
+            >
+            <FileSearch size={18} />
+            <span className="mt-1 text-xs font-medium">
+                Approved
+            </span>
+            </button>
+
+            {/* Reject */}
+            <button
+            disabled={loading}
+            onClick={() => handleAction("reject")}
+            className="flex flex-col items-center justify-center rounded-lg bg-rose-600 py-2 text-white hover:bg-rose-700"
+            >
+            <X size={18} />
+            <span className="mt-1 text-xs font-medium">
+                Reject
+            </span>
+            </button>
+
+            {/* Escalate */}
+            <button
+            disabled={loading}
+            onClick={() => handleAction("escalate")}
+            className="flex flex-col items-center justify-center rounded-lg border border-amber-500 bg-white py-2 text-amber-600 hover:bg-amber-50"
+            >
+            <AlertTriangle size={18} />
+            <span className="mt-1 text-xs font-medium">
+                Escalate
+            </span>
+            </button>
+        </div>
+
+        <p className="mt-2 text-xs text-slate-500">
+            Confirm requires a reason code. Reject and Escalate do not.
+        </p>
+
+        <div className="mt-2 border-t pt-2">
+            <div className="grid grid-cols-2 gap-y-2 text-sm">
+            <span className="text-slate-500">Category</span>
+            <span className="font-medium text-right">Exact Match</span>
+
+            <span className="text-slate-500">Rule</span>
+            <span className="font-medium text-right">Rule_1</span>
+
+            <span className="text-slate-500">Similarity</span>
+            <span className="font-medium text-right">{selectedCase?.similarity ?? "-"}</span>
+
+            <span className="text-slate-500">Total Amount</span>
+            <span className="font-medium text-right">{selectedCase?.invoice_1?.amount ?? "-"}</span>
+
+            <span className="text-slate-500">Records</span>
+            <span className="font-medium text-right">{selectedCase?.invoice_1?.invoice_count ?? "-"}</span>
+            </div>
+
+            <div className="mt-2 rounded-lg bg-slate-100 p-3">
+                <div className="text-xs font-semibold text-slate-600">
+                    Rule Explanation
+                </div>
+
+                <p className="mt-1 text-sm text-slate-700">
+                    Exact match on all fields.
+                </p>
+            </div>
+        </div>
         </div>
     </div>
     </div>

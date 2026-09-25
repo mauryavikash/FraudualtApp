@@ -1,20 +1,41 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   MoreVertical,
 } from "lucide-react";
 import {CasesKpiCards} from "@/components/cases/CasesKpiCards";
 import {CasesDetails} from "@/components/cases/CasesDetails";
 import {CasesHeader} from "@/components/cases/CasesHeader";
-export default function cases() {
+import CasesAnalyticsRow from "@/components/cases/CasesAnalyticsRow";
+import { LoadingState } from "@/components/common/LoadingState";
+import { getCases } from "@/app/lib/api";
+
+function FilterSelect({ label, children, ...props }) {
+  return (
+    <div>
+      <p className="text-[11px] font-semibold text-[#475569] mb-2">{label}</p>
+      <select
+        {...props}
+        className="w-full h-9 rounded-xl border border-[#D9E1EA] px-3 text-[13px] text-[#334155]"
+      >
+        {children}
+      </select>
+    </div>
+  );
+}
+
+export default function CasesPage() {
   const [activeTab, setActiveTab] = useState("All Cases");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("All");
   const [caseTypeFilter, setCaseTypeFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
-  const pageSize = 8;
+  const [investigatorFilter, setInvestigatorFilter] = useState("All");
+  const [vendorFilter, setVendorFilter] = useState("All");
+  const [casesData, setCasesData] = useState(null);
+  const pageSize = 10;
   const TABS = [
     "All Cases",
     "Duplicate Cases",
@@ -24,104 +45,33 @@ export default function cases() {
     "Watchlist",
   ];
 
-  const tableData = [
-    {
-      caseId: "INV-2025-000123",
-      caseType: "Duplicate",
-      priority: "High",
-      status: "In Progress",
-      vendor: "ABC Solutions",
-      amount: "125,450.00",
-      detectedOn: "May 20, 2025",
-      slaDue: "May 24, 2025",
-      remaining: "2 Days Left",
-      investigator: "Sarah Johnson",
-    },
-    {
-      caseId: "INV-2025-000122",
-      caseType: "Anomaly",
-      priority: "High",
-      status: "In Progress",
-      vendor: "Global Supplies Inc.",
-      amount: "78,900.00",
-      detectedOn: "May 20, 2025",
-      slaDue: "May 23, 2025",
-      remaining: "2 Days Left",
-      investigator: "Michael Brown",
-    },
-    {
-      caseId: "INV-2025-000121",
-      caseType: "Duplicate",
-      priority: "Medium",
-      status: "Pending Review",
-      vendor: "TechWorks LLC",
-      amount: "42,600.00",
-      detectedOn: "May 19, 2025",
-      slaDue: "May 24, 2025",
-      remaining: "2 Days Left",
-      investigator: "Priya Nair",
-    },
-    {
-      caseId: "INV-2025-000120",
-      caseType: "Anomaly",
-      priority: "High",
-      status: "Escalated",
-      vendor: "Alpha Traders",
-      amount: "210,000.00",
-      detectedOn: "May 19, 2025",
-      slaDue: "May 22, 2025",
-      remaining: "Overdue",
-      investigator: "David Lee",
-    },
-    {
-      caseId: "INV-2025-000119",
-      caseType: "Duplicate",
-      priority: "Low",
-      status: "Open",
-      vendor: "Office Needs Co.",
-      amount: "12,350.00",
-      detectedOn: "May 18, 2025",
-      slaDue: "May 25, 2025",
-      remaining: "2 Days Left",
-      investigator: "Emma Wilson",
-    },
-     {
-      caseId: "INV-2025-000118",
-      caseType: "Duplicate",
-      priority: "Low",
-      status: "Open",
-      vendor: "Office Needs Co.",
-      amount: "12,350.00",
-      detectedOn: "May 18, 2026",
-      slaDue: "May 25, 2026",
-      remaining: "2 Days Left",
-      investigator: "Emma Wilson",
-    },
-     {
-      caseId: "INV-2025-000117",
-      caseType: "Duplicate",
-      priority: "Low",
-      status: "Open",
-      vendor: "Office Needs Co.",
-      amount: "12,350.00",
-      detectedOn: "jun 18, 2026",
-      slaDue: "jun 25, 2026",
-      remaining: "2 Days Left",
-      investigator: "Emma Wilson",
-    },
-     {
-      caseId: "INV-2025-000116",
-      caseType: "Duplicate",
-      priority: "Low",
-      status: "Open",
-      vendor: "Office Needs Co.",
-      amount: "12,350.00",
-      detectedOn: "jul 18, 2026",
-      slaDue: "jul 25, 2026",
-      remaining: "2 Days Left",
-      investigator: "Emma Wilson",
-    },
-  ];
+  useEffect(() => {
+    let isMounted = true;
+
+    getCases().then((data) => {
+      if (isMounted) {
+        setCasesData(data?.data ?? data);
+      }
+    }).catch(() => {
+      if (isMounted) {
+        setCasesData({ caseDetails: [], caseKpis: [], casesOverview: {} });
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const tableData = useMemo(
+    () => casesData?.caseDetails ?? [],
+    [casesData]
+  );
+  const statusOptions = useMemo(() => [...new Set(tableData.map((item) => item.status))], [tableData]);
+  const caseTypeOptions = useMemo(() => [...new Set(tableData.map((item) => item.caseType))], [tableData]);
+  const priorityOptions = useMemo(() => [...new Set(tableData.map((item) => item.priority))], [tableData]);
+  const investigatorOptions = useMemo(() => [...new Set(tableData.map((item) => item.investigator ?? "Unassigned"))], [tableData]);
+  const vendorOptions = useMemo(() => [...new Set(tableData.map((item) => item.vendor || "Unassigned"))], [tableData]);
 
   const filteredData = useMemo(() => {
   return tableData.filter((item) => {
@@ -141,12 +91,25 @@ export default function cases() {
     const matchesPriority =
       priorityFilter === "All" ||
       item.priority === priorityFilter;
+    const investigator = item.investigator ?? "Unassigned";
+    const vendor = item.vendor || "Unassigned";
+    const matchesInvestigator = investigatorFilter === "All" || investigator === investigatorFilter;
+    const matchesVendor = vendorFilter === "All" || vendor === vendorFilter;
+    const matchesTab = activeTab === "All Cases"
+      || (activeTab === "Duplicate Cases" && item.caseType?.includes("DUPLICATE"))
+      || (activeTab === "Anomaly Cases" && item.caseType?.includes("ANOMALY"))
+      || (activeTab === "Escalated Cases" && item.status?.includes("ESCALATED"))
+      || (activeTab === "My Assignments" && investigator !== "Unassigned")
+      || (activeTab === "Watchlist" && item.watchlist === true);
 
     return (
       matchesSearch &&
       matchesStatus &&
       matchesType &&
-      matchesPriority
+      matchesPriority &&
+      matchesInvestigator &&
+      matchesVendor &&
+      matchesTab
     );
   });
 }, [
@@ -154,11 +117,13 @@ export default function cases() {
   statusFilter,
   caseTypeFilter,
   priorityFilter,
+  investigatorFilter,
+  vendorFilter,
+  activeTab,
+  tableData,
 ]);
 
-  const totalPages = Math.ceil(
-    filteredData.length / pageSize
-  );
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
 
   const paginatedData = filteredData.slice(
     (page - 1) * pageSize,
@@ -184,34 +149,23 @@ export default function cases() {
   }
 };
 
-function FilterSelect({
-  label,
-  children,
-  ...props
-}) {
-  return (
-    <div>
-      <p className="text-[11px] font-semibold text-[#475569] mb-2">
-        {label}
-      </p>
+  const updateFilter = (setter) => (event) => {
+    setter(event.target.value);
+    setPage(1);
+  };
 
-      <select
-        {...props}
-        className="w-full h-9 rounded-xl border border-[#D9E1EA] px-3 text-[13px] text-[#334155]"
-      >
-        {children}
-      </select>
-    </div>
-  );
-}
-  const [selectedCase, setSelectedCase] = useState(tableData[0]);
+  const [selectedCase, setSelectedCase] = useState(null);
+
+  if (!casesData) {
+    return <LoadingState label="Loading cases..." />;
+  }
 
   return (
     <div>
       {/* HEADER */}
        <CasesHeader/>
       {/* KPI */}
-      <CasesKpiCards />
+      <CasesKpiCards data={casesData.caseKpis} />
       {/* CONTENT */}
       <div className="grid grid-cols-12 gap-4 mt-4 items-stretch">
 
@@ -240,7 +194,10 @@ function FilterSelect({
                 {TABS.map((tab) => (
                   <button
                     key={tab}
-                    onClick={() => setActiveTab(tab)}
+                    onClick={() => {
+                      setActiveTab(tab);
+                      setPage(1);
+                    }}
                     className={`pb-3 text-[13px] font-medium transition-all ${
                       activeTab === tab
                         ? "text-[#2563EB] border-b-2 border-[#2563EB]"
@@ -262,48 +219,38 @@ function FilterSelect({
                 <FilterSelect
                   label="Status"
                   value={statusFilter}
-                  onChange={(e) =>
-                    setStatusFilter(e.target.value)
-                  }
+                  onChange={updateFilter(setStatusFilter)}
                 >
                   <option>All</option>
-                  <option>In Progress</option>
-                  <option>Pending Review</option>
-                  <option>Escalated</option>
-                  <option>Open</option>
+                  {statusOptions.map((status) => <option key={status}>{status}</option>)}
                 </FilterSelect>
 
                 <FilterSelect
                   label="Case Type"
                   value={caseTypeFilter}
-                  onChange={(e) =>
-                    setCaseTypeFilter(e.target.value)
-                  }
+                  onChange={updateFilter(setCaseTypeFilter)}
                 >
                   <option>All</option>
-                  <option>Duplicate</option>
-                  <option>Anomaly</option>
+                  {caseTypeOptions.map((caseType) => <option key={caseType}>{caseType}</option>)}
                 </FilterSelect>
 
                 <FilterSelect
                   label="Priority"
                   value={priorityFilter}
-                  onChange={(e) =>
-                    setPriorityFilter(e.target.value)
-                  }
+                  onChange={updateFilter(setPriorityFilter)}
                 >
                   <option>All</option>
-                  <option>High</option>
-                  <option>Medium</option>
-                  <option>Low</option>
+                  {priorityOptions.map((priority) => <option key={priority}>{priority}</option>)}
                 </FilterSelect>
 
-                <FilterSelect label="Investigator">
+                <FilterSelect label="Investigator" value={investigatorFilter} onChange={updateFilter(setInvestigatorFilter)}>
                   <option>All</option>
+                  {investigatorOptions.map((investigator) => <option key={investigator}>{investigator}</option>)}
                 </FilterSelect>
 
-                <FilterSelect label="Vendor">
-                  <option>Select vendor</option>
+                <FilterSelect label="Vendor" value={vendorFilter} onChange={updateFilter(setVendorFilter)}>
+                  <option>All</option>
+                  {vendorOptions.map((vendor) => <option key={vendor}>{vendor}</option>)}
                 </FilterSelect>
 
                 <div className="flex items-end gap-3">
@@ -315,8 +262,11 @@ function FilterSelect({
                     onClick={() => {
                       setStatusFilter("All");
                       setPriorityFilter("All");
+                      setInvestigatorFilter("All");
+                      setVendorFilter("All");
                       setCaseTypeFilter("All");
                       setSearch("");
+                      setPage(1);
                     }}
                     className="text-[#2563EB] text-[12px] font-medium"
                   >
@@ -329,9 +279,9 @@ function FilterSelect({
 
             {/* TABLE */}
 
-            <div className="overflow-x-auto flex-1 min-h-[520px]">
+            <div className="table-scrollbar flex-1 min-h-[520px] overflow-x-scroll overflow-y-hidden">
 
-              <table className="w-full">
+              <table className="min-w-[1550px] w-full">
 
                 <thead>
 
@@ -349,8 +299,11 @@ function FilterSelect({
                       "VENDOR",
                       "AMOUNT (USD)",
                       "DETECTED ON",
-                      "SLA DUE",
-                      "INVESTIGATOR",
+                      "INVOICE DATE",
+                      "INVOICE ID",
+                      "INVOICE NUMBER",
+                      // "CONFIDENCE SCORE",
+                      "SIMILARITY",
                     ].map((item) => (
                       <th
                         key={item}
@@ -374,10 +327,12 @@ function FilterSelect({
 
                 <tbody>
 
-                  {paginatedData.map((row) => (
+                  {paginatedData.length === 0 ? (
+                    <tr><td colSpan={13} className="px-5 py-10 text-center text-[13px] text-[#94A3B8]">No matching cases found.</td></tr>
+                  ) : paginatedData.map((row) => (
 
                     <tr
-                      key={row.caseId}
+                      key={row.case_id}
                       onClick={() => setSelectedCase(row)}
                       className={`
                         h-[58px]
@@ -387,7 +342,7 @@ function FilterSelect({
                         cursor-pointer
                         transition-colors
                         ${
-                          selectedCase.caseId === row.caseId
+                          selectedCase?.case_id === row.case_id
                             ? "bg-[#F8FAFC]"
                             : ""
                         }
@@ -399,18 +354,18 @@ function FilterSelect({
                       </td>
 
                       <td className="text-[12px] font-semibold text-[#2563EB]">
-                        {row.caseId}
+                        {row.case_id}
                       </td>
 
                       <td>
                         <span
                           className={`px-2.5 py-[2px] rounded-md text-[10px] font-semibold ${
-                            row.caseType === "Duplicate"
+                            row.case_type === "Duplicate"
                               ? "bg-[#F3E8FF] text-[#8B5CF6]"
                               : "bg-[#FDE7C7] text-[#F59E0B]"
                           }`}
                         >
-                          {row.caseType}
+                          {row.case_type}
                         </span>
                       </td>
 
@@ -435,10 +390,10 @@ function FilterSelect({
                       <td>
                         <span
                           className={`px-2.5 py-[2px] rounded-md text-[10px] font-semibold ${statusClass(
-                            row.status
+                            row.risk_level
                           )}`}
                         >
-                          {row.status}
+                          {row.risk_level}
                         </span>
                       </td>
 
@@ -447,7 +402,7 @@ function FilterSelect({
                       </td>
 
                       <td className="text-[12px] font-semibold text-[#0F172A]">
-                        {row.amount}
+                        {row.invoice_1?.amount}
                       </td>
 
                       <td className="text-[12px] text-[#64748B]">
@@ -456,22 +411,26 @@ function FilterSelect({
 
                       <td>
                         <div className="text-[12px] text-[#334155]">
-                          {row.slaDue}
+                          {row.invoice_1?.invoice_date}
                         </div>
-
-                        <div
-                          className={`text-[10px] font-semibold ${
-                            row.remaining === "Overdue"
-                              ? "text-[#EF4444]"
-                              : "text-[#F59E0B]"
-                          }`}
-                        >
-                          {row.remaining}
-                        </div>
+                        
                       </td>
 
                       <td className="text-[12px] text-[#64748B]">
-                        {row.investigator}
+                        {/* {row.investigator} */}
+                        {row.invoice_1?.invoice_id}
+                      </td>
+
+                      <td className="text-[12px] text-[#64748B]">
+                        {row.invoice_1?.invoice_number}
+                      </td>
+
+                      {/* <td className="text-[12px] font-semibold text-[#0F172A]">
+                        {row.invoice_1?.confidenceScore}
+                      </td> */}
+
+                      <td className="text-[12px] font-semibold text-[#0F172A]">
+                        {row.similarity}
                       </td>
 
                       <td className="pr-4">
@@ -496,7 +455,7 @@ function FilterSelect({
             <div className="border-t border-[#E2E8F0] px-5 py-3 flex items-center justify-between">
 
               <div className="text-[12px] text-[#64748B]">
-                Showing {(page - 1) * pageSize + 1} to{" "}
+                Showing {filteredData.length ? (page - 1) * pageSize + 1 : 0} to{" "}
                 {Math.min(
                   page * pageSize,
                   filteredData.length
@@ -506,7 +465,7 @@ function FilterSelect({
 
               <div className="flex items-center gap-2">
 
-                <button className="w-7 h-7 rounded-lg border border-[#D9E1EA]">
+                <button onClick={() => setPage((currentPage) => Math.max(1, currentPage - 1))} disabled={page === 1} className="w-7 h-7 rounded-lg border border-[#D9E1EA] disabled:opacity-40">
                   ‹
                 </button>
 
@@ -526,12 +485,12 @@ function FilterSelect({
                   </button>
                 ))}
 
-                <button className="w-7 h-7 rounded-lg border border-[#D9E1EA]">
+                <button onClick={() => setPage((currentPage) => Math.min(totalPages, currentPage + 1))} disabled={page === totalPages} className="w-7 h-7 rounded-lg border border-[#D9E1EA] disabled:opacity-40">
                   ›
                 </button>
 
-                <select className="h-7 rounded-lg border border-[#D9E1EA] px-2 text-[12px]">
-                  <option>10 / page</option>
+                <select className="h-7 rounded-lg border border-[#D9E1EA] px-2 text-[12px]" value={pageSize} disabled>
+                  <option value={10}>10 / page</option>
                 </select>
 
               </div>
@@ -543,10 +502,12 @@ function FilterSelect({
 
         {/* RIGHT PANEL */}
         <div className="col-span-12 xl:col-span-4 flex">
-          <CasesDetails />
+          <CasesDetails caseData={selectedCase ?? tableData[0]} />
         </div>
 
       </div>
+
+      <CasesAnalyticsRow data={casesData.casesOverview} />
     </div>
   );
 }

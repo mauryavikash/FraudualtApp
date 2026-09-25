@@ -9,8 +9,8 @@ import {
   Calendar,
 } from "lucide-react";
 
-export default function OperationalReporting() {
-  const reports = [
+export default function OperationalReporting({ data }) {
+  const staticReports = [
     {
       title: "Duplicate Detection Report",
       desc: "Details of duplicate invoices and payments identified.",
@@ -54,6 +54,20 @@ export default function OperationalReporting() {
       bg: "bg-blue-100",
     },
   ];
+
+  const apiReports = Array.isArray(data) ? data : data?.items;
+  const reports = Array.isArray(apiReports) && apiReports.length
+    ? staticReports.map((report, index) => {
+        const apiReport = apiReports[index];
+        return apiReport
+          ? {
+              ...report,
+              title: apiReport.reportType ? `${apiReport.reportType} Report` : report.title,
+              desc: apiReport.description ?? report.desc,
+            }
+          : report;
+      })
+    : staticReports;
 
   return (
     <div className="col-span-12 rounded-lg border border-slate-200 bg-white p-4 xl:col-span-6">
@@ -99,10 +113,10 @@ export default function OperationalReporting() {
         ))}
       </div>
 
-      <button className="mt-4 flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-blue-600 py-3 text-sm font-medium text-white hover:bg-blue-700">
+      {/* <button className="mt-4 flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-blue-600 py-3 text-sm font-medium text-white hover:bg-blue-700">
         <Calendar size={16} />
         Schedule Report
-      </button>
+      </button> */}
     </div>
   );
 }

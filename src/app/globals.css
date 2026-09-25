@@ -110,6 +110,30 @@ body::before {
   border-radius: 9999px;
 }
 
+.table-scrollbar {
+  scrollbar-color: #94a3b8 #f1f5f9;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+.table-scrollbar::-webkit-scrollbar {
+  height: 10px;
+}
+
+.table-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.table-scrollbar::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border: 2px solid #f1f5f9;
+  border-radius: 9999px;
+}
+
+.table-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
 .top-bar {
   display: flex;
   flex-wrap: wrap;
@@ -475,6 +499,42 @@ html.dark .rfq-table th {
     transform: translateY(0);
   }
 }
+
+.contentHeader {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.contentHeader::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -200px;
+  width: 150px; /* animation width */
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(59, 130, 246, 0.2),
+    rgba(6, 182, 212, 0.3),
+    rgba(168, 85, 247, 0.2),
+    transparent
+  );
+  animation: shineMove 4s linear infinite;
+}
+
+@keyframes shineMove {
+  0% {
+    left: -200px;
+  }
+
+  100% {
+    left: calc(100% + 200px);
+  }
+}
+
 
 @media (max-width: 950px) {
   .rfq-table th:nth-child(5),

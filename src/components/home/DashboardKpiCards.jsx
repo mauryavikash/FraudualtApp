@@ -5,11 +5,21 @@ import {
   DollarSign,
   Settings,
 } from "lucide-react";
+import KpiCardsGrid from "../common/KpiCardsGrid";
 
-export default function DashboardKpiCards() {
-  const kpiData = [
+function formatCurrency(value) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(Number(value || 0));
+}
+
+export default function DashboardKpiCards({ data }) {
+  const staticKpiData = [
     {
-      title: "DUPLICATES IDENTIFIED",
+      title: "Duplicate Exposure",
       value: "12,458",
       change: "+14.3%",
       comparison: "vs May 7 - May 13",
@@ -17,9 +27,11 @@ export default function DashboardKpiCards() {
       iconColor: "#2563EB",
       iconBg: "#DBEAFE",
       positive: true,
+      invoiceCount: "12,458",
+      invoiceValue: "$1.86M",
     },
     {
-      title: "ANOMALIES DETECTED",
+      title: "Anomaly Exposure",
       value: "8,392",
       change: "+11.6%",
       comparison: "vs May 7 - May 13",
@@ -27,9 +39,11 @@ export default function DashboardKpiCards() {
       iconColor: "#D97706",
       iconBg: "#FEF3C7",
       positive: true,
+      invoiceCount: "8,392",
+      invoiceValue: "$1.24M",
     },
     {
-      title: "OPEN CASES",
+      title: "Prevented Value",
       value: "4,723",
       change: "+9.1%",
       comparison: "vs May 7 - May 13",
@@ -37,9 +51,11 @@ export default function DashboardKpiCards() {
       iconColor: "#7C3AED",
       iconBg: "#EDE9FE",
       positive: true,
+      invoiceCount: "4,723",
+      invoiceValue: "$980K",
     },
     {
-      title: "RECOVERY VALUE (USD)",
+      title: "Recovery Opportunity",
       value: "$3.42M",
       change: "+18.7%",
       comparison: "vs May 7 - May 13",
@@ -47,68 +63,35 @@ export default function DashboardKpiCards() {
       iconColor: "#059669",
       iconBg: "#D1FAE5",
       positive: true,
+      invoiceCount: "2,915",
+      invoiceValue: "$3.42M",
     },
-    {
-      title: "AUTOMATION RATE",
-      value: "68.2%",
-      change: "+6.8%",
-      comparison: "vs May 7 - May 13",
-      icon: Settings,
-      iconColor: "#2563EB",
-      iconBg: "#DBEAFE",
-      positive: true,
-    },
+   
   ];
 
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-      {kpiData.map((item) => {
-        const Icon = item.icon;
-        return (
-          <div
-            key={item.title}
-            className="
-              rounded-[10px]
-              border
-              border-[1.5px]
-              border-[#7DD3FC]
-              bg-white
-              shadow-[0px_1px_4px_rgba(15,23,42,0.05)]
-              px-4
-              py-3.5
-              min-h-[104px]
-              flex
-              flex-col
-              justify-between
-            "
-          >
-            <div className="flex items-start justify-between gap-2">
-              <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-[#64748B] leading-tight">
-                {item.title}
-              </p>
+  const apiKpis = Array.isArray(data) ? data : data?.items;
+  const kpiData = Array.isArray(apiKpis) && apiKpis.length
+    ? staticKpiData.map((item, index) => {
+        const apiKpi = apiKpis[index];
+        if (!apiKpi) {
+          return item;
+        }
 
-              <div
-                className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0"
-                style={{ backgroundColor: item.iconBg }}
-              >
-                <Icon size={15} style={{ color: item.iconColor }} />
-              </div>
-            </div>
+        const isCurrency = item.title === "Recovery Opportunity";
+        return {
+          ...item,
+          title: apiKpi.metric ?? item.title,
+          value: isCurrency
+            ? formatCurrency(apiKpi.value)
+            : Number(apiKpi.value ?? 0).toLocaleString(),
+          change: `${Number(apiKpi.changePercentage ?? 0) >= 0 ? "+" : ""}${apiKpi.changePercentage ?? 0}%`,
+          comparison: apiKpi.comparisonPeriod ?? item.comparison,
+          positive: apiKpi.trend !== "negative",
+          invoiceCount: Number(apiKpi.invoiceCount ?? 0).toLocaleString(),
+          invoiceValue: formatCurrency(apiKpi.invoiceValue),
+        };
+      })
+    : staticKpiData;
 
-            <div>
-              <h3 className="text-[22px] leading-[26px] font-bold text-[#0F172A]">
-                {item.value}
-              </h3>
-              <p className="mt-1 text-[11px] font-medium flex items-center gap-1 text-[#10B981]">
-                ↑ {item.change}{" "}
-                <span className="text-[#94A3B8] font-normal">
-                  {item.comparison}
-                </span>
-              </p>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
+  return <KpiCardsGrid items={kpiData} columns="xl:grid-cols-4" />;
 }
