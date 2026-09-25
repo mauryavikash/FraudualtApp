@@ -28,8 +28,15 @@ async function handleSubmit(event) {
 
     localStorage.setItem("access_token", data.access_token);
     localStorage.setItem("refresh_token", data.refresh_token);
-    localStorage.setItem("user", JSON.stringify(data.user));
-
+    // localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem(
+            "user",
+            JSON.stringify({
+                first_name: data.first_name,
+                role: data.role,
+                email: data.email,
+            })
+            );
         router.push("/home");
     } catch (err) {
         setError(

@@ -12,11 +12,22 @@ getNotifications,
  
 export default function Header({ setIsOpen, isOpen }) {
   const pathname = usePathname();
+  const [user, setUser] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
 
   const [liveAgents, setLiveAgents] = useState([]);
   const [standbyAgents, setStandbyAgents] = useState([]);
   const [notifications, setNotifications] = useState([]);
+
+
+useEffect(() => {
+  const storedUser = localStorage.getItem("user");
+
+  if (storedUser && storedUser !== "undefined") {
+    setUser(JSON.parse(storedUser));
+  }
+}, []);
+
   useEffect(() => {
   const loadAgents = async () => {
     try {
@@ -217,45 +228,6 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* Notifications bell + dropdown */}
-       
-          
-          {/* <div className="relative w-60">
-            <svg
-              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"
-              />
-            </svg>
-
-            <input
-              type="text"
-              placeholder="Search cases, recoveries, vendors..."
-              className="h-9 w-full rounded-full border border-slate-200 bg-white py-2 pl-9 pr-3 text-[13px] text-slate-700 placeholder:text-slate-400 shadow-sm focus:outline-none"
-            />
-          </div> */}
-
-          {/* {headerActions.map((action) => {
-            const ActionIcon = action.icon;
-            return (
-              <button
-                key={action.label}
-                type="button"
-                className="h-9 px-3.5 rounded-full border border-slate-200 bg-white text-[13px] font-medium text-slate-600 shadow-sm flex items-center gap-1.5 whitespace-nowrap hover:bg-slate-50"
-              >
-                <ActionIcon size={14} />
-                {action.label}
-              </button>
-            );
-          })} */}
-
           <button
             className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:text-dgem-blue hover:shadow-md"
             type="button"
@@ -279,9 +251,9 @@ useEffect(() => {
               />
               <span className="hidden flex-col items-start leading-tight sm:flex">
                 <span className="text-[12px] font-semibold text-slate-900">
-                  Vigneshwaran D
+                  {user?.first_name || "User"}
                 </span>
-                <span className="text-[10px] text-slate-500">Finance Ops Lead</span>
+                <span className="text-[10px] text-slate-500">{user?.role || ""}</span>
               </span>
               <ChevronDown size={14} className="text-slate-500" />
             </button>
