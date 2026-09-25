@@ -7,7 +7,7 @@ import PdfDownloadButton from "@/components/common/PdfDownloadButton";
 
 export const AuditHeader = () => {
   return (
-            <div className="bg-white border border-[#D9E1EA] rounded-2xl shadow-[0px_2px_8px_rgba(15,23,42,0.05)] px-4 py-4 mb-4">
+            <div className="contentHeader bg-white border border-[#D9E1EA] rounded-2xl shadow-[0px_2px_8px_rgba(15,23,42,0.05)] px-4 py-4 mb-4">
                 <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
                     <h1 className="text-[20px] font-semibold text-[#0F172A]">

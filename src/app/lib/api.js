@@ -1,21 +1,25 @@
 import axios from "axios";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-export const HOME_DASHBOARD_URL = "http://localhost:8000/api/home";
-export const CASES_URL = "http://localhost:8000/api/cases";
-// export const CASES_ACTION_URL = "http://localhost:8000/api/case-action";
-export const RECOVERIES_URL = "http://localhost:8000/api/recoveries";
-export const AUDIT_URL = "http://localhost:8000/api/audit";
-export const VENDORS_URL = "http://localhost:8000/api/vendors";
-export const COPILOT_CHAT_URL = "http://localhost:8000/api/v1/copilot/chat";
-export const LOGIN_URL = "http://localhost:8000/api/auth/login";
-export const REGISTER_URL = "http://localhost:8000/api/auth/register";
+export const HOME_DASHBOARD_URL = `${API_BASE_URL}/home`;
+export const CASES_URL = `${API_BASE_URL}/cases`;
+export const RECOVERIES_URL = `${API_BASE_URL}/recoveries`;
+export const AUDIT_URL = `${API_BASE_URL}/audit`;
+export const VENDORS_URL = `${API_BASE_URL}/vendors`;
+export const COPILOT_CHAT_URL = `${API_BASE_URL}/v1/copilot/chat`;
+export const LOGIN_URL = `${API_BASE_URL}/auth/login`;
+export const REGISTER_URL = `${API_BASE_URL}/auth/register`;
+export const AGENT_STATUS_URL = `${API_BASE_URL}/agent-status`;
+export const NOTIFICATION_URL = `${API_BASE_URL}/notification`;
+
 let homeDashboardRequest;
 let casesRequest;
 let recoveriesRequest;
@@ -36,6 +40,16 @@ axiosInstance.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
+
+export async function getAgentStatus() {
+const response = await axiosInstance.get("/agent-status");
+return response.data;
+}
+export async function getNotifications() {
+const response = await axiosInstance.get("/notification");
+return response.data;
+}
+
 export async function loginUser(email, password) {
   const response = await axiosInstance.post("/auth/login", {
   email,

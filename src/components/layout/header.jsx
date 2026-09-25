@@ -1,24 +1,61 @@
+
 "use client";
 
 import { Bell, Menu,Zap,Bot, ChevronDown,AlertTriangle,CheckCircle2,FileText,Mail, Settings, User, LogOut, HelpCircle, Download, Upload, BarChart3 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-  // ── Agent definitions ──────────────────────────────────────────────────────────
-  const LIVE_AGENTS = [
-    { name: "Statement Extraction Agent", role: "OCR · PDF · Email parsing", icon: "📄" },
-    { name: "AI Matching Engine",         role: "Auto-match supplier invoices", icon: "🔗" },
-    { name: "Follow-up Email Agent",      role: "Automated supplier outreach", icon: "📧" },
-    { name: "Reconciliation Processor",   role: "Batch reconciliation runs", icon: "⚙️" },
-  ];
-
-  const STANDBY_AGENTS = [
-    { name: "Root Cause Analysis Agent", role: "Exception pattern analysis", icon: "🔍" },
-    { name: "Predictive Exception Agent", role: "Pre-emptive issue detection", icon: "🔮" },
-    { name: "Learning Mode Agent",        role: "Continuous model training", icon: "🧠" },
-  ];
+import {
+getAgentStatus,
+getNotifications,
+} from "@/app/lib/api";
+  
+ 
 export default function Header({ setIsOpen, isOpen }) {
   const pathname = usePathname();
   const [profileOpen, setProfileOpen] = useState(false);
+
+  const [liveAgents, setLiveAgents] = useState([]);
+  const [standbyAgents, setStandbyAgents] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  useEffect(() => {
+  const loadAgents = async () => {
+    try {
+      const data = await getAgentStatus();
+
+      const agents = data?.agents || [];
+
+      const live = agents.filter((agent) =>
+        agent.agent_id?.startsWith("A")
+      );
+
+      const standby = agents.filter((agent) =>
+        agent.agent_id?.startsWith("S")
+      );
+
+      setLiveAgents(live);
+      setStandbyAgents(standby);
+
+    } catch (error) {
+      console.error("Agent API Error:", error);
+    }
+  };
+
+  loadAgents();
+}, []);
+useEffect(() => {
+  const loadNotifications = async () => {
+    try {
+      const data = await getNotifications();
+
+      setNotifications(data?.notifications || []);
+
+    } catch (error) {
+      console.error("Notification API Error:", error);
+    }
+  };
+
+  loadNotifications();
+}, []);
   const [agentsOpen,   setAgentsOpen]   = useState(false);
   const [standbyOpen,  setStandbyOpen]  = useState(false);
 
@@ -89,7 +126,7 @@ export default function Header({ setIsOpen, isOpen }) {
               </span>
               Agents Live
               <span className="ml-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-600 px-1 text-[9px] font-bold text-white">
-                {LIVE_AGENTS.length}
+                {liveAgents.length}
               </span>
             </button>
 
@@ -100,16 +137,28 @@ export default function Header({ setIsOpen, isOpen }) {
               <div className="border-b border-slate-100 bg-emerald-50 px-4 py-2.5">
                 <div className="flex items-center gap-2">
                   <Zap size={13} className="text-emerald-600" />
-                  <span className="text-xs font-bold uppercase tracking-wide text-emerald-700">Live Agents ({LIVE_AGENTS.length})</span>
+                  <span className="text-xs font-bold uppercase tracking-wide text-emerald-700">Live Agents ({liveAgents.length})</span>
                 </div>
               </div>
-              {LIVE_AGENTS.map((agent) => (
-                <div key={agent.name} className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
-                  <span className="mt-0.5 text-base leading-none">{agent.icon}</span>
+              {liveAgents.map((agent, index) => (
+                <div
+                  key={agent.agent_id}
+                  className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
+                >
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-xs font-semibold text-amber-700">
+                    {index + 1}
+                    </span>
+
                   <div className="min-w-0 flex-1">
-                    <p className="text-[12px] font-semibold text-slate-800">{agent.name}</p>
-                    <p className="text-[11px] text-slate-500">{agent.role}</p>
+                    <p className="text-[12px] font-semibold text-slate-800">
+                      {agent.agent_name}
+                    </p>
+
+                    <p className="text-[11px] text-slate-500">
+                      Agent ID: {agent.agent_id}
+                    </p>
                   </div>
+
                   <span className="relative flex h-2 w-2 mt-1.5">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
                     <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
@@ -129,7 +178,7 @@ export default function Header({ setIsOpen, isOpen }) {
               <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
               Standby
               <span className="ml-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] font-bold text-white">
-                {STANDBY_AGENTS.length}
+                {standbyAgents.length}
               </span>
             </button>
 
@@ -140,17 +189,29 @@ export default function Header({ setIsOpen, isOpen }) {
               <div className="border-b border-slate-100 bg-amber-50 px-4 py-2.5">
                 <div className="flex items-center gap-2">
                   <Bot size={13} className="text-amber-600" />
-                  <span className="text-xs font-bold uppercase tracking-wide text-amber-700">Standby Agents ({STANDBY_AGENTS.length})</span>
+                  <span className="text-xs font-bold uppercase tracking-wide text-amber-700">Standby Agents ({standbyAgents.length})</span>
                 </div>
               </div>
-              {STANDBY_AGENTS.map((agent) => (
-                <div key={agent.name} className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
-                  <span className="mt-0.5 text-base leading-none">{agent.icon}</span>
+              {standbyAgents.map((agent, index) => (
+                <div
+                  key={agent.agent_id}
+                  className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
+                >
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-xs font-semibold text-amber-700">
+                    {index + 1}
+                    </span>
+
                   <div className="min-w-0 flex-1">
-                    <p className="text-[12px] font-semibold text-slate-800">{agent.name}</p>
-                    <p className="text-[11px] text-slate-500">{agent.role}</p>
+                    <p className="text-[12px] font-semibold text-slate-800">
+                      {agent.agent_name}
+                    </p>
+
+                    <p className="text-[11px] text-slate-500">
+                      Agent ID: {agent.agent_id}
+                    </p>
                   </div>
-                  <span className="h-2 w-2 mt-1.5 rounded-full bg-amber-400" />
+
+                  <span className="h-2 w-2 mt-1.5 rounded-full bg-amber-500" />
                 </div>
               ))}
             </div>
@@ -201,7 +262,7 @@ export default function Header({ setIsOpen, isOpen }) {
             title="Notifications"
           >
             <Bell size={16} />
-            <span className="absolute -right-0.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white text-white text-xs bg-red-500 select-none">2</span>
+            <span className="absolute -right-0.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white text-white text-xs bg-red-500 select-none">{notifications.length}</span>
           </button>
 
           <div className="relative" ref={dropdownRef}>

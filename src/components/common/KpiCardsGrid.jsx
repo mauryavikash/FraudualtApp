@@ -3,7 +3,7 @@ import KpiTooltip from "./KpiTooltip";
 // Visual presets shared by every KPI card grid across the app
 const VARIANTS = {
   default: {
-    border: "border-[1.5px] border-[#7DD3FC]",
+    border: "border-[2px] border-[#103feb]",
     titleClass:
       "text-[10px] font-bold uppercase tracking-[0.06em] text-[#64748B] leading-tight",
     iconBox: "h-8 w-8",
@@ -11,14 +11,14 @@ const VARIANTS = {
     valueClass: "text-[22px] leading-[26px]",
   },
   audit: {
-    border: "border-[1.5px] border-[#7DD3FC]",
+    border: "border-[2px] border-[#103feb]",
     titleClass: "text-[12px] font-medium text-[#475569]",
     iconBox: "h-7 w-7",
     iconSize: 14,
     valueClass: "text-[22px] leading-[26px]",
   },
   vendor: {
-    border: "border-[#D9E1EA]",
+    border: "border-[2px] border-[#103feb]",
     titleClass:
       "text-[10px] font-bold uppercase tracking-[0.06em] text-[#64748B]",
     iconBox: "h-8 w-8",
