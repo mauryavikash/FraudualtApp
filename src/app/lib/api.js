@@ -9,6 +9,11 @@ const axiosInstance = axios.create({
   },
 });
 
+console.log(
+"API_BASE_URL",
+process.env.NEXT_PUBLIC_API_BASE_URL
+);
+
 export const HOME_DASHBOARD_URL = `${API_BASE_URL}/home`;
 export const CASES_URL = `${API_BASE_URL}/cases`;
 export const RECOVERIES_URL = `${API_BASE_URL}/recoveries`;
@@ -26,20 +31,37 @@ let recoveriesRequest;
 let auditRequest;
 let vendorsRequest;
 
+// axiosInstance.interceptors.request.use(
+//   (config) => {
+//   if (typeof window !== "undefined") {
+//   const token = localStorage.getItem("access_token");
+
+//   if (token) {
+//   config.headers.Authorization = `Bearer ${token}`;
+//   }
+//   }
+
+//   return config;
+//   },
+//   (error) => Promise.reject(error)
+// );
 axiosInstance.interceptors.request.use(
   (config) => {
-  if (typeof window !== "undefined") {
-  const token = localStorage.getItem("access_token");
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("access_token");
 
-  if (token) {
-  config.headers.Authorization = `Bearer ${token}`;
-  }
-  }
+      console.log("TOKEN =", token);
 
-  return config;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+
+    return config;
   },
   (error) => Promise.reject(error)
 );
+
 
 export async function getAgentStatus() {
 const response = await axiosInstance.get("/agent-status");
@@ -77,7 +99,7 @@ return response.data;
 
 export async function getHomeDashboard() {
   if (!homeDashboardRequest) {
-    homeDashboardRequest = axios
+    homeDashboardRequest = axiosInstance
       .get(HOME_DASHBOARD_URL)
       .then((response) => response.data)
       .catch((error) => {
@@ -91,7 +113,7 @@ export async function getHomeDashboard() {
 
 export async function getCases() {
   if (!casesRequest) {
-    casesRequest = axios
+    casesRequest = axiosInstance
       .get(CASES_URL)
       .then((response) => response.data)
       .catch((error) => {
@@ -115,7 +137,7 @@ export async function submitCaseAction(payload) {
 
 export async function getRecoveries() {
   if (!recoveriesRequest) {
-    recoveriesRequest = axios
+    recoveriesRequest = axiosInstance
       .get(RECOVERIES_URL)
       .then((response) => response.data)
       .catch((error) => {
@@ -129,7 +151,7 @@ export async function getRecoveries() {
 
 export async function getAudit() {
   if (!auditRequest) {
-    auditRequest = axios
+    auditRequest = axiosInstance
       .get(AUDIT_URL)
       .then((response) => response.data)
       .catch((error) => {
@@ -143,7 +165,7 @@ export async function getAudit() {
 
 export async function getVendors() {
   if (!vendorsRequest) {
-    vendorsRequest = axios
+    vendorsRequest = axiosInstance
       .get(VENDORS_URL)
       .then((response) => response.data)
       .catch((error) => {
@@ -156,7 +178,7 @@ export async function getVendors() {
 }
 
 export async function sendCopilotMessage(message, userId, userName) {
-  const response = await axios.post(COPILOT_CHAT_URL, {
+  const response = await axiosInstance.post(COPILOT_CHAT_URL, {
     userId,
     userName,
     message,

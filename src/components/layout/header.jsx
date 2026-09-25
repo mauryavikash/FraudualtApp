@@ -18,7 +18,9 @@ export default function Header({ setIsOpen, isOpen }) {
   const [liveAgents, setLiveAgents] = useState([]);
   const [standbyAgents, setStandbyAgents] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [notificationOpen, setNotificationOpen] = useState(false);
 
+const notificationRef = useRef(null);
 
 useEffect(() => {
   const storedUser = localStorage.getItem("user");
@@ -74,6 +76,50 @@ useEffect(() => {
    const agentsRef  = useRef(null);
   const standbyRef = useRef(null);
 
+
+  useEffect(() => {
+  const handleClickOutside = (e) => {
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(e.target)
+    ) {
+      setProfileOpen(false);
+    }
+
+    if (
+      agentsRef.current &&
+      !agentsRef.current.contains(e.target)
+    ) {
+      setAgentsOpen(false);
+    }
+
+    if (
+      standbyRef.current &&
+      !standbyRef.current.contains(e.target)
+    ) {
+      setStandbyOpen(false);
+    }
+
+    if (
+      notificationRef.current &&
+      !notificationRef.current.contains(e.target)
+    ) {
+      setNotificationOpen(false);
+    }
+  };
+
+  document.addEventListener(
+    "mousedown",
+    handleClickOutside
+  );
+
+  return () => {
+    document.removeEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+  };
+}, []);
   let title = "Home";
 
   if (pathname) {
@@ -228,14 +274,89 @@ useEffect(() => {
             </div>
           </div>
 
-          <button
+          {/* <button
             className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:text-dgem-blue hover:shadow-md"
             type="button"
             title="Notifications"
           >
             <Bell size={16} />
             <span className="absolute -right-0.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white text-white text-xs bg-red-500 select-none">{notifications.length}</span>
-          </button>
+          </button> */}
+
+          <div className="relative" ref={notificationRef}>
+  <button
+    type="button"
+    onClick={() => setNotificationOpen((v) => !v)}
+    className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-all hover:bg-slate-50 hover:shadow-md"
+  >
+    <Bell size={16} />
+
+    {notifications.length > 0 && (
+      <span className="absolute -right-0.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-red-500 text-xs font-bold text-white">
+        {notifications.length}
+      </span>
+    )}
+  </button>
+
+  <div
+    className={`absolute right-0 top-full mt-2 w-[380px] overflow-hidden rounded-2xl border border-red-100 bg-white shadow-xl transition-all duration-200 z-50 ${
+      notificationOpen
+        ? "visible translate-y-0 opacity-100"
+        : "invisible -translate-y-2 opacity-0 pointer-events-none"
+    }`}
+  >
+    {/* Header */}
+    <div className="border-b border-slate-100 bg-red-50 px-4 py-3">
+      <div className="flex items-center gap-2">
+        <Bell size={13} className="text-red-600" />
+        <span className="text-xs font-bold uppercase tracking-wide text-red-700">
+          Notifications ({notifications.length})
+        </span>
+      </div>
+    </div>
+
+    {/* Notification List */}
+    <div className="max-h-[420px] overflow-y-auto">
+      {notifications.map((item, index) => (
+        <div
+          key={item.notification_id || index}
+          className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-100"
+        >
+          {/* Number Circle */}
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-xs font-semibold text-red-700">
+            {index + 1}
+          </span>
+
+          <div className="min-w-0 flex-1">
+            <p className="text-[12px] font-semibold text-slate-800">
+              {item.title}
+            </p>
+
+            <p className="text-[11px] text-slate-500 mt-1">
+              {item.message || item.description}
+            </p>
+
+            <p className="text-[10px] text-slate-400 mt-1">
+              {item.notification_id}
+            </p>
+          </div>
+
+          {/* Status Dot */}
+          <span className="relative flex h-2 w-2 mt-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-50" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+          </span>
+        </div>
+      ))}
+
+      {notifications.length === 0 && (
+        <div className="p-8 text-center text-sm text-slate-500">
+          No notifications found
+        </div>
+      )}
+    </div>
+  </div>
+</div>
 
           <div className="relative" ref={dropdownRef}>
             <button
