@@ -6,7 +6,7 @@ import DashboardKpiCards from "@/components/home/DashboardKpiCards";
 import ManagementDashboard from "@/components/home/ManagementDashboard";
 import OperationalReporting from "@/components/home/OperationalReporting";
 import AuditActivitiesPanel from "@/components/home/AuditActivitiesPanel";
-import ExecutiveInsightsPanel from "@/components/home/ExecutiveInsightsPanel";
+// import ExecutiveInsightsPanel from "@/components/home/ExecutiveInsightsPanel";
 import AiExecutiveBriefing from "@/components/home/AiExecutiveBriefing";
 import { LoadingState } from "@/components/common/LoadingState";
 import PdfDownloadButton from "@/components/common/PdfDownloadButton";
@@ -47,85 +47,7 @@ export default function DashboardPage() {
   const userName = headerData.userName ?? homeData.userName ?? "Vigneshwaran";
   const dateRange = headerData.dateRange ?? homeData.dateRange ?? "May 14 – May 20, 2025";
 
-const downloadExcel = () => {
-  if (!homeData) return;
 
-  const workbook = XLSX.utils.book_new();
-
-  // KPI Cards
-  if (homeData.kpiCards?.length) {
-    const ws = XLSX.utils.json_to_sheet(homeData.kpiCards);
-    XLSX.utils.book_append_sheet(workbook, ws, "KPI Cards");
-  }
-
-  // Audit Activities
-  if (homeData.auditActivities?.length) {
-    const ws = XLSX.utils.json_to_sheet(homeData.auditActivities);
-    XLSX.utils.book_append_sheet(workbook, ws, "Audit Activities");
-  }
-
-  // Executive Insights
-  if (homeData.executiveInsights?.length) {
-    const ws = XLSX.utils.json_to_sheet(homeData.executiveInsights);
-    XLSX.utils.book_append_sheet(workbook, ws, "Executive Insights");
-  }
-
-  // Operational Reports
-  if (homeData.operationalReports?.length) {
-    const ws = XLSX.utils.json_to_sheet(homeData.operationalReports);
-    XLSX.utils.book_append_sheet(workbook, ws, "Operational Reports");
-  }
-
-  // Vendors
-  if (homeData.aiExecutiveBriefing?.vendors?.length) {
-    const ws = XLSX.utils.json_to_sheet(
-      homeData.aiExecutiveBriefing.vendors
-    );
-    XLSX.utils.book_append_sheet(workbook, ws, "Vendors");
-  }
-
-  // Risk Matrix
-  if (homeData.aiExecutiveBriefing?.riskMatrix?.length) {
-    const ws = XLSX.utils.json_to_sheet(
-      homeData.aiExecutiveBriefing.riskMatrix
-    );
-    XLSX.utils.book_append_sheet(workbook, ws, "Risk Matrix");
-  }
-
-  // Recommendations
-  if (homeData.aiExecutiveBriefing?.recommendations?.length) {
-    const ws = XLSX.utils.json_to_sheet(
-      homeData.aiExecutiveBriefing.recommendations
-    );
-    XLSX.utils.book_append_sheet(workbook, ws, "Recommendations");
-  }
-
-  // Dashboard Summary
-  if (homeData.managementDashboard?.dashboardSummary) {
-    const ws = XLSX.utils.json_to_sheet([
-      homeData.managementDashboard.dashboardSummary,
-    ]);
-    XLSX.utils.book_append_sheet(workbook, ws, "Summary");
-  }
-
-  // Open Closed Data
-  if (homeData.managementDashboard?.openClosedData?.length) {
-    const ws = XLSX.utils.json_to_sheet(
-      homeData.managementDashboard.openClosedData
-    );
-    XLSX.utils.book_append_sheet(workbook, ws, "Open Closed");
-  }
-
-  // Priority Data
-  if (homeData.managementDashboard?.priorityData?.length) {
-    const ws = XLSX.utils.json_to_sheet(
-      homeData.managementDashboard.priorityData
-    );
-    XLSX.utils.book_append_sheet(workbook, ws, "Priority");
-    }
-
-    XLSX.writeFile(workbook, "HomeDashboard.xlsx");
-  };
   return (
     <div className="min-h-screen text-slate-800">
       <div className="mx-auto max-w-[1800px] space-y-3">
@@ -155,14 +77,14 @@ const downloadExcel = () => {
               <span>{dateRange}</span>
               <ChevronDown size={14} />
             </button> */}
-            <div className="flex gap-2">
+            {/* <div className="flex gap-2">
               <button
                 onClick={downloadExcel}
                 className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
               >
                 Download Excel
               </button>
-            </div>
+            </div> */}
           </div>
 
         </div>
@@ -186,7 +108,7 @@ const downloadExcel = () => {
             <AuditActivitiesPanel data={homeData.auditActivities} />
 
             {/* EXECUTIVE INSIGHTS */}
-            <ExecutiveInsightsPanel data={homeData.executiveInsights} />
+            {/* <ExecutiveInsightsPanel data={homeData.executiveInsights} /> */}
           </div>
         </div>
       </div>

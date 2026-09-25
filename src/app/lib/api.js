@@ -9,6 +9,7 @@ const axiosInstance = axios.create({
 
 export const HOME_DASHBOARD_URL = "http://localhost:8000/api/home";
 export const CASES_URL = "http://localhost:8000/api/cases";
+// export const CASES_ACTION_URL = "http://localhost:8000/api/case-action";
 export const RECOVERIES_URL = "http://localhost:8000/api/recoveries";
 export const AUDIT_URL = "http://localhost:8000/api/audit";
 export const VENDORS_URL = "http://localhost:8000/api/vendors";
@@ -36,13 +37,13 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 export async function loginUser(email, password) {
-const response = await axiosInstance.post("/auth/login", {
-email,
-password,
-});
- 
-return response.data;
-}
+  const response = await axiosInstance.post("/auth/login", {
+  email,
+  password,
+  });
+
+  return response.data;
+  }
 
 export async function registerUser(
 email,
@@ -87,6 +88,16 @@ export async function getCases() {
 
   return casesRequest;
 }
+
+export async function submitCaseAction(payload) {
+  const response = await axiosInstance.post(
+    "/case-action",
+    payload
+  );
+
+  return response.data;
+}
+
 
 export async function getRecoveries() {
   if (!recoveriesRequest) {

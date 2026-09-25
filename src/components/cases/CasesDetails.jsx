@@ -11,6 +11,7 @@ import {
     BanknoteArrowUp,
 } from "lucide-react";
 
+import { submitCaseAction } from "@/app/lib/api";
 export const CasesDetails = ({ caseData }) => {
     
     const selectedCase = caseData ?? {};
@@ -24,22 +25,23 @@ export const CasesDetails = ({ caseData }) => {
         return;
         }
 
-    const payload = {
-      recordId: selectedRecord?.id,
-      action: action,
-      reasonCode: reason || null,
-      comment: "",
-      actionedBy: session?.user,
-      actionedAt: new Date().toISOString(),
-    };
+        setLoading(true);
 
-    console.log("Payload:", payload);
+        const payload = {
+        caseId: selectedCase?.case_id,
+        action,
+        reason: reason ,
+        comment: "",
+        actionedAt: new Date().toISOString(),
+        };
 
-    // API call
-    await axios.post("/api/duplicate-detection/action", payload);
+        const response = await submitCaseAction(payload);
 
+        console.log("Success:", response);
     } catch (error) {
         console.error(error);
+    } finally {
+        setLoading(false);
     }
     };
  
@@ -58,11 +60,11 @@ export const CasesDetails = ({ caseData }) => {
         <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
             <h2 className="text-[18px] leading-[24px] font-semibold text-[#0F172A]">
-            {selectedCase.caseId}
+            {selectedCase.case_id}
             </h2>
 
             <span className="px-2 py-[2px] text-[10px] font-medium rounded bg-[#F3E8FF] text-[#9333EA]">
-            {selectedCase.caseType}
+            {selectedCase.case_type}
             </span>
         </div>
 
@@ -98,7 +100,7 @@ export const CasesDetails = ({ caseData }) => {
             label="STATUS"
             value={
             <span className="inline-flex px-2 py-[2px] rounded text-[10px] font-medium bg-[#DBEAFE] text-[#2563EB]">
-                {selectedCase.status ?? "-"}
+                {selectedCase.risk_level ?? "-"}
             </span>
             }
         />
@@ -117,7 +119,7 @@ export const CasesDetails = ({ caseData }) => {
             label="AMOUNT (USD)"
             value={
             <span className="font-semibold text-[14px]">
-                {amount}
+                {selectedCase?.invoice_1?.amount}
             </span>
             }
         />
@@ -133,27 +135,27 @@ export const CasesDetails = ({ caseData }) => {
         />
 
         <Info
-            label="SLA DUE"
+            label="INVOICE DATE"
             value={
             <span className="text-[#F59E0B]">
-                {selectedCase.slaDue ?? "-"}
+                {selectedCase.invoice_1?.invoice_date ?? "-"}
             </span>
             }
         />
 
         <Info
-            label="INVESTIGATOR"
-            value={selectedCase.investigator ?? "Unassigned"}
+            label="INVOICE ID"
+            value={selectedCase.invoice_1?.invoice_id ?? "-"}
         />
 
         <Info
-            label="SOURCE SYSTEM"
-            value={selectedCase.sourceSystem ?? "-"}
+            label="INVOICE NUMBER"
+            value={selectedCase.invoice_1?.invoice_number ?? "-"}
         />
         </div>
 
         {/* AI Recommendation */}
-        <div className="mt-5 rounded-[6px] border border-[#D8B4FE] bg-[#FCFAFF] p-3">
+        {/* <div className="mt-5 rounded-[6px] border border-[#D8B4FE] bg-[#FCFAFF] p-3">
         <div className="flex items-center gap-2">
             <Sparkles size={15} className="text-[#7C3AED]" />
 
@@ -173,11 +175,11 @@ export const CasesDetails = ({ caseData }) => {
             payment adjustment.
         </p>
 
-        {/* <button className="mt-3 inline-flex h-6 items-center gap-1 rounded-[4px] border border-[#C4B5FD] bg-white px-2 text-[10px] font-semibold text-[#6D28D9] hover:bg-[#F5F3FF]">
+        <button className="mt-3 inline-flex h-6 items-center gap-1 rounded-[4px] border border-[#C4B5FD] bg-white px-2 text-[10px] font-semibold text-[#6D28D9] hover:bg-[#F5F3FF]">
             View Full Recommendation
             <ArrowRight size={12} />
-        </button> */}
-        </div>
+        </button>
+        </div> */}
 
         {/* Progress */}
         <div className="mt-5">
@@ -263,12 +265,10 @@ export const CasesDetails = ({ caseData }) => {
         </div> */}
 
         {/* Quick Actions */}
-        <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-2">
-        <h3 className="text-sm font-semibold text-slate-900">
-            Quick Actions
-        </h3>
+        <div className="mt-2 mb-2 rounded-xl border border-slate-200 bg-slate-50 p-2">
+          <h3 className="text-sm font-semibold text-slate-900">Quick Actions</h3>
 
-        <div className="mt-2">
+          <div className="mt-2">
             <label className="text-xs font-medium text-slate-600">
             Reason Code (Required for Confirm)
             </label>
@@ -337,23 +337,23 @@ export const CasesDetails = ({ caseData }) => {
             <span className="font-medium text-right">Rule_1</span>
 
             <span className="text-slate-500">Similarity</span>
-            <span className="font-medium text-right">Rule Match</span>
+            <span className="font-medium text-right">{selectedCase?.similarity ?? "-"}</span>
 
             <span className="text-slate-500">Total Amount</span>
-            <span className="font-medium text-right">$48,720</span>
+            <span className="font-medium text-right">{selectedCase?.invoice_1?.amount ?? "-"}</span>
 
             <span className="text-slate-500">Records</span>
-            <span className="font-medium text-right">2</span>
+            <span className="font-medium text-right">{selectedCase?.invoice_1?.invoice_count ?? "-"}</span>
             </div>
 
-            <div className="mt-4 rounded-lg bg-slate-100 p-3">
-            <div className="text-xs font-semibold text-slate-600">
-                Rule Explanation
-            </div>
+            <div className="mt-2 rounded-lg bg-slate-100 p-3">
+                <div className="text-xs font-semibold text-slate-600">
+                    Rule Explanation
+                </div>
 
-            <p className="mt-1 text-sm text-slate-700">
-                Exact match on all fields.
-            </p>
+                <p className="mt-1 text-sm text-slate-700">
+                    Exact match on all fields.
+                </p>
             </div>
         </div>
         </div>

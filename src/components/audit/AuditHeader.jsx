@@ -18,9 +18,9 @@ export const AuditHeader = () => {
                     </p>
                 </div>
 
-                <div className="flex gap-2.5">
+                {/* <div className="flex gap-2.5">
                     <PdfDownloadButton fileName="audit" />
-                </div>
+                </div> */}
                 </div>
             </div>
   );

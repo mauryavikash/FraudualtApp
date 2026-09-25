@@ -19,9 +19,9 @@ export const CasesHeader = () => {
                     </p>
                 </div>
 
-                <div className="flex gap-3">
+                {/* <div className="flex gap-3">
                     <PdfDownloadButton fileName="cases" />
-                </div>
+                </div> */}
                 </div>
             </div>
   );

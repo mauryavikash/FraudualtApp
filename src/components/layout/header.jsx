@@ -3,18 +3,6 @@
 import { Bell, Menu,Zap,Bot, ChevronDown,AlertTriangle,CheckCircle2,FileText,Mail, Settings, User, LogOut, HelpCircle, Download, Upload, BarChart3 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-  const NOTIF_ICONS = {
-    warning:  { icon: AlertTriangle, color: "text-amber-500",   bg: "bg-amber-50" },
-    success:  { icon: CheckCircle2,  color: "text-emerald-500", bg: "bg-emerald-50" },
-    info:     { icon: FileText,      color: "text-blue-500",    bg: "bg-blue-50" },
-    email:    { icon: Mail,          color: "text-sky-500",     bg: "bg-sky-50" },
-    default:  { icon: Bell,          color: "text-slate-500",   bg: "bg-slate-50" },
-  };
-
-  function getNotifStyle(type) {
-    return NOTIF_ICONS[type] || NOTIF_ICONS.default;
-  }
-
   // ── Agent definitions ──────────────────────────────────────────────────────────
   const LIVE_AGENTS = [
     { name: "Statement Extraction Agent", role: "OCR · PDF · Email parsing", icon: "📄" },
@@ -33,18 +21,10 @@ export default function Header({ setIsOpen, isOpen }) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [agentsOpen,   setAgentsOpen]   = useState(false);
   const [standbyOpen,  setStandbyOpen]  = useState(false);
-  const [notifOpen,    setNotifOpen]    = useState(false);
+
   const dropdownRef = useRef(null);
    const agentsRef  = useRef(null);
   const standbyRef = useRef(null);
-  // const notifRef   = useRef(null);
-  // const notifications = Array.isArray(dashData?.mockNotifications) && dashData.mockNotifications.length > 0
-  //   ? dashData.mockNotifications
-  //   : [
-  //       { type: "warning", message: "3 exceptions pending review", time: "2 min ago" },
-  //       { type: "success", message: "Reconciliation batch completed", time: "15 min ago" },
-  //       { type: "email",   message: "New statement from Kumar Textiles", time: "1 hr ago" },
-  //     ];
 
   let title = "Home";
 
@@ -224,22 +204,6 @@ export default function Header({ setIsOpen, isOpen }) {
             <span className="absolute -right-0.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white text-white text-xs bg-red-500 select-none">2</span>
           </button>
 
-          {/* <button8
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:text-dgem-blue hover:shadow-md"
-            type="button"
-            title="Help"
-          >
-            <HelpCircle size={16} />
-          </button> */}
-
-          {/* <button
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:text-dgem-blue hover:shadow-md"
-            type="button"
-            title="Settings"
-          >
-            <Settings size={16} />
-          </button> */}
-
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setProfileOpen(!profileOpen)}
@@ -269,19 +233,19 @@ export default function Header({ setIsOpen, isOpen }) {
               }`}
             >
               <a
-                href="/profile"
+                // href="/profile"
                 className="flex items-center gap-2 px-4 py-3 text-sm text-slate-700 transition-colors hover:bg-slate-50 hover:text-dgem-blue"
               >
                 <User size={16} />
                 My Profile
               </a>
-              <a
+              {/* <a
                 href="/settings"
                 className="flex items-center gap-2 px-4 py-3 text-sm text-slate-700 transition-colors hover:bg-slate-50 hover:text-dgem-blue"
               >
                 <Settings size={16} />
                 Settings
-              </a>
+              </a> */}
               <button className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-slate-700 transition-colors hover:bg-red-50 hover:text-red-600">
                 <LogOut size={16} />
                 Logout
@@ -289,15 +253,6 @@ export default function Header({ setIsOpen, isOpen }) {
             </div>
           </div>
 
-          <div className="hidden md:flex items-center gap-1.5 pl-2 border-l border-slate-200">
-            {/* <BarChart3 size={16} className="text-emerald-500" /> */}
-            {/* <span className="text-[13px] font-bold text-dgem-blue">i360</span> */}
-            {/* <img
-                src="/pw.png"
-                alt="User avatar"
-                className="h-8 w-12"
-              /> */}
-          </div>
           <div className="flex items-center gap-2 pl-1">
             <img src="/cgI.png" alt="Brand" className="h-[34px]" />
           </div>

@@ -2,34 +2,34 @@
 
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 
-const detectionSource = [
-  { name: "Rule-Based", value: 126, percent: "45.0%", color: "#2563EB" },
-  { name: "Agentic AI", value: 98, percent: "37.0%", color: "#7C3AED" },
-  { name: "Hybrid (Rule + AI)", value: 41, percent: "15.5%", color: "#0F9FAF" },
-];
+// const detectionSource = [
+//   { name: "Rule-Based", value: 126, percent: "45.0%", color: "#2563EB" },
+//   { name: "Agentic AI", value: 98, percent: "37.0%", color: "#7C3AED" },
+//   { name: "Hybrid (Rule + AI)", value: 41, percent: "15.5%", color: "#0F9FAF" },
+// ];
 
-const findingTypes = [
-  { name: "True Duplicates", value: 76, percent: "28.7%" },
-  { name: "Near Duplicates", value: 81, percent: "30.6%" },
-  { name: "Potential Duplicates (AI)", value: 54, percent: "20.4%" },
-  { name: "Amount Anomalies", value: 28, percent: "10.6%" },
-  { name: "Currency Deviations", value: 16, percent: "6.0%" },
-  { name: "Recurring Duplications", value: 10, percent: "3.8%" },
-];
+// const findingTypes = [
+//   { name: "True Duplicates", value: 76, percent: "28.7%" },
+//   { name: "Near Duplicates", value: 81, percent: "30.6%" },
+//   { name: "Potential Duplicates (AI)", value: 54, percent: "20.4%" },
+//   { name: "Amount Anomalies", value: 28, percent: "10.6%" },
+//   { name: "Currency Deviations", value: 16, percent: "6.0%" },
+//   { name: "Recurring Duplications", value: 10, percent: "3.8%" },
+// ];
 
-const riskDistribution = [
-  { name: "Critical", value: 46, percent: "17.4%", color: "#DC2626" },
-  { name: "High", value: 87, percent: "32.8%", color: "#F97316" },
-  { name: "Medium", value: 96, percent: "36.2%", color: "#FBBF24" },
-  { name: "Low", value: 36, percent: "13.6%", color: "#5B9FA5" },
-];
+// const riskDistribution = [
+//   { name: "Critical", value: 46, percent: "17.4%", color: "#DC2626" },
+//   { name: "High", value: 87, percent: "32.8%", color: "#F97316" },
+//   { name: "Medium", value: 96, percent: "36.2%", color: "#FBBF24" },
+//   { name: "Low", value: 36, percent: "13.6%", color: "#5B9FA5" },
+// ];
 
-const paymentStatus = [
-  { name: "Paid", value: 128, percent: "48.3%", color: "#DC2626" },
-  { name: "Waiting", value: 97, percent: "36.6%", color: "#F97316" },
-  { name: "Blocked", value: 21, percent: "7.9%", color: "#4F46A5" },
-  { name: "Other", value: 19, percent: "7.2%", color: "#9CA3AF" },
-];
+// const paymentStatus = [
+//   { name: "Paid", value: 128, percent: "48.3%", color: "#DC2626" },
+//   { name: "Waiting", value: 97, percent: "36.6%", color: "#F97316" },
+//   { name: "Blocked", value: 21, percent: "7.9%", color: "#4F46A5" },
+//   { name: "Other", value: 19, percent: "7.2%", color: "#9CA3AF" },
+// ];
 
 const panelClass = "min-w-0 rounded-[10px] border border-[#E2E8F0] bg-white p-4 shadow-[0px_1px_4px_rgba(15,23,42,0.05)]";
 

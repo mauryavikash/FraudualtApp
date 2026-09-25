@@ -299,10 +299,10 @@ export default function CasesPage() {
                       "VENDOR",
                       "AMOUNT (USD)",
                       "DETECTED ON",
-                      "SLA DUE",
-                      "INVESTIGATOR",
-                      "DETECTION SOURCE",
-                      "CONFIDENCE SCORE",
+                      "INVOICE DATE",
+                      "INVOICE ID",
+                      "INVOICE NUMBER",
+                      // "CONFIDENCE SCORE",
                       "SIMILARITY",
                     ].map((item) => (
                       <th
@@ -332,7 +332,7 @@ export default function CasesPage() {
                   ) : paginatedData.map((row) => (
 
                     <tr
-                      key={row.caseId}
+                      key={row.case_id}
                       onClick={() => setSelectedCase(row)}
                       className={`
                         h-[58px]
@@ -342,7 +342,7 @@ export default function CasesPage() {
                         cursor-pointer
                         transition-colors
                         ${
-                          selectedCase?.caseId === row.caseId
+                          selectedCase?.case_id === row.case_id
                             ? "bg-[#F8FAFC]"
                             : ""
                         }
@@ -354,18 +354,18 @@ export default function CasesPage() {
                       </td>
 
                       <td className="text-[12px] font-semibold text-[#2563EB]">
-                        {row.caseId}
+                        {row.case_id}
                       </td>
 
                       <td>
                         <span
                           className={`px-2.5 py-[2px] rounded-md text-[10px] font-semibold ${
-                            row.caseType === "Duplicate"
+                            row.case_type === "Duplicate"
                               ? "bg-[#F3E8FF] text-[#8B5CF6]"
                               : "bg-[#FDE7C7] text-[#F59E0B]"
                           }`}
                         >
-                          {row.caseType}
+                          {row.case_type}
                         </span>
                       </td>
 
@@ -390,10 +390,10 @@ export default function CasesPage() {
                       <td>
                         <span
                           className={`px-2.5 py-[2px] rounded-md text-[10px] font-semibold ${statusClass(
-                            row.status
+                            row.risk_level
                           )}`}
                         >
-                          {row.status}
+                          {row.risk_level}
                         </span>
                       </td>
 
@@ -402,7 +402,7 @@ export default function CasesPage() {
                       </td>
 
                       <td className="text-[12px] font-semibold text-[#0F172A]">
-                        {row.amount}
+                        {row.invoice_1?.amount}
                       </td>
 
                       <td className="text-[12px] text-[#64748B]">
@@ -411,31 +411,23 @@ export default function CasesPage() {
 
                       <td>
                         <div className="text-[12px] text-[#334155]">
-                          {row.slaDue}
+                          {row.invoice_1?.invoice_date}
                         </div>
-
-                        <div
-                          className={`text-[10px] font-semibold ${
-                            row.remaining === "Overdue"
-                              ? "text-[#EF4444]"
-                              : "text-[#F59E0B]"
-                          }`}
-                        >
-                          {row.remaining}
-                        </div>
+                        
                       </td>
 
                       <td className="text-[12px] text-[#64748B]">
-                        {row.investigator}
+                        {/* {row.investigator} */}
+                        {row.invoice_1?.invoice_id}
                       </td>
 
                       <td className="text-[12px] text-[#64748B]">
-                        {row.detectionSource}
+                        {row.invoice_1?.invoice_number}
                       </td>
 
-                      <td className="text-[12px] font-semibold text-[#0F172A]">
-                        {row.confidenceScore}
-                      </td>
+                      {/* <td className="text-[12px] font-semibold text-[#0F172A]">
+                        {row.invoice_1?.confidenceScore}
+                      </td> */}
 
                       <td className="text-[12px] font-semibold text-[#0F172A]">
                         {row.similarity}
