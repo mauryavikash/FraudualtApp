@@ -38,7 +38,7 @@ export const AuditChart = ({ data }) => {
 
   return (
     <div className="mt-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-stretch">
         {/* ACTIONS BY DAY */}
         <div className={panelClass}>
           <h3 className="text-[13px] font-semibold text-[#0F172A]">

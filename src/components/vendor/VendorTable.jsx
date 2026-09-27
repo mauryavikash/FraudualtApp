@@ -105,7 +105,7 @@ export const VendorTable = ({ data, totalAlerts }) => {
   };
 
   return (
-    <div className="col-span-12 xl:col-span-8 flex">
+    <div className="col-span-12 lg:col-span-8 flex">
       <div
         className="
           w-full

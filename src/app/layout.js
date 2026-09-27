@@ -1,6 +1,6 @@
 import localFont from "next/font/local";
 import "./globals.css";
-
+import { Toaster } from "sonner";
 const poppins = localFont({
   src: [
     {
@@ -35,7 +35,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${poppins.variable} light h-full antialiased`}>
-      <body className="m-0 p-0 bg-bgdeep text-text">{children}</body>
+      <body className="m-0 p-0 bg-bgdeep text-text">
+        <Toaster position="top-center" richColors />
+        {children}
+        </body>
     </html>
   );
 }

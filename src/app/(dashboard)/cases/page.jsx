@@ -170,7 +170,7 @@ export default function CasesPage() {
       <div className="grid grid-cols-12 gap-4 mt-4 items-stretch">
 
         {/* TABLE */}
-        <div className="col-span-12 xl:col-span-8 flex">
+        <div className="col-span-12 lg:col-span-8 flex">
 
           <div
             className="
@@ -501,7 +501,7 @@ export default function CasesPage() {
         </div>
 
         {/* RIGHT PANEL */}
-        <div className="col-span-12 xl:col-span-4 flex">
+        <div className="col-span-12 lg:col-span-4 flex">
           <CasesDetails caseData={selectedCase ?? tableData[0]} />
         </div>
 

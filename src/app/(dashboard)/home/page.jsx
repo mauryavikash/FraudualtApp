@@ -111,7 +111,7 @@ export default function DashboardPage() {
           <OperationalReporting data={homeData.operationalReports} />
 
           {/* RIGHT SIDE */}
-          <div className="col-span-12 space-y-4 xl:col-span-6">
+          <div className="col-span-12 space-y-4 md:col-span-6">
             {/* RECENT AUDIT ACTIVITIES */}
             <AuditActivitiesPanel data={homeData.auditActivities} />
 

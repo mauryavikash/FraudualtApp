@@ -48,7 +48,7 @@ import Footer from '../../components/layout/footer';
 import Header from '../../components/layout/header';
 import Sidebar from '../../components/layout/sidebar';
 import AiCopilot from '../../components/layout/AiCopilot';
-
+import { Toaster } from "sonner";
 export default function DashboardLayout({ children }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [loading, setLoading] = useState(true);
@@ -71,6 +71,9 @@ export default function DashboardLayout({ children }) {
     }
 
     return (
+        <>
+        <Toaster position="top-center" richColors />
+        
         <div className="flex h-screen w-screen overflow-hidden font-sans antialiased text-slate-900">
             <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
@@ -96,5 +99,6 @@ export default function DashboardLayout({ children }) {
                 <Footer />
             </div>
         </div>
+        </>
     );
 }

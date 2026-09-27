@@ -138,7 +138,7 @@ export default function AiExecutiveBriefing({ data }) {
         </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-12">
+      <div className="grid gap-3 md:grid-cols-4 2xl:grid-cols-12">
         <article className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm 2xl:col-span-3">
           <h2 className="text-xs font-semibold text-slate-900">Detection Mix (By Source)</h2>
           <div className="mt-3 flex items-center justify-center gap-2">

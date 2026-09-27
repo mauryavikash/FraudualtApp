@@ -16,8 +16,8 @@ const TABS = [
   "In Progress",
   "Completed",
   "Failed",
-  "Written Off",
-  "Prevention (Duplicates Stopped)",
+  // "Written Off",
+  // "Prevention (Duplicates Stopped)",
 ];
 
 const formatCurrency = (value) => new Intl.NumberFormat("en-US", {
@@ -163,22 +163,20 @@ export default function Recoveries() {
           metrics={recoveriesData.recoveryMetrics}
         />
 
-        <div className="mt-4 grid grid-cols-12 gap-4 items-stretch">
+        <div className="mt-4 grid grid-cols-12 gap-4">
           {/* CONTENT */}
-          <div className="col-span-12 xl:col-span-8 flex min-h-0 flex-col gap-4">
+          <div className="col-span-12 lg:col-span-8">
           <div
             className="
-              w-full
-              flex
-              flex-col
-              bg-white
-              rounded-[16px]
-              border
-              border-[#D9E1EA]
-              shadow-[0px_2px_8px_rgba(15,23,42,0.05)]
-              overflow-hidden
-          "
-          >
+            h-full
+            bg-white
+            rounded-[16px]
+            border
+            border-[#D9E1EA]
+            shadow-[0px_2px_8px_rgba(15,23,42,0.05)]
+            overflow-hidden
+            "
+            >
             {/* Tabs */}
             <div className="px-5 pt-4 border-b border-[#E2E8F0] overflow-x-auto">
               <div className="flex gap-5 whitespace-nowrap">
@@ -271,7 +269,7 @@ export default function Recoveries() {
             </div>
 
             {/* TABLE */}
-            <div className="overflow-x-auto flex-1 min-h-[420px]">
+            <div className="overflow-x-auto flex-1 min-h-[550px]">
               <table className="w-full">
                 <thead>
                   <tr className="h-[42px] border-b border-[#E2E8F0]">
@@ -434,14 +432,14 @@ export default function Recoveries() {
             </div>
           </div>
 
-          <RecoveriesCharts
+          {/* <RecoveriesCharts
             summary={recoveriesData.recoverySummary}
             trend={recoveriesData.recoveryTrend}
             vendors={recoveriesData.vendorRecoveries}
-          />
+          /> */}
           </div>
 
-          <div className="col-span-12 xl:col-span-4">
+          <div className="col-span-12 lg:col-span-4">
             <RecoveriesDetails
               recovery={selectedRecovery}
               stages={recoveriesData.recoveryProgressStages}
@@ -449,6 +447,15 @@ export default function Recoveries() {
               tabs={recoveriesData.detailTabs}
             />
           </div>
+        </div>
+
+        {/* Bottom Row */}
+        <div className="mt-4">
+        <RecoveriesCharts
+        summary={recoveriesData.recoverySummary}
+        trend={recoveriesData.recoveryTrend}
+        vendors={recoveriesData.vendorRecoveries}
+        />
         </div>
       </div>
     </div>

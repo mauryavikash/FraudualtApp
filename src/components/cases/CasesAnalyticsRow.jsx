@@ -84,7 +84,7 @@ export default function CasesAnalyticsRow({ data }) {
   const maxFindingValue = Math.max(...findingTypesData.map((item) => item.value), 1);
 
   return (
-    <section className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+    <section className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-4 xl:grid-cols-4">
       <DonutPanel title="Detection Source" data={detectionSourceData} />
       <article className={panelClass}>
         <h3 className="text-[13px] font-semibold text-[#0F172A]">Finding Type</h3>

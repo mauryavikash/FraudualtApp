@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Bell, Menu,Zap,Bot, ChevronDown,AlertTriangle,CheckCircle2,FileText,Mail, Settings, User, LogOut, HelpCircle, Download, Upload, BarChart3 } from "lucide-react";
+import { Bell, Menu,Zap,Bot, ChevronDown,CheckCircle2,FileText,Mail, Settings, User, LogOut, HelpCircle, Download, Upload, BarChart3 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
@@ -215,7 +215,7 @@ useEffect(() => {
                   className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
                 >
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-xs font-semibold text-amber-700">
-                    {index + 1}
+                    {/* {index + 1} */} <User size={13} />
                     </span>
 
                   <div className="min-w-0 flex-1">
@@ -267,7 +267,7 @@ useEffect(() => {
                   className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
                 >
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-xs font-semibold text-amber-700">
-                    {index + 1}
+                    {/* {index + 1} */} <User size={13} />
                     </span>
 
                   <div className="min-w-0 flex-1">
@@ -336,7 +336,8 @@ useEffect(() => {
         >
           {/* Number Circle */}
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-xs font-semibold text-red-700">
-            {index + 1}
+            {/* {index + 1} */}
+            <Bell size={13} />
           </span>
 
           <div className="min-w-0 flex-1">

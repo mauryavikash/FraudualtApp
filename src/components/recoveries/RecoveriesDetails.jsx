@@ -143,7 +143,7 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
           </span>
         </div>
 
-        <div className="mt-5 rounded-md border border-[#DDD6FE] bg-[#FCFAFF] p-3">
+        {/* <div className="mt-5 rounded-md border border-[#DDD6FE] bg-[#FCFAFF] p-3">
           <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#6D28D9]">
             <Sparkles size={14} />
             AI Next Best Action
@@ -167,7 +167,7 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
             <FilePenLine size={12} />
             {isDraftGenerated ? "Email Draft Generated" : "Generate Email Draft"}
           </button>
-        </div>
+        </div> */}
 
         {/* Recovery Timeline */}
         <div className="mt-6 pb-4">
