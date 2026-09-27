@@ -50,7 +50,7 @@ export default function Audit() {
         {/* TABLE */}
         <AuditTable data={auditData.auditTrail} />
         {/* RIGHT PANEL */}
-        <div className="col-span-12 xl:col-span-3 flex">
+        <div className="col-span-12 lg:col-span-3 flex">
           <AuditInsight data={auditData.auditInsights} />
         </div>
 

@@ -19,7 +19,7 @@ export default function AuditEventDetails({ data, riskDistribution }) {
   const risks = Array.isArray(riskDistribution) ? riskDistribution : [];
 
   return (
-    <section className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+    <section className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
       <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">Case / Invoice / Vendor</h2>
         <dl className="mt-4 space-y-2 text-[10px]">{details.map(([label, value]) => <div key={label} className="grid grid-cols-[88px_1fr] gap-2"><dt className="text-slate-500">{label}</dt><dd className={label === "Exposure (USD)" ? "font-semibold text-slate-800" : "font-medium text-blue-600"}>{value}</dd></div>)}</dl>

@@ -13,7 +13,7 @@ export default function VendorRiskControls({ data }) {
     ? Math.round(riskDrivers.reduce((total, [, score]) => total + score, 0) / riskDrivers.length)
     : 0;
   return (
-    <section className="mt-4 grid gap-4 xl:grid-cols-3">
+    <section className="mt-4 grid gap-4 md:grid-cols-3">
       <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <h2 className="text-xs font-semibold text-slate-900">Vendor Risk Profile</h2>
         <div className="relative mx-auto mt-4 h-36 w-56 overflow-hidden">

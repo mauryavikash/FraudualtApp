@@ -23,8 +23,8 @@ export default function VendorExposureAnalytics({ data }) {
   const totalFindings = findings.reduce((total, item) => total + item.value, 0);
 
   return (
-    <section className="mt-4 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-      <div className="overflow-x-auto border-b border-slate-200">
+    <section className="mt-4 overflow-hidden">
+      {/* <div className="overflow-x-auto border-b border-slate-200">
         <div className="flex min-w-max px-3">
           {tabs.map((tab) => (
             <button
@@ -37,8 +37,8 @@ export default function VendorExposureAnalytics({ data }) {
             </button>
           ))}
         </div>
-      </div>
-      <div className="grid gap-4 p-4 xl:grid-cols-3">
+      </div> */}
+      <div className="grid gap-4 lg:grid-cols-3">
       <article className={panel}>
         <h2 className="text-xs font-semibold text-slate-900">Exposure Trend (USD)</h2>
         <div className="mt-3 h-36"><ResponsiveContainer width="100%" height="100%"><LineChart data={exposureTrend} margin={{ top: 8, right: 8, left: -22, bottom: 0 }}><CartesianGrid vertical={false} stroke="#e2e8f0" /><XAxis dataKey="month" tick={{ fontSize: 9, fill: "#64748b" }} axisLine={false} tickLine={false} /><YAxis tick={{ fontSize: 9, fill: "#64748b" }} axisLine={false} tickLine={false} tickFormatter={(value) => `$${value}M`} /><Tooltip formatter={(value) => `$${value}M`} /><Line type="monotone" dataKey="value" stroke="#2563eb" strokeWidth={2} dot={{ r: 3, fill: "#2563eb" }} /></LineChart></ResponsiveContainer></div>

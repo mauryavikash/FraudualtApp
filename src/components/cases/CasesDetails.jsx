@@ -10,14 +10,14 @@ import {
     AlertTriangle,
     BanknoteArrowUp,
 } from "lucide-react";
-
+import { toast } from "sonner";
 import { submitCaseAction } from "@/app/lib/api";
 export const CasesDetails = ({ caseData }) => {
     
     const selectedCase = caseData ?? {};
     const [reason, setReason] = useState("");
     const [loading, setLoading] = useState(false);
-
+    
     const handleAction = async (action) => {
     try {
         if (action === "approve" && !reason) {
@@ -38,9 +38,10 @@ export const CasesDetails = ({ caseData }) => {
 
         const response = await submitCaseAction(payload);
 
-        console.log("Success:", response);
+        toast.success("Action completed successfully");
     } catch (error) {
-        console.error(error);
+        // console.error(error);
+        toast.error(error?.response?.data?.message || "Something went wrong");
     } finally {
         setLoading(false);
     }

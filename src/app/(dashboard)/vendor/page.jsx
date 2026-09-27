@@ -48,7 +48,7 @@ export default function Vendor() {
             {/* TABLE */}
             <VendorTable data={vendorData.alerts} totalAlerts={vendorData.alertSummary?.totalAlerts} />
             {/* RIGHT PANEL */}
-            <div className="col-span-12 xl:col-span-4 flex">
+            <div className="col-span-12 lg:col-span-4 flex">
               <VendorInsight data={vendorData.alertSummary} />
             </div>
     

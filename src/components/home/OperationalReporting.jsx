@@ -70,7 +70,7 @@ export default function OperationalReporting({ data }) {
     : staticReports;
 
   return (
-    <div className="col-span-12 rounded-lg border border-slate-200 bg-white p-4 xl:col-span-6">
+    <div className="col-span-12 rounded-lg border border-slate-200 bg-white p-4 md:col-span-6">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-sm font-semibold text-slate-900">
           Operational Reporting

@@ -10,7 +10,7 @@ const formatCurrency = (value) => new Intl.NumberFormat("en-US", { style: "curre
 
 export default function VendorFindingsActions({ issues, findings, actions }) {
   return (
-    <section className="mt-4 grid gap-4 xl:grid-cols-3">
+    <section className="mt-4 grid gap-4 lg:grid-cols-3">
       <article className={panel}>
         <h2 className="text-xs font-semibold text-slate-900">Top Issues for This Vendor</h2>
         <div className="mt-4 space-y-3">{(issues ?? []).map((item) => <div key={item.title} className="grid grid-cols-[20px_minmax(0,1fr)_auto] gap-2"><span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-amber-50 text-amber-600"><CircleAlert size={12} /></span><div className="min-w-0"><p className="text-[11px] font-medium text-slate-800">{item.title}</p><p className="mt-0.5 text-[9px] text-slate-500">{item.description}</p></div><div className="text-right"><span className="rounded bg-amber-50 px-1.5 py-0.5 text-[9px] font-medium text-amber-600">{item.severity}</span><p className="mt-1 text-[9px] text-slate-500">{item.caseCount} cases</p></div></div>)}</div>

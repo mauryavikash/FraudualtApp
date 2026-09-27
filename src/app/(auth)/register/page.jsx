@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BarChart3, Eye,EyeOff, LockKeyhole, Mail, UserRound } from "lucide-react";
 import { registerUser } from "@/app/lib/api";
+import { toast } from "sonner";
 export default function RegisterPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -37,11 +38,12 @@ async function handleSubmit(event) {
       confirmPassword
     );
 
-    alert(data.message || "Registration Successful");
-
+    // alert(data.message || "Registration Successful");
+    toast.success("Action completed successfully");
     router.push("/login");
     } catch (err) {
-        setError(
+       toast.error(error?.response?.data?.message || "Something went wrong");
+       setError(
         err.response?.data?.detail ||
         "Registration Failed"
         );
@@ -57,12 +59,12 @@ async function handleSubmit(event) {
 
       <div className="mx-auto grid min-h-[calc(100vh-40px)] max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_.95fr]">
         <section className="hidden text-center lg:block">
-          <Image src="/LoginImg.png" width={460} height={360} alt="Finance analytics illustration" className="mx-auto object-contain" priority />
-          <h1 className="mt-5 text-[42px] font-semibold leading-tight tracking-normal text-black">
+          <Image src="/LoginImg.png" width={460} height={300} alt="Finance analytics illustration" className="mx-auto object-contain" priority />
+          <h1 className="mt-5 text-[36px] font-semibold leading-tight tracking-normal text-black">
             Intelligent Insights.<br />
             <span className="text-indigo-600">Stronger Decisions</span>
           </h1>
-          <p className="mx-auto mt-4 max-w-md text-xl leading-7 text-black">
+          <p className="mx-auto mt-4 max-w-md text-lg leading-7 text-black">
             Agentic AI that automates, analyzes and accelerates your finance operations end-to-end
           </p>
         </section>

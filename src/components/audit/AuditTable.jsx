@@ -112,7 +112,7 @@ export const AuditTable = ({ data }) => {
   };
 
   return (
-    <div className="col-span-12 xl:col-span-9 flex">
+    <div className="col-span-12 lg:col-span-9 flex">
       <div
         className="
           w-full
