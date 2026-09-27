@@ -31,20 +31,6 @@ let recoveriesRequest;
 let auditRequest;
 let vendorsRequest;
 
-// axiosInstance.interceptors.request.use(
-//   (config) => {
-//   if (typeof window !== "undefined") {
-//   const token = localStorage.getItem("access_token");
-
-//   if (token) {
-//   config.headers.Authorization = `Bearer ${token}`;
-//   }
-//   }
-
-//   return config;
-//   },
-//   (error) => Promise.reject(error)
-// );
 axiosInstance.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
@@ -61,6 +47,22 @@ axiosInstance.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
+// axiosInstance.interceptors.request.use(
+//   (config) => {
+//     if (typeof window !== "undefined") {
+//       const token = localStorage.getItem("access_token");
+
+//       console.log("TOKEN =", token);
+
+//       if (token) {
+//         config.headers.Authorization = `Bearer ${token}`;
+//       }
+//     }
+
+//     return config;
+//   },
+//   (error) => Promise.reject(error)
+// );
 
 
 export async function getAgentStatus() {

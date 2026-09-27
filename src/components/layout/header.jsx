@@ -8,10 +8,22 @@ import {
 getAgentStatus,
 getNotifications,
 } from "@/app/lib/api";
-  
+  import { useRouter } from "next/navigation";
  
 export default function Header({ setIsOpen, isOpen }) {
   const pathname = usePathname();
+
+
+
+const router = useRouter();
+
+const handleLogout = () => {
+  localStorage.removeItem("isLoggedIn");
+  localStorage.removeItem("user");
+
+  router.replace("/login");
+};
+
   const [user, setUser] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -400,7 +412,7 @@ useEffect(() => {
                 <Settings size={16} />
                 Settings
               </a> */}
-              <button className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-slate-700 transition-colors hover:bg-red-50 hover:text-red-600">
+              <button onClick={handleLogout} className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-slate-700 transition-colors hover:bg-red-50 hover:text-red-600">
                 <LogOut size={16} />
                 Logout
               </button>

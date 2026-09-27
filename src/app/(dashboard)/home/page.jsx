@@ -18,6 +18,14 @@ export default function DashboardPage() {
   const [homeData, setHomeData] = useState(null);
 
   useEffect(() => {
+  const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+  if (isLoggedIn !== "true") {
+    router.replace("/login");
+  }
+}, []);
+
+  useEffect(() => {
     let isMounted = true;
 
     async function loadHomeData() {
