@@ -28,10 +28,11 @@ export const CasesDetails = ({ caseData }) => {
         setLoading(true);
 
         const payload = {
-        caseId: selectedCase?.case_id,
+        pair_id: selectedCase?.pair_id,
         action,
-        reason: reason ,
-        comment: "",
+        reason_code: reason ,
+        comments: "",
+        performed_by: "",
         actionedAt: new Date().toISOString(),
         };
 
