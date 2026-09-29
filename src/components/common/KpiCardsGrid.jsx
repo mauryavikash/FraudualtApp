@@ -3,7 +3,7 @@ import KpiTooltip from "./KpiTooltip";
 // Visual presets shared by every KPI card grid across the app
 const VARIANTS = {
   default: {
-    border: "border-[2px] border-[#103feb]",
+    // border: "border-[2px] border-[#103feb]",
     titleClass:
       "text-[10px] font-bold uppercase tracking-[0.06em] text-[#64748B] leading-tight",
     iconBox: "h-8 w-8",
@@ -11,14 +11,14 @@ const VARIANTS = {
     valueClass: "text-[22px] leading-[26px]",
   },
   audit: {
-    border: "border-[2px] border-[#103feb]",
+    // border: "border-[2px] border-[#103feb]",
     titleClass: "text-[12px] font-medium text-[#475569]",
     iconBox: "h-7 w-7",
     iconSize: 14,
     valueClass: "text-[22px] leading-[26px]",
   },
   vendor: {
-    border: "border-[2px] border-[#103feb]",
+    // border: "border-[2px] border-[#103feb]",
     titleClass:
       "text-[10px] font-bold uppercase tracking-[0.06em] text-[#64748B]",
     iconBox: "h-8 w-8",
@@ -50,7 +50,7 @@ export default function KpiCardsGrid({
             invoiceCount={item.invoiceCount}
             invoiceValue={item.invoiceValue}
           >
-            <div
+            {/* <div
               className={`
                 rounded-[10px]
                 border
@@ -64,7 +64,31 @@ export default function KpiCardsGrid({
                 flex-col
                 justify-between
               `}
+            > */}
+
+            <div
+              className="
+                rounded-[10px]
+                bg-white
+                shadow-[0px_1px_4px_rgba(15,23,42,0.05)]
+                px-2
+                py-2
+                min-h-[105px]
+                flex
+                flex-col
+                justify-between
+              "
+              style={{
+                borderWidth: "1.5px",
+                borderStyle: "solid",
+                borderColor: "transparent",
+                backgroundImage:
+                  "linear-gradient(white, white), linear-gradient(135deg, #1e3a8a 0%, #3b82f6 55%, #10b981 100%)",
+                backgroundOrigin: "border-box",
+                backgroundClip: "padding-box, border-box",
+              }}
             >
+
             
               <div className="flex items-start justify-between gap-2">
                 <p className={style.titleClass}>{item.title}</p>

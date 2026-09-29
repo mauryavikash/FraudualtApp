@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { VendorTable } from '@/components/vendor/VendorTable';
+import  VendorTable  from '@/components/vendor/VendorTable';
 import { VendorHeader } from '@/components/vendor/VendorHeader';
-import { VendorInsight } from '@/components/vendor/VendorInsight';
+import  VendorInsight  from '@/components/vendor/VendorInsight';
 import { VendorKpiCard }  from '@/components/vendor/VendorKpiCard';
 import VendorRiskControls from '@/components/vendor/VendorRiskControls';
 import VendorExposureAnalytics from '@/components/vendor/VendorExposureAnalytics';
@@ -45,11 +45,10 @@ export default function Vendor() {
 
           <div className="grid grid-cols-12 gap-4 mt-4 items-stretch">
     
-            {/* TABLE */}
+
             <VendorTable data={vendorData.alerts} totalAlerts={vendorData.alertSummary?.totalAlerts} />
-            {/* RIGHT PANEL */}
             <div className="col-span-12 lg:col-span-4 flex">
-              <VendorInsight data={vendorData.alertSummary} />
+              {/* <VendorInsight data={vendorData.alertSummary} /> */}
             </div>
     
           </div>
