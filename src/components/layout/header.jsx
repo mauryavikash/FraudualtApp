@@ -18,8 +18,7 @@ export default function Header({ setIsOpen, isOpen }) {
 const router = useRouter();
 
 const handleLogout = () => {
-  localStorage.removeItem("isLoggedIn");
-  localStorage.removeItem("user");
+  sessionStorage.clear();
 
   router.replace("/login");
 };
@@ -35,7 +34,7 @@ const handleLogout = () => {
 const notificationRef = useRef(null);
 
 useEffect(() => {
-  const storedUser = localStorage.getItem("user");
+  const storedUser = sessionStorage.getItem("user");
 
   if (storedUser && storedUser !== "undefined") {
     setUser(JSON.parse(storedUser));

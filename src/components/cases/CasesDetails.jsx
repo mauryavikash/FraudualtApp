@@ -18,35 +18,67 @@ export const CasesDetails = ({ caseData }) => {
     const [reason, setReason] = useState("");
     const [loading, setLoading] = useState(false);
     
-    const handleAction = async (action) => {
-    try {
-        if (action === "approve" && !reason) {
-        alert("Please select a reason code.");
-        return;
-        }
+    // const handleAction = async (action) => {
+    // try {
+    //     if (action === "approve" && !reason) {
+    //     alert("Please select a reason code.");
+    //     return;
+    //     }
 
-        setLoading(true);
+    //     setLoading(true);
 
-        const payload = {
-        pair_id: selectedCase?.pair_id,
-        action,
-        reason_code: reason ,
-        comments: "",
-        performed_by: "",
-        actionedAt: new Date().toISOString(),
-        };
+    //     const payload = {
+    //     pair_id: selectedCase?.pair_id,
+    //     action,
+    //     reason_code: reason ,
+    //     comments: "",
+    //     performed_by: "",
+    //     actionedAt: new Date().toISOString(),
+    //     };
 
-        const response = await submitCaseAction(payload);
+    //     const response = await submitCaseAction(payload);
 
-        toast.success("Action completed successfully");
-    } catch (error) {
-        // console.error(error);
-        toast.error(error?.response?.data?.message || "Something went wrong");
-    } finally {
-        setLoading(false);
-    }
-    };
+    //     toast.success("Action completed successfully");
+    // } catch (error) {
+    //     // console.error(error);
+    //     toast.error(error?.response?.data?.message || "Something went wrong");
+    // } finally {
+    //     setLoading(false);
+    // }
+    // };
  
+    const handleAction = async (action) => {
+  if (action === "approve" && !reason) {
+    toast.error("Please select a reason code.");
+    return;
+  }
+
+  const toastId = toast.loading("Processing action...");
+
+  try {
+    const payload = {
+      pair_id: selectedCase?.pair_id,
+      action,
+      reason_code: reason,
+      comments: "",
+      performed_by: "",
+      actionedAt: new Date().toISOString(),
+    };
+
+    await submitCaseAction(payload);
+
+    toast.success("Action completed successfully", {
+      id: toastId,
+    });
+  } catch (error) {
+    toast.error(
+      error?.response?.data?.message || "Something went wrong",
+      {
+        id: toastId,
+      }
+    );
+  }
+};
     const amount = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",

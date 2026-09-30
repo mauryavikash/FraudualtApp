@@ -7,13 +7,20 @@ import { BarChart3, Eye,EyeOff, LockKeyhole, Mail } from "lucide-react";
 import { loginUser } from "@/app/lib/api";
 export default function LoginPage() {
   const router = useRouter();
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
+//   useEffect(() => {
+//     const isLoggedIn = localStorage.getItem("isLoggedIn");
 
+//     if (isLoggedIn === "true") {
+//         router.replace("/home");
+//     }
+// }, []);
+    useEffect(() => {
+    const isLoggedIn = sessionStorage.getItem("isLoggedIn");
+     
     if (isLoggedIn === "true") {
-        router.replace("/home");
+    router.replace("/home");
     }
-}, []);
+    }, [router]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,16 +40,17 @@ async function handleSubmit(event) {
 
     const data = await loginUser(email, password);
 
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        user_id: data.user_id,
-        first_name: data.first_name,
-        role: data.role,
-        email: data.email,
-      })
-    );
+    sessionStorage.setItem("isLoggedIn", "true");
+
+      sessionStorage.setItem(
+        "user",
+        JSON.stringify({
+          user_id: data.user_id,
+          first_name: data.first_name,
+          role: data.role,
+          email: data.email,
+        })
+      );
 
     router.replace("/home");
     } catch (err) {

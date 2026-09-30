@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { CalendarDays, SlidersHorizontal } from "lucide-react";
 import { ChevronDown } from "lucide-react";
 import DashboardKpiCards from "@/components/home/DashboardKpiCards";
@@ -17,8 +17,14 @@ import { saveAs } from "file-saver";
 export default function DashboardPage() {
   const [homeData, setHomeData] = useState(null);
 
+  const loggedInUser = useMemo(() => {
+  if (typeof window === "undefined") return null;
+
+  const user = sessionStorage.getItem("user");
+  return user ? JSON.parse(user) : null;
+}, []);
   useEffect(() => {
-  const isLoggedIn = localStorage.getItem("isLoggedIn");
+  const isLoggedIn = sessionStorage.getItem("isLoggedIn");
 
   if (isLoggedIn !== "true") {
     router.replace("/login");
@@ -52,7 +58,11 @@ export default function DashboardPage() {
   }
 
   const headerData = homeData.header ?? {};
-  const userName = headerData.userName ?? homeData.userName ?? "Vigneshwaran";
+  const userName =
+  headerData.userName ??
+  homeData.userName ??
+  loggedInUser?.first_name ??
+  "User";
   const dateRange = headerData.dateRange ?? homeData.dateRange ?? "May 14 – May 20, 2025";
 
 

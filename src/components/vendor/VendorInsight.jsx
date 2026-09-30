@@ -99,7 +99,8 @@ export default function VendorInsight({ vendor }) {
       <div className="space-y-4 p-4">
         {activeTab === "overview" && (
           <>
-            {vendor.deviations.map((deviation) => {
+            {/* {vendor.deviations.map((deviation) => { */}
+            {(vendor?.deviations || []).map((deviation) => {
               const visual =
                 deviationVisuals[deviation.type] ??
                 deviationVisuals.invoice;

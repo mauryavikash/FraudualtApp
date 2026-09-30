@@ -220,8 +220,9 @@ export default function VendorTable({
 
           <footer className="mt-auto flex items-center justify-between border-t border-slate-200 p-3">
             <span className="text-[10px] text-slate-500">
-              Showing {invoices.length} of {selectedVendor.invoices.length}{" "}
-              invoices
+              {/* Showing {invoices.length} of {selectedVendor.invoices.length}{" "}
+              invoices */}
+              Showing {invoices?.length || 0} of {selectedVendor?.invoices?.length || 0} invoices
             </span>
 
             <div className="flex gap-1">

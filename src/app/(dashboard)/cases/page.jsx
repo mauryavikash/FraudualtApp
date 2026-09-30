@@ -67,40 +67,149 @@ export default function CasesPage() {
     () => casesData?.caseDetails ?? [],
     [casesData]
   );
-  const statusOptions = useMemo(() => [...new Set(tableData.map((item) => item.status))], [tableData]);
-  const caseTypeOptions = useMemo(() => [...new Set(tableData.map((item) => item.caseType))], [tableData]);
+  const statusOptions = useMemo(
+  () => [...new Set(tableData.map((item) => item.case_status))],
+  [tableData]
+);
+  // const statusOptions = useMemo(() => [...new Set(tableData.map((item) => item.status))], [tableData]);
+  // const caseTypeOptions = useMemo(() => [...new Set(tableData.map((item) => item.caseType))], [tableData]);
+  const caseTypeOptions = useMemo(
+  () =>
+    [...new Set(
+      tableData
+        .map((item) => item.case_type)
+        .filter(Boolean)
+    )],
+  [tableData]
+);
+  
   const priorityOptions = useMemo(() => [...new Set(tableData.map((item) => item.priority))], [tableData]);
   const investigatorOptions = useMemo(() => [...new Set(tableData.map((item) => item.investigator ?? "Unassigned"))], [tableData]);
   const vendorOptions = useMemo(() => [...new Set(tableData.map((item) => item.vendor || "Unassigned"))], [tableData]);
 
-  const filteredData = useMemo(() => {
+//   const filteredData = useMemo(() => {
+//     return tableData.filter((item) => {
+//     const matchesSearch = Object.values(item)
+//       .join(" ")
+//       .toLowerCase()
+//       .includes(search.toLowerCase());
+
+//       const matchesStatus =
+//       statusFilter === "All" ||
+//       item.case_status === statusFilter;
+    
+
+//     const matchesType =
+//   caseTypeFilter === "All" ||
+//   item.case_type?.trim().toUpperCase() ===
+//     caseTypeFilter?.trim().toUpperCase();
+
+//     const matchesPriority =
+//       priorityFilter === "All" ||
+//       item.priority === priorityFilter;
+//     const investigator = item.investigator ?? "Unassigned";
+//     const vendor = item.vendor || "Unassigned";
+//     const matchesInvestigator = investigatorFilter === "All" || investigator === investigatorFilter;
+//     const matchesVendor = vendorFilter === "All" || vendor === vendorFilter;
+
+// const caseType = item.case_type?.toUpperCase() || "";
+// const caseStatus = item.case_status?.toUpperCase() || "";
+
+// const matchesTab =
+//   activeTab === "All Cases" ||
+
+//   (activeTab === "Duplicate Cases" &&
+//     caseType.includes("DUPLICATE")) ||
+
+//   (activeTab === "Anomaly Cases" &&
+//     caseType.includes("ANOMALY")) ||
+
+//   (activeTab === "Escalated Cases" &&
+//     caseStatus.includes("ESCALATED")) ||
+
+//   (activeTab === "My Assignments" &&
+//     investigator !== "Unassigned") ||
+
+//   (activeTab === "Watchlist" &&
+//     item.watchlist === true);
+
+//     return (
+//       matchesSearch &&
+//       matchesStatus &&
+//       matchesType &&
+//       matchesPriority &&
+//       matchesInvestigator &&
+//       matchesVendor &&
+//       matchesTab
+//     );
+//   });
+// }, [
+//   search,
+//   statusFilter,
+//   caseTypeFilter,
+//   priorityFilter,
+//   investigatorFilter,
+//   vendorFilter,
+//   activeTab,
+//   tableData,
+// ]);
+
+const filteredData = useMemo(() => {
   return tableData.filter((item) => {
-    const matchesSearch = Object.values(item)
-      .join(" ")
-      .toLowerCase()
-      .includes(search.toLowerCase());
+    const investigator = item.investigator ?? "Unassigned";
+    const vendor = item.vendor || "Unassigned";
+
+    const matchesSearch =
+      search === "" ||
+      JSON.stringify(item)
+        .toLowerCase()
+        .includes(search.toLowerCase());
 
     const matchesStatus =
       statusFilter === "All" ||
-      item.status === statusFilter;
+      item.case_status === statusFilter;
 
+    // const matchesType =
+    //   caseTypeFilter === "All" ||
+    //   item.case_type === caseTypeFilter;
     const matchesType =
-      caseTypeFilter === "All" ||
-      item.caseType === caseTypeFilter;
+  caseTypeFilter === "All" ||
+  (item.case_type || "").toUpperCase() ===
+  (caseTypeFilter || "").toUpperCase();
 
     const matchesPriority =
       priorityFilter === "All" ||
       item.priority === priorityFilter;
-    const investigator = item.investigator ?? "Unassigned";
-    const vendor = item.vendor || "Unassigned";
-    const matchesInvestigator = investigatorFilter === "All" || investigator === investigatorFilter;
-    const matchesVendor = vendorFilter === "All" || vendor === vendorFilter;
-    const matchesTab = activeTab === "All Cases"
-      || (activeTab === "Duplicate Cases" && item.caseType?.includes("DUPLICATE"))
-      || (activeTab === "Anomaly Cases" && item.caseType?.includes("ANOMALY"))
-      || (activeTab === "Escalated Cases" && item.status?.includes("ESCALATED"))
-      || (activeTab === "My Assignments" && investigator !== "Unassigned")
-      || (activeTab === "Watchlist" && item.watchlist === true);
+
+    const matchesInvestigator =
+      investigatorFilter === "All" ||
+      investigator === investigatorFilter;
+
+    const matchesVendor =
+      vendorFilter === "All" ||
+      vendor === vendorFilter;
+
+    const caseType = (item.case_type || "").toUpperCase();
+const caseStatus = (item.case_status || "").toUpperCase();
+
+let matchesTab = true;
+
+if (activeTab === "Duplicate Cases") {
+  matchesTab = caseType.includes("DUPLICATE");
+}
+else if (activeTab === "Anomaly Cases") {
+  matchesTab = caseType.includes("ANOMALY");
+}
+else if (activeTab === "Escalated Cases") {
+  matchesTab = caseStatus.includes("ESCALATED");
+}
+else if (activeTab === "My Assignments") {
+  matchesTab = Boolean(item.investigator);
+}
+else if (activeTab === "Watchlist") {
+  matchesTab = item.watchlist === true;
+}
+
 
     return (
       matchesSearch &&
@@ -113,6 +222,7 @@ export default function CasesPage() {
     );
   });
 }, [
+  tableData,
   search,
   statusFilter,
   caseTypeFilter,
@@ -120,9 +230,7 @@ export default function CasesPage() {
   investigatorFilter,
   vendorFilter,
   activeTab,
-  tableData,
 ]);
-
   const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
 
   const paginatedData = filteredData.slice(
@@ -160,6 +268,7 @@ export default function CasesPage() {
     return <LoadingState label="Loading cases..." />;
   }
 
+
   return (
     <div>
       {/* HEADER */}
@@ -195,6 +304,7 @@ export default function CasesPage() {
                   <button
                     key={tab}
                     onClick={() => {
+                      console.log("CLICKED TAB:", tab);
                       setActiveTab(tab);
                       setPage(1);
                     }}
@@ -231,7 +341,15 @@ export default function CasesPage() {
                   onChange={updateFilter(setCaseTypeFilter)}
                 >
                   <option>All</option>
-                  {caseTypeOptions.map((caseType) => <option key={caseType}>{caseType}</option>)}
+                  {/* {caseTypeOptions.map((caseType) => <option key={caseType}>{caseType}</option>)} */}
+                  {caseTypeOptions.map((caseType) => (
+  <option
+    key={caseType}
+    value={caseType}
+  >
+    {caseType}
+  </option>
+))}
                 </FilterSelect>
 
                 <FilterSelect
@@ -332,7 +450,7 @@ export default function CasesPage() {
                   ) : paginatedData.map((row) => (
 
                     <tr
-                      key={row.Pair_id}
+                      key={row.pair_id}
                       onClick={() => setSelectedCase(row)}
                       className={`
                         h-[58px]
@@ -342,7 +460,7 @@ export default function CasesPage() {
                         cursor-pointer
                         transition-colors
                         ${
-                          selectedCase?.case_id === row.Pair_id
+                          selectedCase?.pair_id === row.pair_id
                             ? "bg-[#F8FAFC]"
                             : ""
                         }
@@ -354,7 +472,7 @@ export default function CasesPage() {
                       </td>
 
                       <td className="text-[12px] font-semibold text-[#2563EB]">
-                        {row.Pair_id}
+                        {row.pair_id}
                       </td>
 
                       <td>
