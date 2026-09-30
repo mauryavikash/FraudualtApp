@@ -62,19 +62,72 @@ export const CasesDetails = ({ caseData }) => {
         <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
             <h2 className="text-[18px] leading-[24px] font-semibold text-[#0F172A]">
-            {selectedCase.case_id}
+            {selectedCase.pair_id}
             </h2>
 
             <span className="px-2 py-[2px] text-[10px] font-medium rounded bg-[#F3E8FF] text-[#9333EA]">
             {selectedCase.case_type}
             </span>
         </div>
+        
 
         <button className="text-[#64748B] hover:text-[#334155]">
             <X size={16} />
         </button>
         </div>
+        <div className="mt-2">
+            {/* <h4 className="text-[14px] font-semibold text-[#0F172A]">
+                Duplicate Cases
+            </h4> */}
 
+            <div className="mt-3 overflow-hidden rounded-lg">
+                <div className="grid grid-cols-4 bg-[#01d4d1] px-3 py-2 text-[11px] font-semibold text-white">
+                <div>Invoice Number</div>
+                <div>Invoice Date</div>
+                <div>Count</div>
+                <div>Amount</div>
+                </div>
+
+                {selectedCase?.invoice_1 && (
+                <div className="grid grid-cols-4 border-t bg-[#01d4d1] px-3 py-2 text-[12px] text-white">
+                    <div>
+                    {selectedCase.invoice_1.invoice_number}
+                    </div>
+
+                    <div>
+                    {selectedCase.invoice_1.invoice_date}
+                    </div>
+
+                    <div>
+                    {selectedCase.invoice_count }
+                    </div>
+
+                    <div >
+                    {selectedCase.invoice_1.amount}
+                    </div>
+                </div>
+                )}
+                {selectedCase?.invoice_2 && (
+                <div className="grid grid-cols-4 border-t bg-[#01d4d1] px-3 py-2 text-[12px] text-white">
+                    <div>
+                    {selectedCase.invoice_2.invoice_number}
+                    </div>
+
+                    <div>
+                    {selectedCase.invoice_2.invoice_date}
+                    </div>
+
+                    <div >
+                    {selectedCase.invoice_count }
+                    </div>
+
+                    <div>
+                    {selectedCase.invoice_2.amount}
+                    </div>
+                </div>
+                )}
+            </div>
+            </div>
         {/* Tabs */}
         <div className="flex gap-5 mt-4 border-b border-[#E5E7EB]">
         <button className="pb-2 text-[12px] font-medium text-[#2563EB] border-b border-[#2563EB]">

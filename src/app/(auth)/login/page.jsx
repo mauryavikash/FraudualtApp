@@ -33,30 +33,18 @@ async function handleSubmit(event) {
 
     const data = await loginUser(email, password);
 
-    // localStorage.setItem("access_token", data.access_token);
-    // localStorage.setItem("refresh_token", data.refresh_token);
-    //     localStorage.setItem(
-    //         "user",
-    //         JSON.stringify({
-    //             first_name: data.first_name,
-    //             role: data.role,
-    //             email: data.email,
-    //         })
-    //         );
-    //     router.push("/home");
     localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        user_id: data.user_id,
+        first_name: data.first_name,
+        role: data.role,
+        email: data.email,
+      })
+    );
 
-localStorage.setItem(
-  "user",
-  JSON.stringify({
-    user_id: data.user_id,
-    first_name: data.first_name,
-    role: data.role,
-    email: data.email,
-  })
-);
-
-router.replace("/home");
+    router.replace("/home");
     } catch (err) {
         setError(
         err.response?.data?.detail ||

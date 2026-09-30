@@ -292,7 +292,7 @@ export default function CasesPage() {
                     </th>
 
                     {[
-                      "CASE ID",
+                      "PAIR ID",
                       "CASE TYPE",
                       "PRIORITY",
                       "STATUS",
@@ -332,7 +332,7 @@ export default function CasesPage() {
                   ) : paginatedData.map((row) => (
 
                     <tr
-                      key={row.case_id}
+                      key={row.Pair_id}
                       onClick={() => setSelectedCase(row)}
                       className={`
                         h-[58px]
@@ -342,7 +342,7 @@ export default function CasesPage() {
                         cursor-pointer
                         transition-colors
                         ${
-                          selectedCase?.case_id === row.case_id
+                          selectedCase?.case_id === row.Pair_id
                             ? "bg-[#F8FAFC]"
                             : ""
                         }
@@ -354,7 +354,7 @@ export default function CasesPage() {
                       </td>
 
                       <td className="text-[12px] font-semibold text-[#2563EB]">
-                        {row.case_id}
+                        {row.Pair_id}
                       </td>
 
                       <td>
