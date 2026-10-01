@@ -55,7 +55,7 @@ export const AuditTable = ({ data }) => {
         let reasonDetails = {};
 
         try {
-          reasonDetails = JSON.parse(item.reason);
+          reasonDetails = JSON.parse(item.reason?.reason_code);
         } catch {
           // API reasons may be plain text rather than JSON.
         }
@@ -63,13 +63,13 @@ export const AuditTable = ({ data }) => {
         const timestamp = new Date(item.timestamp);
         return {
           id: item.auditId,
+          clusterId: item.clusterId ?? "-",
           timestamp: timestamp.toLocaleString(),
           dateKey: Number.isNaN(timestamp.getTime()) ? "Unknown date" : timestamp.toLocaleDateString(),
           reviewer: item.reviewer ?? "System",
           vendor: reasonDetails.vendor ?? reasonDetails.vendor_name ?? "Unassigned",
           action: item.action,
-          reason: item.reason || "-",
-          clusterId: item.clusterId ?? "-",
+          reason: item.reason?.reason_code || "-",
           comments: item.comments,
           reversal: item.reversal ?? "-",
         };
@@ -210,11 +210,11 @@ export const AuditTable = ({ data }) => {
             <thead>
               <tr className="h-[42px] border-b border-[#E2E8F0]">
                 {[
+                  "REFERENCE",
                   "TIMESTAMP",
                   "REVIEWER",
                   "ACTION",
                   "REASON",
-                  "CLUSTER ID",
                   "COMMENTS",
                   "REVERSAL",
                 ].map((item) => (
@@ -254,6 +254,14 @@ export const AuditTable = ({ data }) => {
                     tabIndex={0}
                     className="h-[46px] border-b border-[#E2E8F0] hover:bg-[#F8FAFC] focus-within:bg-[#F8FAFC] transition-colors"
                   >
+                    <td className="px-4">
+                      <a
+                        href={`/audit/clusters/${row.clusterId.replace("#", "")}`}
+                        className="text-[12px] font-semibold text-[#2563EB] hover:underline"
+                      >
+                        {row.clusterId}
+                      </a>
+                    </td>
                     <td className="px-4 text-[12px] text-[#334155] whitespace-nowrap">
                       {row.timestamp}
                     </td>
@@ -283,14 +291,7 @@ export const AuditTable = ({ data }) => {
                       {row.reason}
                     </td>
 
-                    <td className="px-4">
-                      <a
-                        href={`/audit/clusters/${row.clusterId.replace("#", "")}`}
-                        className="text-[12px] font-semibold text-[#2563EB] hover:underline"
-                      >
-                        {row.clusterId}
-                      </a>
-                    </td>
+                    
 
                     <td className="px-4 text-[12px] text-[#94A3B8]">
                       {row.comments || "-"}

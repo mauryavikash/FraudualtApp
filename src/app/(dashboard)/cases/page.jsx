@@ -26,6 +26,19 @@ function FilterSelect({ label, children, ...props }) {
 }
 
 export default function CasesPage() {
+ const loggedInUser = useMemo(() => {
+  if (typeof window === "undefined") return null;
+
+  const user = sessionStorage.getItem("user");
+  return user ? JSON.parse(user) : null;
+ }, []);
+
+ const userName =
+  loggedInUser?.first_name ||
+  loggedInUser?.userName ||
+  "User";
+
+
   const [activeTab, setActiveTab] = useState("All Cases");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -71,8 +84,6 @@ export default function CasesPage() {
   () => [...new Set(tableData.map((item) => item.case_status))],
   [tableData]
 );
-  // const statusOptions = useMemo(() => [...new Set(tableData.map((item) => item.status))], [tableData]);
-  // const caseTypeOptions = useMemo(() => [...new Set(tableData.map((item) => item.caseType))], [tableData]);
   const caseTypeOptions = useMemo(
   () =>
     [...new Set(
@@ -87,72 +98,6 @@ export default function CasesPage() {
   const investigatorOptions = useMemo(() => [...new Set(tableData.map((item) => item.investigator ?? "Unassigned"))], [tableData]);
   const vendorOptions = useMemo(() => [...new Set(tableData.map((item) => item.vendor || "Unassigned"))], [tableData]);
 
-//   const filteredData = useMemo(() => {
-//     return tableData.filter((item) => {
-//     const matchesSearch = Object.values(item)
-//       .join(" ")
-//       .toLowerCase()
-//       .includes(search.toLowerCase());
-
-//       const matchesStatus =
-//       statusFilter === "All" ||
-//       item.case_status === statusFilter;
-    
-
-//     const matchesType =
-//   caseTypeFilter === "All" ||
-//   item.case_type?.trim().toUpperCase() ===
-//     caseTypeFilter?.trim().toUpperCase();
-
-//     const matchesPriority =
-//       priorityFilter === "All" ||
-//       item.priority === priorityFilter;
-//     const investigator = item.investigator ?? "Unassigned";
-//     const vendor = item.vendor || "Unassigned";
-//     const matchesInvestigator = investigatorFilter === "All" || investigator === investigatorFilter;
-//     const matchesVendor = vendorFilter === "All" || vendor === vendorFilter;
-
-// const caseType = item.case_type?.toUpperCase() || "";
-// const caseStatus = item.case_status?.toUpperCase() || "";
-
-// const matchesTab =
-//   activeTab === "All Cases" ||
-
-//   (activeTab === "Duplicate Cases" &&
-//     caseType.includes("DUPLICATE")) ||
-
-//   (activeTab === "Anomaly Cases" &&
-//     caseType.includes("ANOMALY")) ||
-
-//   (activeTab === "Escalated Cases" &&
-//     caseStatus.includes("ESCALATED")) ||
-
-//   (activeTab === "My Assignments" &&
-//     investigator !== "Unassigned") ||
-
-//   (activeTab === "Watchlist" &&
-//     item.watchlist === true);
-
-//     return (
-//       matchesSearch &&
-//       matchesStatus &&
-//       matchesType &&
-//       matchesPriority &&
-//       matchesInvestigator &&
-//       matchesVendor &&
-//       matchesTab
-//     );
-//   });
-// }, [
-//   search,
-//   statusFilter,
-//   caseTypeFilter,
-//   priorityFilter,
-//   investigatorFilter,
-//   vendorFilter,
-//   activeTab,
-//   tableData,
-// ]);
 
 const filteredData = useMemo(() => {
   return tableData.filter((item) => {
@@ -169,9 +114,6 @@ const filteredData = useMemo(() => {
       statusFilter === "All" ||
       item.case_status === statusFilter;
 
-    // const matchesType =
-    //   caseTypeFilter === "All" ||
-    //   item.case_type === caseTypeFilter;
     const matchesType =
   caseTypeFilter === "All" ||
   (item.case_type || "").toUpperCase() ===
@@ -190,25 +132,25 @@ const filteredData = useMemo(() => {
       vendor === vendorFilter;
 
     const caseType = (item.case_type || "").toUpperCase();
-const caseStatus = (item.case_status || "").toUpperCase();
+    const caseStatus = (item.case_status || "").toUpperCase();
 
-let matchesTab = true;
+      let matchesTab = true;
 
-if (activeTab === "Duplicate Cases") {
-  matchesTab = caseType.includes("DUPLICATE");
-}
-else if (activeTab === "Anomaly Cases") {
-  matchesTab = caseType.includes("ANOMALY");
-}
-else if (activeTab === "Escalated Cases") {
-  matchesTab = caseStatus.includes("ESCALATED");
-}
-else if (activeTab === "My Assignments") {
-  matchesTab = Boolean(item.investigator);
-}
-else if (activeTab === "Watchlist") {
-  matchesTab = item.watchlist === true;
-}
+      if (activeTab === "Duplicate Cases") {
+        matchesTab = caseType.includes("DUPLICATE");
+      }
+      else if (activeTab === "Anomaly Cases") {
+        matchesTab = caseType.includes("ANOMALY");
+      }
+      else if (activeTab === "Escalated Cases") {
+        matchesTab = caseStatus.includes("ESCALATED");
+      }
+      else if (activeTab === "My Assignments") {
+        matchesTab = Boolean(item.investigator);
+      }
+      else if (activeTab === "Watchlist") {
+        matchesTab = item.watchlist === true;
+      }
 
 
     return (
@@ -343,13 +285,13 @@ else if (activeTab === "Watchlist") {
                   <option>All</option>
                   {/* {caseTypeOptions.map((caseType) => <option key={caseType}>{caseType}</option>)} */}
                   {caseTypeOptions.map((caseType) => (
-  <option
-    key={caseType}
-    value={caseType}
-  >
-    {caseType}
-  </option>
-))}
+                  <option
+                    key={caseType}
+                    value={caseType}
+                  >
+                    {caseType}
+                  </option>
+                ))}
                 </FilterSelect>
 
                 <FilterSelect
@@ -371,7 +313,7 @@ else if (activeTab === "Watchlist") {
                   {vendorOptions.map((vendor) => <option key={vendor}>{vendor}</option>)}
                 </FilterSelect>
 
-                <div className="flex items-end gap-3">
+                {/* <div className="flex items-end gap-3">
                   <button className="h-9 px-4 rounded-xl border border-[#D9E1EA] text-[12px] font-medium text-[#475569]">
                     More Filters
                   </button>
@@ -390,7 +332,7 @@ else if (activeTab === "Watchlist") {
                   >
                     Reset
                   </button>
-                </div>
+                </div> */}
 
               </div>
             </div>
@@ -620,7 +562,7 @@ else if (activeTab === "Watchlist") {
 
         {/* RIGHT PANEL */}
         <div className="col-span-12 lg:col-span-4 flex">
-          <CasesDetails caseData={selectedCase ?? tableData[0]} />
+          <CasesDetails caseData={selectedCase ?? tableData[0]} userName={userName} />
         </div>
 
       </div>
