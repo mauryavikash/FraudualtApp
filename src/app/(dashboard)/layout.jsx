@@ -55,15 +55,26 @@ export default function DashboardLayout({ children }) {
 
     const router = useRouter();
 
+    // useEffect(() => {
+    //     const isLoggedIn = sessionStorage.getItem("isLoggedIn");
+
+    //     if (isLoggedIn !== "true") {
+    //         router.replace("/login");
+    //         return;
+    //     }
+
+    //     setLoading(false);
+    // }, [router]);
+
     useEffect(() => {
-        const isLoggedIn = localStorage.getItem("isLoggedIn");
+    const isLoggedIn = sessionStorage.getItem("isLoggedIn");
 
-        if (isLoggedIn !== "true") {
-            router.replace("/login");
-            return;
-        }
+    if (isLoggedIn !== "true") {
+        router.replace("/login");
+        return;
+    }
 
-        setLoading(false);
+    setLoading(false);
     }, [router]);
 
     if (loading) {

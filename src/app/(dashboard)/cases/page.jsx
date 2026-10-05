@@ -26,6 +26,19 @@ function FilterSelect({ label, children, ...props }) {
 }
 
 export default function CasesPage() {
+ const loggedInUser = useMemo(() => {
+  if (typeof window === "undefined") return null;
+
+  const user = sessionStorage.getItem("user");
+  return user ? JSON.parse(user) : null;
+ }, []);
+
+ const userName =
+  loggedInUser?.first_name ||
+  loggedInUser?.userName ||
+  "User";
+
+
   const [activeTab, setActiveTab] = useState("All Cases");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -67,40 +80,78 @@ export default function CasesPage() {
     () => casesData?.caseDetails ?? [],
     [casesData]
   );
-  const statusOptions = useMemo(() => [...new Set(tableData.map((item) => item.status))], [tableData]);
-  const caseTypeOptions = useMemo(() => [...new Set(tableData.map((item) => item.caseType))], [tableData]);
+  const statusOptions = useMemo(
+  () => [...new Set(tableData.map((item) => item.case_status))],
+  [tableData]
+);
+  const caseTypeOptions = useMemo(
+  () =>
+    [...new Set(
+      tableData
+        .map((item) => item.case_type)
+        .filter(Boolean)
+    )],
+  [tableData]
+);
+  
   const priorityOptions = useMemo(() => [...new Set(tableData.map((item) => item.priority))], [tableData]);
   const investigatorOptions = useMemo(() => [...new Set(tableData.map((item) => item.investigator ?? "Unassigned"))], [tableData]);
   const vendorOptions = useMemo(() => [...new Set(tableData.map((item) => item.vendor || "Unassigned"))], [tableData]);
 
-  const filteredData = useMemo(() => {
+
+const filteredData = useMemo(() => {
   return tableData.filter((item) => {
-    const matchesSearch = Object.values(item)
-      .join(" ")
-      .toLowerCase()
-      .includes(search.toLowerCase());
+    const investigator = item.investigator ?? "Unassigned";
+    const vendor = item.vendor || "Unassigned";
+
+    const matchesSearch =
+      search === "" ||
+      JSON.stringify(item)
+        .toLowerCase()
+        .includes(search.toLowerCase());
 
     const matchesStatus =
       statusFilter === "All" ||
-      item.status === statusFilter;
+      item.case_status === statusFilter;
 
     const matchesType =
-      caseTypeFilter === "All" ||
-      item.caseType === caseTypeFilter;
+  caseTypeFilter === "All" ||
+  (item.case_type || "").toUpperCase() ===
+  (caseTypeFilter || "").toUpperCase();
 
     const matchesPriority =
       priorityFilter === "All" ||
       item.priority === priorityFilter;
-    const investigator = item.investigator ?? "Unassigned";
-    const vendor = item.vendor || "Unassigned";
-    const matchesInvestigator = investigatorFilter === "All" || investigator === investigatorFilter;
-    const matchesVendor = vendorFilter === "All" || vendor === vendorFilter;
-    const matchesTab = activeTab === "All Cases"
-      || (activeTab === "Duplicate Cases" && item.caseType?.includes("DUPLICATE"))
-      || (activeTab === "Anomaly Cases" && item.caseType?.includes("ANOMALY"))
-      || (activeTab === "Escalated Cases" && item.status?.includes("ESCALATED"))
-      || (activeTab === "My Assignments" && investigator !== "Unassigned")
-      || (activeTab === "Watchlist" && item.watchlist === true);
+
+    const matchesInvestigator =
+      investigatorFilter === "All" ||
+      investigator === investigatorFilter;
+
+    const matchesVendor =
+      vendorFilter === "All" ||
+      vendor === vendorFilter;
+
+    const caseType = (item.case_type || "").toUpperCase();
+    const caseStatus = (item.case_status || "").toUpperCase();
+
+      let matchesTab = true;
+
+      if (activeTab === "Duplicate Cases") {
+        matchesTab = caseType.includes("DUPLICATE");
+      }
+      else if (activeTab === "Anomaly Cases") {
+        matchesTab = caseType.includes("ANOMALY");
+      }
+      else if (activeTab === "Escalated Cases") {
+        matchesTab = caseStatus.includes("ESCALATED");
+      }
+      else if (activeTab === "My Assignments") {
+        matchesTab = Boolean(item.investigator);
+      }
+      else if (activeTab === "Watchlist") {
+        matchesTab = item.watchlist === true;
+      }
+
 
     return (
       matchesSearch &&
@@ -113,6 +164,7 @@ export default function CasesPage() {
     );
   });
 }, [
+  tableData,
   search,
   statusFilter,
   caseTypeFilter,
@@ -120,9 +172,7 @@ export default function CasesPage() {
   investigatorFilter,
   vendorFilter,
   activeTab,
-  tableData,
 ]);
-
   const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
 
   const paginatedData = filteredData.slice(
@@ -160,6 +210,7 @@ export default function CasesPage() {
     return <LoadingState label="Loading cases..." />;
   }
 
+
   return (
     <div>
       {/* HEADER */}
@@ -195,6 +246,7 @@ export default function CasesPage() {
                   <button
                     key={tab}
                     onClick={() => {
+                      console.log("CLICKED TAB:", tab);
                       setActiveTab(tab);
                       setPage(1);
                     }}
@@ -231,7 +283,15 @@ export default function CasesPage() {
                   onChange={updateFilter(setCaseTypeFilter)}
                 >
                   <option>All</option>
-                  {caseTypeOptions.map((caseType) => <option key={caseType}>{caseType}</option>)}
+                  {/* {caseTypeOptions.map((caseType) => <option key={caseType}>{caseType}</option>)} */}
+                  {caseTypeOptions.map((caseType) => (
+                  <option
+                    key={caseType}
+                    value={caseType}
+                  >
+                    {caseType}
+                  </option>
+                ))}
                 </FilterSelect>
 
                 <FilterSelect
@@ -253,7 +313,7 @@ export default function CasesPage() {
                   {vendorOptions.map((vendor) => <option key={vendor}>{vendor}</option>)}
                 </FilterSelect>
 
-                <div className="flex items-end gap-3">
+                {/* <div className="flex items-end gap-3">
                   <button className="h-9 px-4 rounded-xl border border-[#D9E1EA] text-[12px] font-medium text-[#475569]">
                     More Filters
                   </button>
@@ -272,7 +332,7 @@ export default function CasesPage() {
                   >
                     Reset
                   </button>
-                </div>
+                </div> */}
 
               </div>
             </div>
@@ -292,7 +352,7 @@ export default function CasesPage() {
                     </th>
 
                     {[
-                      "CASE ID",
+                      "PAIR ID",
                       "CASE TYPE",
                       "PRIORITY",
                       "STATUS",
@@ -332,7 +392,7 @@ export default function CasesPage() {
                   ) : paginatedData.map((row) => (
 
                     <tr
-                      key={row.case_id}
+                      key={row.pair_id}
                       onClick={() => setSelectedCase(row)}
                       className={`
                         h-[58px]
@@ -342,7 +402,7 @@ export default function CasesPage() {
                         cursor-pointer
                         transition-colors
                         ${
-                          selectedCase?.case_id === row.case_id
+                          selectedCase?.pair_id === row.pair_id
                             ? "bg-[#F8FAFC]"
                             : ""
                         }
@@ -354,7 +414,7 @@ export default function CasesPage() {
                       </td>
 
                       <td className="text-[12px] font-semibold text-[#2563EB]">
-                        {row.case_id}
+                        {row.pair_id}
                       </td>
 
                       <td>
@@ -502,7 +562,7 @@ export default function CasesPage() {
 
         {/* RIGHT PANEL */}
         <div className="col-span-12 lg:col-span-4 flex">
-          <CasesDetails caseData={selectedCase ?? tableData[0]} />
+          <CasesDetails caseData={selectedCase ?? tableData[0]} userName={userName} />
         </div>
 
       </div>

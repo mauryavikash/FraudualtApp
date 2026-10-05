@@ -7,13 +7,20 @@ import { BarChart3, Eye,EyeOff, LockKeyhole, Mail } from "lucide-react";
 import { loginUser } from "@/app/lib/api";
 export default function LoginPage() {
   const router = useRouter();
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
+//   useEffect(() => {
+//     const isLoggedIn = localStorage.getItem("isLoggedIn");
 
+//     if (isLoggedIn === "true") {
+//         router.replace("/home");
+//     }
+// }, []);
+    useEffect(() => {
+    const isLoggedIn = sessionStorage.getItem("isLoggedIn");
+     
     if (isLoggedIn === "true") {
-        router.replace("/home");
+    router.replace("/home");
     }
-}, []);
+    }, [router]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,30 +40,19 @@ async function handleSubmit(event) {
 
     const data = await loginUser(email, password);
 
-    // localStorage.setItem("access_token", data.access_token);
-    // localStorage.setItem("refresh_token", data.refresh_token);
-    //     localStorage.setItem(
-    //         "user",
-    //         JSON.stringify({
-    //             first_name: data.first_name,
-    //             role: data.role,
-    //             email: data.email,
-    //         })
-    //         );
-    //     router.push("/home");
-    localStorage.setItem("isLoggedIn", "true");
+    sessionStorage.setItem("isLoggedIn", "true");
 
-localStorage.setItem(
-  "user",
-  JSON.stringify({
-    user_id: data.user_id,
-    first_name: data.first_name,
-    role: data.role,
-    email: data.email,
-  })
-);
+      sessionStorage.setItem(
+        "user",
+        JSON.stringify({
+          user_id: data.user_id,
+          first_name: data.first_name,
+          role: data.role,
+          email: data.email,
+        })
+      );
 
-router.replace("/home");
+    router.replace("/home");
     } catch (err) {
         setError(
         err.response?.data?.detail ||
