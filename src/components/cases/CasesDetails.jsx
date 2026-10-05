@@ -253,7 +253,7 @@ export const CasesDetails = ({ caseData, userName }) => {
                 <button
                     type="button"
                     onClick={() => setIsCaseDetailsOpen(true)}
-                    className="h-9 rounded-md bg-blue-600 px-3 text-xs font-semibold text-white hover:bg-blue-700"
+                    className="h-8 rounded-md bg-blue-600 mt-3 px-2 text-xs font-semibold text-white hover:bg-blue-700"
                 >
                     View Case Details
                 </button>
