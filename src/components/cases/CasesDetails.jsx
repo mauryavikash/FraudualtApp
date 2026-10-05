@@ -331,7 +331,7 @@ export const CasesDetails = ({ caseData, userName }) => {
             >
             <FileSearch size={18} />
             <span className="mt-1 text-xs font-medium">
-                Approved
+                Approve
             </span>
             </button>
 
