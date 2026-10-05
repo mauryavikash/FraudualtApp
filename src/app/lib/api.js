@@ -1,18 +1,27 @@
 import axios from "axios";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-console.log("API_BASE_URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
+const debugApiRequests = process.env.NEXT_PUBLIC_DATABRICKS_DEBUG === "true";
+
+function getRequestUrl(config) {
+  if (typeof window === "undefined") {
+    return config.url;
+  }
+
+  const configuredBaseUrl = config.baseURL ?? "";
+  const baseUrl = new URL(
+    configuredBaseUrl.endsWith("/") ? configuredBaseUrl : `${configuredBaseUrl}/`,
+    window.location.origin
+  );
+  return new URL(config.url ?? "", baseUrl).toString();
+}
+
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
 });
-
-console.log(
-"API_BASE_URL",
-process.env.NEXT_PUBLIC_API_BASE_URL
-);
 
 export const HOME_DASHBOARD_URL = `${API_BASE_URL}/home`;
 export const CASES_URL = `${API_BASE_URL}/cases`;
@@ -34,11 +43,29 @@ let vendorsRequest;
 axiosInstance.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("access_token");
+      const isAuthenticationRequest = config.url?.startsWith("auth/");
+      const storedToken = localStorage.getItem("access_token");
+      const token = ["", "null", "undefined"].includes(storedToken)
+        ? null
+        : storedToken;
 
-      console.log("TOKEN =", token);
+      if (!token && storedToken) {
+        localStorage.removeItem("access_token");
+      }
 
-      if (token) {
+      if (isAuthenticationRequest) {
+        delete config.headers.Authorization;
+      }
+
+      if (debugApiRequests) {
+        console.debug("[Databricks API] Request", {
+          method: config.method?.toUpperCase(),
+          url: getRequestUrl(config),
+          hasAccessToken: Boolean(token) && !isAuthenticationRequest,
+        });
+      }
+
+      if (token && !isAuthenticationRequest) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     }
@@ -47,35 +74,35 @@ axiosInstance.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
-// axiosInstance.interceptors.request.use(
-//   (config) => {
-//     if (typeof window !== "undefined") {
-//       const token = localStorage.getItem("access_token");
 
-//       console.log("TOKEN =", token);
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (debugApiRequests && typeof window !== "undefined") {
+      console.error("[Databricks API] Request failed", {
+        method: error.config?.method?.toUpperCase(),
+        url: getRequestUrl(error.config ?? {}),
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+      });
+    }
 
-//       if (token) {
-//         config.headers.Authorization = `Bearer ${token}`;
-//       }
-//     }
-
-//     return config;
-//   },
-//   (error) => Promise.reject(error)
-// );
+    return Promise.reject(error);
+  }
+);
 
 
 export async function getAgentStatus() {
-const response = await axiosInstance.get("/agent-status");
+const response = await axiosInstance.get("agent-status");
 return response.data;
 }
 export async function getNotifications() {
-const response = await axiosInstance.get("/notification");
+const response = await axiosInstance.get("notification");
 return response.data;
 }
 
 export async function loginUser(email, password) {
-  const response = await axiosInstance.post("/auth/login", {
+  const response = await axiosInstance.post("auth/login", {
   email,
   password,
   });
@@ -88,7 +115,7 @@ email,
 password,
 confirm_password
 ) {
-const response = await axiosInstance.post("/auth/register", {
+const response = await axiosInstance.post("auth/register", {
 email,
 password,
 confirm_password,
@@ -102,7 +129,7 @@ return response.data;
 export async function getHomeDashboard() {
   if (!homeDashboardRequest) {
     homeDashboardRequest = axiosInstance
-      .get(HOME_DASHBOARD_URL)
+      .get("home")
       .then((response) => response.data)
       .catch((error) => {
         homeDashboardRequest = undefined;
@@ -116,7 +143,7 @@ export async function getHomeDashboard() {
 export async function getCases() {
   if (!casesRequest) {
     casesRequest = axiosInstance
-      .get(CASES_URL)
+      .get("cases")
       .then((response) => response.data)
       .catch((error) => {
         casesRequest = undefined;
@@ -129,7 +156,7 @@ export async function getCases() {
 
 export async function submitCaseAction(payload) {
   const response = await axiosInstance.post(
-    "/case-action",
+    "case-action",
     payload
   );
 
@@ -140,7 +167,7 @@ export async function submitCaseAction(payload) {
 export async function getRecoveries() {
   if (!recoveriesRequest) {
     recoveriesRequest = axiosInstance
-      .get(RECOVERIES_URL)
+      .get("recoveries")
       .then((response) => response.data)
       .catch((error) => {
         recoveriesRequest = undefined;
@@ -154,7 +181,7 @@ export async function getRecoveries() {
 export async function getAudit() {
   if (!auditRequest) {
     auditRequest = axiosInstance
-      .get(AUDIT_URL)
+      .get("audit")
       .then((response) => response.data)
       .catch((error) => {
         auditRequest = undefined;
@@ -168,7 +195,7 @@ export async function getAudit() {
 export async function getVendors() {
   if (!vendorsRequest) {
     vendorsRequest = axiosInstance
-      .get(VENDORS_URL)
+      .get("vendors")
       .then((response) => response.data)
       .catch((error) => {
         vendorsRequest = undefined;
@@ -180,7 +207,7 @@ export async function getVendors() {
 }
 
 export async function sendCopilotMessage(message, userId, userName) {
-  const response = await axiosInstance.post(COPILOT_CHAT_URL, {
+  const response = await axiosInstance.post("v1/copilot/chat", {
     userId,
     userName,
     message,
