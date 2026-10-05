@@ -53,9 +53,10 @@ export const AuditTable = ({ data }) => {
   const auditData = useMemo(() => Array.isArray(data?.records)
     ? data.records.map((item) => {
         let reasonDetails = {};
+        const reasonValue = item.reason?.reason_code ?? item.reason ?? "-";
 
         try {
-          reasonDetails = JSON.parse(item.reason?.reason_code);
+          reasonDetails = JSON.parse(reasonValue);
         } catch {
           // API reasons may be plain text rather than JSON.
         }
@@ -69,7 +70,7 @@ export const AuditTable = ({ data }) => {
           reviewer: item.reviewer ?? "System",
           vendor: reasonDetails.vendor ?? reasonDetails.vendor_name ?? "Unassigned",
           action: item.action,
-          reason: item.reason?.reason_code || "-",
+          reason: typeof reasonValue === "string" ? reasonValue : "-",
           comments: item.comments,
           reversal: item.reversal ?? "-",
         };
