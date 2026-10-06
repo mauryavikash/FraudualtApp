@@ -28,8 +28,8 @@ const poppins = localFont({
 });
 
 export const metadata = {
-  title: "Statement Fraudulent",
-  description: "Automate your Statement Fraudulent process with our solution",
+  title: "Duplicate Detection",
+  description: "Automate your Duplicate Detection process with our solution",
 };
 
 export default function RootLayout({ children }) {
