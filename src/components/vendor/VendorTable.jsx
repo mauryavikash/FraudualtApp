@@ -9,6 +9,20 @@ const tabs = [
   ["recurring", "Recurring Payment Deviations"],
 ];
 
+function normalizeDeviation(deviation) {
+  const value = String(deviation ?? "").toLowerCase();
+
+  if (value.includes("currency") || value.includes("amount")) return "currency";
+  if (
+    value.includes("invoice") ||
+    value.includes("duplicate") ||
+    value.includes("potential-dup")
+  ) return "invoice";
+  if (value.includes("recurring") || value.includes("irregular")) return "recurring";
+
+  return value;
+}
+
 export default function VendorTable({
   vendors,
   selectedVendorId,
@@ -25,7 +39,7 @@ export default function VendorTable({
     () =>
       (selectedVendor?.invoices ?? []).filter(
         (invoice) =>
-          invoice.deviation === activeDeviation &&
+          normalizeDeviation(invoice.deviation) === activeDeviation &&
           JSON.stringify(invoice)
             .toLowerCase()
             .includes(search.toLowerCase())
@@ -57,7 +71,7 @@ export default function VendorTable({
       </nav>
 
       {/* MAIN CONTENT */}
-      <div className="grid min-h-[510px] grid-cols-1 lg:grid-cols-[235px_minmax(0,1fr)]">
+      <div className="grid h-[510px] min-h-0 grid-cols-1 lg:grid-cols-[235px_minmax(0,1fr)]">
         {/* LEFT SIDEBAR */}
         <aside className="bg-slate-50 lg:border-r lg:border-slate-200">
           <div className="border-b border-slate-200 bg-slate-50 px-4 py-4 text-xs font-bold uppercase tracking-wide text-slate-600">
@@ -124,7 +138,7 @@ export default function VendorTable({
             </label>
           </div>
 
-          <div className="flex-1 overflow-x-auto">
+          <div className="table-scrollbar h-[calc(510px-116px)] overflow-x-auto overflow-y-scroll">
             <table className="w-full min-w-[670px] bg-white">
               <thead className="border-b bg-slate-100">
                 <tr>
@@ -152,33 +166,36 @@ export default function VendorTable({
                 {invoices.map((invoice) => (
                   <tr
                     key={invoice.id}
-                    className="border-b border-slate-200 bg-[#e9b7d929] hover:bg-slate-50"
+                    className="h-12 border-b border-slate-200 bg-[#e9b7d929] hover:bg-slate-50"
                   >
-                    <td className="px-3 py-3 text-[11px] text-slate-600">
-                      {invoice.posted}
+                    <td className="whitespace-nowrap px-3 py-2 text-[11px] text-slate-600">
+                      {invoice.posted ?? invoice.posted_date ?? "-"}
                     </td>
 
-                    <td className="px-3 py-3 text-[11px] font-semibold text-blue-600">
-                      {selectedVendor.vendorId}
+                    <td
+                      title={invoice.vendor ?? invoice.vendorName ?? selectedVendor.vendorName ?? "-"}
+                      className="max-w-36 truncate whitespace-nowrap px-3 py-2 text-[11px] font-semibold text-blue-600"
+                    >
+                      {invoice.vendor ?? invoice.vendorName ?? selectedVendor.vendorName ?? "-"}
                     </td>
 
-                    <td className="max-w-28 truncate px-3 py-3 text-[11px] text-slate-700">
-                      {invoice.invoiceNo}
+                    <td className="max-w-28 truncate whitespace-nowrap px-3 py-2 text-[11px] text-slate-700">
+                      {invoice.invoiceNo ?? invoice.invoice_no ?? "-"}
                     </td>
 
-                    <td className="px-3 py-3 text-[11px] text-slate-600">
-                      {invoice.docNo}
+                    <td className="whitespace-nowrap px-3 py-2 text-[11px] text-slate-600">
+                      {invoice.docNo ?? invoice.doc_no ?? "-"}
                     </td>
 
-                    <td className="px-3 py-3 text-[11px] text-slate-600">
-                      {invoice.invDate}
+                    <td className="whitespace-nowrap px-3 py-2 text-[11px] text-slate-600">
+                      {invoice.invDate ?? invoice.inv_date ?? "-"}
                     </td>
 
-                    <td className="px-3 py-3 text-[11px] font-bold text-slate-800">
-                      {invoice.amount}
+                    <td className="whitespace-nowrap px-3 py-2 text-[11px] font-bold text-slate-800">
+                      {invoice.amount ?? "-"}
                     </td>
 
-                    <td className="px-3 py-3">
+                    <td className="whitespace-nowrap px-3 py-2">
                       <span
                         className={`rounded px-2 py-1 text-[9px] font-semibold ${
                           invoice.category === "Exact Match"
@@ -190,7 +207,7 @@ export default function VendorTable({
                       </span>
                     </td>
 
-                    <td className="px-3 py-3">
+                    <td className="whitespace-nowrap px-3 py-2">
                       <span
                         className={`rounded px-2 py-1 text-[9px] font-semibold ${
                           invoice.risk === "High"

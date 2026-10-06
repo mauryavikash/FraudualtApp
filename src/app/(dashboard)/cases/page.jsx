@@ -45,6 +45,7 @@ export default function CasesPage() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [caseTypeFilter, setCaseTypeFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
+  const [duplicateTypeFilter, setDuplicateTypeFilter] = useState("All");
   const [investigatorFilter, setInvestigatorFilter] = useState("All");
   const [vendorFilter, setVendorFilter] = useState("All");
   const [casesData, setCasesData] = useState(null);
@@ -95,6 +96,14 @@ export default function CasesPage() {
 );
   
   const priorityOptions = useMemo(() => [...new Set(tableData.map((item) => item.priority))], [tableData]);
+  const duplicateTypeOptions = useMemo(
+    () => [...new Set(
+      tableData
+        .map((item) => item.duplicateType ?? item.duplicate_type)
+        .filter(Boolean)
+    )],
+    [tableData]
+  );
   const investigatorOptions = useMemo(() => [...new Set(tableData.map((item) => item.investigator ?? "Unassigned"))], [tableData]);
   const vendorOptions = useMemo(() => [...new Set(tableData.map((item) => item.vendor || "Unassigned"))], [tableData]);
 
@@ -119,6 +128,10 @@ const filteredData = useMemo(() => {
   (item.case_type || "").toUpperCase() ===
   (caseTypeFilter || "").toUpperCase();
 
+    const duplicateType = item.duplicateType ?? item.duplicate_type ?? "";
+    const matchesDuplicateType =
+      duplicateTypeFilter === "All" ||
+      duplicateType.toLowerCase() === duplicateTypeFilter.toLowerCase();
     const matchesPriority =
       priorityFilter === "All" ||
       item.priority === priorityFilter;
@@ -159,6 +172,7 @@ const filteredData = useMemo(() => {
       matchesType &&
       matchesPriority &&
       matchesInvestigator &&
+      matchesDuplicateType &&
       matchesVendor &&
       matchesTab
     );
@@ -170,10 +184,26 @@ const filteredData = useMemo(() => {
   caseTypeFilter,
   priorityFilter,
   investigatorFilter,
+  duplicateTypeFilter,
   vendorFilter,
   activeTab,
 ]);
   const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
+  const paginationItems = (() => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    if (page <= 4) {
+      return [1, 2, 3, 4, 5, "ellipsis-end", totalPages];
+    }
+
+    if (page >= totalPages - 3) {
+      return [1, "ellipsis-start", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+
+    return [1, "ellipsis-start", page - 1, page, page + 1, "ellipsis-end", totalPages];
+  })();
 
   const paginatedData = filteredData.slice(
     (page - 1) * pageSize,
@@ -293,7 +323,18 @@ const filteredData = useMemo(() => {
                   </option>
                 ))}
                 </FilterSelect>
-
+                <FilterSelect
+                  label="Duplicate Type"
+                  value={duplicateTypeFilter}
+                  onChange={updateFilter(setDuplicateTypeFilter)}
+                >
+                  <option>All</option>
+                  {duplicateTypeOptions.map((duplicateType) => (
+                    <option key={duplicateType} value={duplicateType}>
+                      {duplicateType}
+                    </option>
+                  ))}
+                </FilterSelect>
                 <FilterSelect
                   label="Priority"
                   value={priorityFilter}
@@ -428,7 +469,9 @@ const filteredData = useMemo(() => {
                           {row.case_type}
                         </span>
                       </td>
-
+                      <td className="text-[12px] text-[#334155]">
+                        {row.duplicateType ?? row.duplicate_type ?? "-"}
+                      </td>
                       <td>
                         <div className="flex items-center gap-2 text-[12px] text-[#334155]">
 
@@ -529,21 +572,25 @@ const filteredData = useMemo(() => {
                   ‹
                 </button>
 
-                {[...Array(totalPages)].map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() =>
-                      setPage(index + 1)
-                    }
-                    className={`w-7 h-7 rounded-lg text-[12px] font-medium ${
-                      page === index + 1
-                        ? "bg-[#2563EB] text-white"
-                        : "border border-[#D9E1EA] text-[#475569]"
-                    }`}
-                  >
-                    {index + 1}
-                  </button>
-                ))}
+                {paginationItems.map((item) =>
+                  typeof item === "number" ? (
+                    <button
+                      key={item}
+                      onClick={() => setPage(item)}
+                      className={`w-7 h-7 rounded-lg text-[12px] font-medium ${
+                        page === item
+                          ? "bg-[#2563EB] text-white"
+                          : "border border-[#D9E1EA] text-[#475569]"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ) : (
+                    <span key={item} className="w-5 text-center text-[#64748B]" aria-hidden="true">
+                      ...
+                    </span>
+                  )
+                )}
 
                 <button onClick={() => setPage((currentPage) => Math.min(totalPages, currentPage + 1))} disabled={page === totalPages} className="w-7 h-7 rounded-lg border border-[#D9E1EA] disabled:opacity-40">
                   ›

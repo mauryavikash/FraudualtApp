@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Sparkles,
   MoreHorizontal,
@@ -17,7 +18,7 @@ export const CasesDetails = ({ caseData, userName }) => {
     const selectedCase = caseData ?? {};
     const [reason, setReason] = useState("");
     const [loading, setLoading] = useState(false);
-    
+    const [isCaseDetailsOpen, setIsCaseDetailsOpen] = useState(false);
     // const handleAction = async (action) => {
     // try {
     //     if (action === "approve" && !reason) {
@@ -249,6 +250,13 @@ export const CasesDetails = ({ caseData, userName }) => {
         />
         </div>
 
+                <button
+                    type="button"
+                    onClick={() => setIsCaseDetailsOpen(true)}
+                    className="h-8 rounded-md bg-blue-600 mt-3 px-2 text-xs font-semibold text-white hover:bg-blue-700"
+                >
+                    View Case Details
+                </button>
         {/* Progress */}
         <div className="mt-2">
         <div className="text-[11px] font-semibold tracking-wide text-[#64748B]">
@@ -323,7 +331,7 @@ export const CasesDetails = ({ caseData, userName }) => {
             >
             <FileSearch size={18} />
             <span className="mt-1 text-xs font-medium">
-                Approved
+                Approve
             </span>
             </button>
 
@@ -386,6 +394,74 @@ export const CasesDetails = ({ caseData, userName }) => {
         </div>
         </div>
     </div>
+     {isCaseDetailsOpen && typeof document !== "undefined" && createPortal(
+            <div
+                role="presentation"
+                onClick={() => setIsCaseDetailsOpen(false)}
+                className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 p-4"
+            >
+                <div
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="case-details-title"
+                    onClick={(event) => event.stopPropagation()}
+                    className="w-full max-w-3xl overflow-hidden rounded-lg bg-white shadow-xl"
+                >
+                    <div className="flex items-start justify-between border-b border-slate-200 px-6 py-4">
+                        <div>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Case Details</p>
+                            <h2 id="case-details-title" className="mt-1 text-lg font-semibold text-slate-900">
+                                {selectedCase.pair_id ?? "Case"}
+                            </h2>
+                        </div>
+                        <button
+                            type="button"
+                            aria-label="Close case details"
+                            onClick={() => setIsCaseDetailsOpen(false)}
+                            className="rounded-md mt-3 p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 px-6 py-5 text-sm sm:grid-cols-2">
+                        <ModalInfo label="Case Type" value={selectedCase.case_type} />
+                        <ModalInfo label="Duplicate Type" value={selectedCase.duplicateType ?? selectedCase.duplicate_type} />
+                        <ModalInfo label="Status" value={selectedCase.case_status ?? selectedCase.risk_level} />
+                        <ModalInfo label="Priority" value={selectedCase.priority} />
+                        <ModalInfo label="Vendor" value={selectedCase.vendor} />
+                        <ModalInfo label="Similarity" value={selectedCase.similarity} />
+                    </div>
+
+                    <div className="border-t border-slate-200 px-6 py-5">
+                        <h3 className="text-sm font-semibold text-slate-900">Invoices</h3>
+                        <div className="mt-3 overflow-x-auto">
+                            <table className="w-full min-w-[540px] text-left text-sm">
+                                <thead className="bg-slate-100 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                    <tr>
+                                        <th className="px-3 py-2">Invoice Number</th>
+                                        <th className="px-3 py-2">Invoice Date</th>
+                                        <th className="px-3 py-2">Vendor</th>
+                                        <th className="px-3 py-2">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {[selectedCase.invoice_1, selectedCase.invoice_2].filter(Boolean).map((invoice, index) => (
+                                        <tr key={`${invoice.invoice_id ?? invoice.invoice_number ?? "invoice"}-${index}`} className="border-b border-slate-100 text-slate-700">
+                                            <td className="px-3 py-2">{invoice.invoice_number ?? "-"}</td>
+                                            <td className="px-3 py-2">{invoice.invoice_date ?? "-"}</td>
+                                            <td className="px-3 py-2">{invoice.vendor_name ?? selectedCase.vendor ?? "-"}</td>
+                                            <td className="px-3 py-2">{invoice.amount ?? "-"}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>,
+            document.body
+        )}
     </div>
   );
 };
@@ -402,4 +478,15 @@ function Info({ label, value }) {
       </div>
     </div>
   );
+}
+
+function ModalInfo({ label, value }) {
+    return (
+        <div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                {label}
+            </div>
+            <div className="mt-1 font-medium text-slate-900">{value ?? "-"}</div>
+        </div>
+    );
 }
