@@ -1,6 +1,6 @@
-# Statement Reconciliation Frontend
+# Duplicate Detection Frontend
 
-A modern, responsive frontend application for an AI-assisted **Statement Reconciliation Solution** built with **Next.js**, **React**, **JavaScript**, **Tailwind CSS**, **Redux**, **Lucide Icons**, **Recharts**, and **TanStack Table**.
+A modern, responsive frontend application for an AI-assisted **Duplicate Detection** built with **Next.js**, **React**, **JavaScript**, **Tailwind CSS**, **Redux**, **Lucide Icons**, **Recharts**, and **TanStack Table**.
 
 This application provides an intuitive, role-based user experience for managing reconciliation workflows, exception handling, vendor communication, approvals, reporting, and audit compliance.
 
