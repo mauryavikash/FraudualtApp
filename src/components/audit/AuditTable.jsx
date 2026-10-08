@@ -71,7 +71,8 @@ export const AuditTable = ({ data }) => {
           vendor: reasonDetails.vendor ?? reasonDetails.vendor_name ?? "Unassigned",
           action: item.action,
           reason: typeof reasonValue === "string" ? reasonValue : "-",
-          comments: item.comments,
+          // comments: item.comments,
+          auditRemarks: item.auditRemarks,
           reversal: item.reversal ?? "-",
         };
       })
@@ -180,7 +181,8 @@ export const AuditTable = ({ data }) => {
 
             <div>
               <p className="text-[11px] font-semibold text-[#475569] mb-1.5">
-                Comments
+                {/* Comments */}
+                 Remarks
               </p>
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
@@ -216,13 +218,28 @@ export const AuditTable = ({ data }) => {
                   "REVIEWER",
                   "ACTION",
                   "REASON",
-                  "COMMENTS",
+                  "REMARKS",
                   "REVERSAL",
                 ].map((item) => (
+                  // <th
+                  //   key={item}
+                  //   scope="col"
+                  //   className="
+                  //     px-4
+                  //     text-left
+                  //     text-[10px]
+                  //     font-bold
+                  //     uppercase
+                  //     tracking-[0.08em]
+                  //     text-[#64748B]
+                  //   "
+                  // >
+                  //   {item}
+                  // </th>
                   <th
                     key={item}
                     scope="col"
-                    className="
+                    className={`
                       px-4
                       text-left
                       text-[10px]
@@ -230,7 +247,8 @@ export const AuditTable = ({ data }) => {
                       uppercase
                       tracking-[0.08em]
                       text-[#64748B]
-                    "
+                      ${item === "REMARKS" ? "min-w-[400px] w-[400px]" : ""}
+                    `}
                   >
                     {item}
                   </th>
@@ -294,10 +312,12 @@ export const AuditTable = ({ data }) => {
 
                     
 
-                    <td className="px-4 text-[12px] text-[#94A3B8]">
-                      {row.comments || "-"}
+                    {/* <td className="px-4 text-[12px] text-[#94A3B8]">
+                      {row.auditRemarks}
+                    </td> */}
+                    <td className="px-4 min-w-[400px] w-[400px] text-[12px] text-[#94A3B8] whitespace-normal break-words">
+                      {row.auditRemarks}
                     </td>
-
                     <td className="px-4 text-[12px] text-[#334155]">
                       {row.reversal}
                     </td>

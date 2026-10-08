@@ -395,6 +395,7 @@ const filteredData = useMemo(() => {
                     {[
                       "PAIR ID",
                       "CASE TYPE",
+                      "DUPLICATE TYPE",
                       "PRIORITY",
                       "STATUS",
                       "VENDOR",
@@ -404,7 +405,7 @@ const filteredData = useMemo(() => {
                       "INVOICE ID",
                       "INVOICE NUMBER",
                       // "CONFIDENCE SCORE",
-                      "SIMILARITY",
+                      // "SIMILARITY",
                     ].map((item) => (
                       <th
                         key={item}
@@ -532,16 +533,16 @@ const filteredData = useMemo(() => {
                         {row.invoice_1?.confidenceScore}
                       </td> */}
 
-                      <td className="text-[12px] font-semibold text-[#0F172A]">
+                      {/* <td className="text-[12px] font-semibold text-[#0F172A]">
                         {row.similarity}
-                      </td>
+                      </td> */}
 
-                      <td className="pr-4">
+                      {/* <td className="pr-4">
                         <MoreVertical
                           size={15}
                           className="text-[#94A3B8]"
                         />
-                      </td>
+                      </td> */}
 
                     </tr>
 

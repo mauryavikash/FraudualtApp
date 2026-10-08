@@ -1,7 +1,7 @@
 {
-   "name": "statement-reconciliation-solution",
+   "name": "Duplicate Detection",
    "version": "0.1.0",
-   "description": "Frontend project for a Statement Reconciliation Solution",
+   "description": "Frontend project for a Duplicate Detection",
    "private": true,
    "scripts": {
       "dev": "next dev",

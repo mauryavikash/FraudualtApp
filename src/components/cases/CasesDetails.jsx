@@ -108,67 +108,56 @@ export const CasesDetails = ({ caseData, userName }) => {
             <X size={16} />
         </button>
         </div>
-        <div className="mt-2">
-            <div className="mt-3 overflow-x-auto rounded-lg">
-                <div className="min-w-[700px]">
-                <div className="grid grid-cols-6 bg-[#01d4d1] px-3 py-2 text-[11px] font-semibold text-white">
-                <div>Invoice Number</div>
-                <div>Invoice Date</div>
-                <div>Vendor Name</div>
-                <div>Count</div>
-                <div>currency</div>
-                <div>Amount</div>
-                </div>
+        <div className="mt-2 overflow-x-auto rounded-lg">
+            <table className="min-w-[1400px] w-full">
+                <thead>
+                <tr className="bg-[#01d4d1] text-white text-[11px]">
+                    <th className="px-3 py-2 text-left">Invoice Number</th>
+                    <th className="px-3 py-2 text-left">Invoice Date</th>
+                    <th className="px-3 py-2 text-left">Vendor Name</th>
+                    <th className="px-3 py-2 text-left">Vendor Number</th>
+                    <th className="px-3 py-2 text-left">Count</th>
+                    <th className="px-3 py-2 text-left">Currency</th>
+                    <th className="px-3 py-2 text-left">Amount</th>
+                    <th className="px-3 py-2 text-left">Cost Center</th>
+                    <th className="px-3 py-2 text-left">GL Account</th>
+                    <th className="px-3 py-2 text-left">Text</th>
+                </tr>
+                </thead>
 
+                <tbody className="bg-[#01d4d1] text-white text-[11px]">
                 {selectedCase?.invoice_1 && (
-                <div className="grid grid-cols-6 border-t bg-[#01d4d1] px-3 py-2 text-[12px] text-white">
-                    <div>
-                    {selectedCase.invoice_1.invoice_number}
-                    </div>
-
-                    <div>
-                    {selectedCase.invoice_1.invoice_date}
-                    </div>
-                    <div>
-                    {selectedCase.invoice_1.vendor_name}
-                    </div>
-                    <div>
-                    {selectedCase.invoice_count }
-                    </div>
-                    <div>
-                    {selectedCase.invoice_1.currency }
-                    </div>
-                    <div >
-                    {selectedCase.invoice_1.amount}
-                    </div>
-                </div>
+                    <tr className="border-t">
+                    <td className="px-3 py-2">{selectedCase.invoice_1.invoice_number}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_1.invoice_date}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_1.vendor_name}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_1.vendor_number}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_count}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_1.currency}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_1.amount}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_1.cost_center}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_1.gl_account}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_1.text}</td>
+                    </tr>
                 )}
+
                 {selectedCase?.invoice_2 && (
-                <div className="grid grid-cols-6 border-t bg-[#01d4d1] px-3 py-2 text-[12px] text-white">
-                    <div>
-                    {selectedCase.invoice_2.invoice_number}
-                    </div>
-
-                    <div>
-                    {selectedCase.invoice_2.invoice_date}
-                    </div>
-                    <div>
-                    {selectedCase.invoice_2.vendor_name}
-                    </div>
-                    <div>
-                    {selectedCase.invoice_count }
-                    </div>
-                    <div>
-                    {selectedCase.invoice_2.currency }
-                    </div>
-                    <div >
-                    {selectedCase.invoice_2.amount}
-                    </div>
-                </div>
+                    <tr className="border-t">
+                    <td className="px-3 py-2">{selectedCase.invoice_2.invoice_number}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_2.invoice_date}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_2.vendor_name}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_2.vendor_number}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_count}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_2.currency}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_2.amount}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_2.cost_center}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_2.gl_account}</td>
+                    <td className="px-3 py-2">{selectedCase.invoice_2.text}</td>
+                    </tr>
                 )}
-                </div>
-            </div>
-        </div>
+                </tbody>
+            </table>
+</div>
         {/* Tabs */}
         <div className="flex gap-5 mt-4 border-b border-[#E5E7EB]">
         <button className="pb-2 text-[12px] font-medium text-[#2563EB] border-b border-[#2563EB]">
