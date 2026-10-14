@@ -104,6 +104,6 @@ export const CasesKpiCards = ({ data }) => {
       })
     : [];
 
-  return <KpiCardsGrid items={kpiData} columns="xl:grid-cols-5" />;
+  return <KpiCardsGrid items={kpiData} columns="grid-cols-1 md:grid-cols-3 lg:grid-cols-5" />;
 };
 

@@ -117,18 +117,13 @@ export default function DashboardPage() {
         <ManagementDashboard data={homeData.managementDashboard} />
                     
         {/* OPERATIONAL REPORTING & AUDIT ACTIVITIES */}
-        <div className="grid grid-cols-12 gap-4">
+        {/* <div className="grid grid-cols-12 gap-4">
           <OperationalReporting data={homeData.operationalReports} />
-
-          {/* RIGHT SIDE */}
           <div className="col-span-12 space-y-4 md:col-span-6">
-            {/* RECENT AUDIT ACTIVITIES */}
             <AuditActivitiesPanel data={homeData.auditActivities} />
 
-            {/* EXECUTIVE INSIGHTS */}
-            {/* <ExecutiveInsightsPanel data={homeData.executiveInsights} /> */}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

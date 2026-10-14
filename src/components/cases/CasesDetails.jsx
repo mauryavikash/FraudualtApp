@@ -19,34 +19,7 @@ export const CasesDetails = ({ caseData, userName }) => {
     const [reason, setReason] = useState("");
     const [loading, setLoading] = useState(false);
     const [isCaseDetailsOpen, setIsCaseDetailsOpen] = useState(false);
-    // const handleAction = async (action) => {
-    // try {
-    //     if (action === "approve" && !reason) {
-    //     alert("Please select a reason code.");
-    //     return;
-    //     }
-
-    //     setLoading(true);
-
-    //     const payload = {
-    //     pair_id: selectedCase?.pair_id,
-    //     action,
-    //     reason_code: reason ,
-    //     comments: "",
-    //     performed_by: "",
-    //     actionedAt: new Date().toISOString(),
-    //     };
-
-    //     const response = await submitCaseAction(payload);
-
-    //     toast.success("Action completed successfully");
-    // } catch (error) {
-    //     // console.error(error);
-    //     toast.error(error?.response?.data?.message || "Something went wrong");
-    // } finally {
-    //     setLoading(false);
-    // }
-    // };
+    
  
     const handleAction = async (action) => {
   if (action === "approve" && !reason) {
@@ -362,13 +335,13 @@ export const CasesDetails = ({ caseData, userName }) => {
             <span className="font-medium text-right">Rule_1</span>
 
             <span className="text-slate-500">Similarity</span>
-            <span className="font-medium text-right">{selectedCase?.similarity ?? "-"}</span>
+            <span className="font-medium text-right">{selectedCase?.confidence_score ?? "-"}</span>
 
             <span className="text-slate-500">Total Amount</span>
             <span className="font-medium text-right">{selectedCase?.invoice_1?.amount ?? "-"}</span>
 
             <span className="text-slate-500">Records</span>
-            <span className="font-medium text-right">{selectedCase?.invoice_1?.invoice_count ?? "-"}</span>
+            <span className="font-medium text-right">{selectedCase?.invoice_count ?? "-"}</span>
             </div>
 
             <div className="mt-2 rounded-lg bg-slate-100 p-3">
