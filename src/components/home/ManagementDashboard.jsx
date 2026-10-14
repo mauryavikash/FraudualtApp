@@ -1,4 +1,3 @@
-
 import {
   ResponsiveContainer,
   AreaChart,
@@ -95,31 +94,37 @@ export default function ManagementDashboard({ data }) {
     highRiskGrowth: "+8.4%",
   };
 
-  const openClosedData = Array.isArray(data?.openClosedData) && data.openClosedData.length
-    ? data.openClosedData.map((item, index) => ({
-        name: item.name ?? item.status,
-        value: Number(item.value ?? item.count ?? 0),
-        percent: item.percent ?? formatPercent(item.percentage),
-        color: staticOpenClosedData[index]?.color ?? "#6886d1",
-      }))
-    : staticOpenClosedData;
-  const priorityData = Array.isArray(data?.priorityData) && data.priorityData.length
-    ? data.priorityData.map((item, index) => ({
-        name: item.name ?? item.priority,
-        value: Number(item.value ?? item.count ?? 0),
-        percent: item.percent ?? formatPercent(item.percentage),
-        color: staticPriorityData[index]?.color ?? "#e28282",
-      }))
-    : staticPriorityData;
-  const recoveryTrendData = Array.isArray(data?.recoveryTrendData) && data.recoveryTrendData.length
-    ? data.recoveryTrendData
-    : staticRecoveryTrendData;
-  const investigationCycleData = Array.isArray(data?.investigationCycleTrend) && data.investigationCycleTrend.length
-    ? data.investigationCycleTrend
-    : staticInvestigationCycleData;
-  const vendorTrendData = Array.isArray(data?.vendorTrend) && data.vendorTrend.length
-    ? data.vendorTrend
-    : staticVendorTrendData;
+  const openClosedData =
+    Array.isArray(data?.openClosedData) && data.openClosedData.length
+      ? data.openClosedData.map((item, index) => ({
+          name: item.name ?? item.status,
+          value: Number(item.value ?? item.count ?? 0),
+          percent: item.percent ?? formatPercent(item.percentage),
+          color: staticOpenClosedData[index]?.color ?? "#6886d1",
+        }))
+      : staticOpenClosedData;
+  const priorityData =
+    Array.isArray(data?.priorityData) && data.priorityData.length
+      ? data.priorityData.map((item, index) => ({
+          name: item.name ?? item.priority,
+          value: Number(item.value ?? item.count ?? 0),
+          percent: item.percent ?? formatPercent(item.percentage),
+          color: staticPriorityData[index]?.color ?? "#e28282",
+        }))
+      : staticPriorityData;
+  const recoveryTrendData =
+    Array.isArray(data?.recoveryTrendData) && data.recoveryTrendData.length
+      ? data.recoveryTrendData
+      : staticRecoveryTrendData;
+  const investigationCycleData =
+    Array.isArray(data?.investigationCycleTrend) &&
+    data.investigationCycleTrend.length
+      ? data.investigationCycleTrend
+      : staticInvestigationCycleData;
+  const vendorTrendData =
+    Array.isArray(data?.vendorTrend) && data.vendorTrend.length
+      ? data.vendorTrend
+      : staticVendorTrendData;
   const apiSummary = data?.summary ?? data?.dashboardSummary;
   const dashboardSummary = {
     ...staticDashboardSummary,
@@ -152,116 +157,141 @@ export default function ManagementDashboard({ data }) {
         </div>
 
         {/* LEFT SECTION */}
-        <div className="col-span-12 xl:col-span-8 h-full">
+        <div className="col-span-12 lg:col-span-8 h-full">
           <div className="grid grid-cols-12 gap-4 h-full">
             {/* OPEN VS CLOSED */}
             <div className={`col-span-12 md:col-span-6 ${cardClass}`}>
               <h3 className="mb-4 text-[13px] font-bold text-slate-800">
-              OPEN VS CLOSED CASES
-            </h3>
+                OPEN VS CLOSED CASES
+              </h3>
 
-            <div className="flex items-center justify-between">
-              <div className="relative h-[128px] w-[128px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={openClosedData}
-                      dataKey="value"
-                      innerRadius={34}
-                      outerRadius={50}
-                      stroke="none"
-                    >
-                      {openClosedData.map((item, index) => (
-                        <Cell key={index} fill={item.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
+              <div className="flex items-center justify-between">
+                <div className="relative h-[128px] w-[128px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={openClosedData}
+                        dataKey="value"
+                        innerRadius={34}
+                        outerRadius={50}
+                        stroke="none"
+                      >
+                        {openClosedData.map((item, index) => (
+                          <Cell key={index} fill={item.color} />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
 
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <div className="text-[18px] font-bold text-slate-800">
-                    {dashboardSummary.totalCases}
-                  </div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <div className="text-[18px] font-bold text-slate-800">
+                      {dashboardSummary.totalCases}
+                    </div>
 
-                  <div className="text-[10px] font-semibold text-slate-400">
-                    TOTAL
+                    <div className="text-[10px] font-semibold text-slate-400">
+                      TOTAL
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="space-y-3">
-                {openClosedData.map((item) => (
-                  <div key={item.name}>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="h-2.5 w-2.5 rounded-full"
-                        style={{ backgroundColor: item.color }}
-                      />
+                <div className="space-y-3">
+                  {openClosedData.map((item) => (
+                    <div key={item.name}>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: item.color }}
+                        />
 
-                      <span className="text-[13px] font-semibold text-slate-700">
-                        {item.name}
-                      </span>
+                        <span className="text-[13px] font-semibold text-slate-700">
+                          {item.name}
+                        </span>
+                      </div>
+
+                      <div className="ml-4 text-[16px] font-bold text-slate-800">
+                        {item.value.toLocaleString()}
+                        <span className="ml-1 text-[12px] text-slate-400">
+                          ({item.percent})
+                        </span>
+                      </div>
                     </div>
-
-                    <div className="ml-4 text-[16px] font-bold text-slate-800">
-                      {item.value.toLocaleString()}
-                      <span className="ml-1 text-[12px] text-slate-400">
-                        ({item.percent})
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
             </div>
 
             {/* RECOVERY VALUE */}
             <div className={`col-span-12 md:col-span-6 ${cardClass}`}>
               {/* your existing Recovery Value code */}
               <div className="flex items-start justify-between">
-              <h3 className="text-[13px] font-bold text-slate-800">
-                RECOVERY VALUE (USD)
-              </h3>
+                <h3 className="text-[13px] font-bold text-slate-800">
+                  RECOVERY VALUE (USD)
+                </h3>
 
-              <span className="rounded bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-600">
-                ↗ {dashboardSummary.recoveryGrowth}
-              </span>
-            </div>
+                <span className="rounded bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-600">
+                  ↗ {dashboardSummary.recoveryGrowth}
+                </span>
+              </div>
 
-            <div className="mt-2 text-[24px] font-bold text-slate-800">
-              {dashboardSummary.recoveryValue}
-            </div>
+              <div className="mt-2 text-[24px] font-bold text-slate-800">
+                {dashboardSummary.recoveryValue}
+              </div>
 
-            <div className="text-[11px] text-slate-400">
-              vs May 7 – May 13, 2025
-            </div>
+              <div className="text-[11px] text-slate-400">
+                vs May 7 – May 13, 2025
+              </div>
 
-            <div className="mt-4 h-[90px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={recoveryTrendData} margin={{ top: 5, right: 10, left: -30, bottom: 5 }}>
-                  <defs>
-                    <linearGradient id="colorRecovery" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#5ED3AF" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#5ED3AF" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="0" vertical={false} stroke="#f0f0f0" />
-                  <XAxis dataKey="name" hide={true} />
-                  <YAxis hide={true} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '4px' }}
-                    formatter={(value) => `$${value.toFixed(2)}M`}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    stroke="#5ED3AF"
-                    strokeWidth={2.5}
-                    fill="url(#colorRecovery)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+              <div className="mt-4 h-[90px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart
+                    data={recoveryTrendData}
+                    margin={{ top: 5, right: 10, left: -30, bottom: 5 }}
+                  >
+                    <defs>
+                      <linearGradient
+                        id="colorRecovery"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#5ED3AF"
+                          stopOpacity={0.3}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#5ED3AF"
+                          stopOpacity={0}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid
+                      strokeDasharray="0"
+                      vertical={false}
+                      stroke="#f0f0f0"
+                    />
+                    <XAxis dataKey="name" hide={true} />
+                    <YAxis hide={true} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#fff",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                      }}
+                      formatter={(value) => `$${value.toFixed(2)}M`}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="value"
+                      stroke="#5ED3AF"
+                      strokeWidth={2.5}
+                      fill="url(#colorRecovery)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
             {/* CASES BY PRIORITY */}
@@ -271,46 +301,46 @@ export default function ManagementDashboard({ data }) {
                 CASES BY PRIORITY
               </h3>
 
-            <div className="flex items-center justify-between">
-              <div className="relative h-[140px] w-[140px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={priorityData}
-                      dataKey="value"
-                      innerRadius={42}
-                      outerRadius={56}
-                      stroke="none"
-                    >
-                      {priorityData.map((item, index) => (
-                        <Cell key={index} fill={item.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+              <div className="flex items-center justify-between">
+                <div className="relative h-[140px] w-[140px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={priorityData}
+                        dataKey="value"
+                        innerRadius={42}
+                        outerRadius={56}
+                        stroke="none"
+                      >
+                        {priorityData.map((item, index) => (
+                          <Cell key={index} fill={item.color} />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
 
-              <div className="flex flex-col gap-3">
-                {priorityData.map((item) => (
-                  <div key={item.name} className="flex items-center gap-3">
-                    <span
-                      className="h-3 w-3 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: item.color }}
-                    />
+                <div className="flex flex-col gap-3">
+                  {priorityData.map((item) => (
+                    <div key={item.name} className="flex items-center gap-3">
+                      <span
+                        className="h-3 w-3 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: item.color }}
+                      />
 
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-semibold text-slate-800">
-                        {item.name}
-                      </span>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm font-semibold text-slate-800">
+                          {item.name}
+                        </span>
 
-                      <span className="text-xs text-slate-500">
-                        {item.value.toLocaleString()} ({item.percent})
-                      </span>
+                        <span className="text-xs text-slate-500">
+                          {item.value.toLocaleString()} ({item.percent})
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
             </div>
 
             {/* AUTOMATION RATE */}
@@ -334,67 +364,58 @@ export default function ManagementDashboard({ data }) {
                 "
               >
                 {/* your existing Automation Rate code */}
-                 <h3 className="text-[14px] font-semibold text-[#1E293B] tracking-tight">
-                AUTOMATION RATE
-              </h3>
+                <h3 className="text-[14px] font-semibold text-[#1E293B] tracking-tight">
+                  AUTOMATION RATE
+                </h3>
 
-              {/* Gauge */}
-              <div className="flex justify-center">
-                <div className="relative h-[170px] w-[240px]">
-                  <svg
-                    viewBox="0 0 240 160"
-                    className="h-full w-full"
-                  >
-                    <defs>
-                      <linearGradient
-                        id="automationGradient"
-                        x1="0%"
-                        y1="0%"
-                        x2="100%"
-                        y2="0%"
-                      >
-                        <stop
-                          offset="0%"
-                          stopColor="#6783D0"
-                        />
-                        <stop
-                          offset="100%"
-                          stopColor="#6D89D6"
-                        />
-                      </linearGradient>
-                    </defs>
+                {/* Gauge */}
+                <div className="flex justify-center">
+                  <div className="relative h-[170px] w-[240px]">
+                    <svg viewBox="0 0 240 160" className="h-full w-full">
+                      <defs>
+                        <linearGradient
+                          id="automationGradient"
+                          x1="0%"
+                          y1="0%"
+                          x2="100%"
+                          y2="0%"
+                        >
+                          <stop offset="0%" stopColor="#6783D0" />
+                          <stop offset="100%" stopColor="#6D89D6" />
+                        </linearGradient>
+                      </defs>
 
-                    {/* Background Arc */}
-                    <path
-                      d="M40 120 A80 80 0 0 1 200 120"
-                      fill="none"
-                      stroke="#DADFE8"
-                      strokeWidth="14"
-                      strokeLinecap="round"
-                    />
+                      {/* Background Arc */}
+                      <path
+                        d="M40 120 A80 80 0 0 1 200 120"
+                        fill="none"
+                        stroke="#DADFE8"
+                        strokeWidth="14"
+                        strokeLinecap="round"
+                      />
 
-                    {/* Progress Arc 68.2% */}
-                    <path
-                      d="M40 120 A80 80 0 0 1 168 58"
-                      fill="none"
-                      stroke="url(#automationGradient)"
-                      strokeWidth="14"
-                      strokeLinecap="round"
-                    />
-                  </svg>
+                      {/* Progress Arc 68.2% */}
+                      <path
+                        d="M40 120 A80 80 0 0 1 168 58"
+                        fill="none"
+                        stroke="url(#automationGradient)"
+                        strokeWidth="14"
+                        strokeLinecap="round"
+                      />
+                    </svg>
 
-                  {/* Center Content */}
-                  <div className="absolute top-[60px] inset-0 flex flex-col items-center justify-center">
-                    <div className="text-[26px] font-bold leading-none text-[#26334D]">
-                      {dashboardSummary.automationRate}
-                    </div>
+                    {/* Center Content */}
+                    <div className="absolute top-[60px] inset-0 flex flex-col items-center justify-center">
+                      <div className="text-[26px] font-bold leading-none text-[#26334D]">
+                        {dashboardSummary.automationRate}
+                      </div>
 
-                    <div className="mt-2 text-[13px] font-medium text-[#66758C]">
-                      Automation
-                    </div>
+                      <div className="mt-2 text-[13px] font-medium text-[#66758C]">
+                        Automation
+                      </div>
 
-                    <div
-                      className="
+                      <div
+                        className="
                         mt-2
                         rounded-full
                         bg-[#DDF7E7]
@@ -405,121 +426,134 @@ export default function ManagementDashboard({ data }) {
                         text-[#10B981]
                         leading-none
                       "
-                    >
-                      ↗ {dashboardSummary.automationGrowth}
+                      >
+                        ↗ {dashboardSummary.automationGrowth}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Footer */}
-              <div className="mt-1 text-center text-[12px] font-medium text-[#94A3B8]">
-                vs May 7 – May 13, 2025
-              </div>
+                {/* Footer */}
+                <div className="mt-1 text-center text-[12px] font-medium text-[#94A3B8]">
+                  vs May 7 – May 13, 2025
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* RIGHT SECTION */}
-        <div className="col-span-12 xl:col-span-4 flex flex-col gap-4 h-full">
+        <div className="col-span-12 lg:col-span-4 flex flex-col gap-4 h-full">
           {/* INVESTIGATION */}
           <div className={cardClass}>
             {/* your existing Investigation code */}
             <div className="text-[10px] font-bold text-slate-500">
-            INVESTIGATION CYCLE TIME
-          </div>
-
-          <div className="mt-1 flex items-center gap-2">
-            <div className="text-[18px] font-bold text-slate-800">
-              {dashboardSummary.cycleTime}
+              INVESTIGATION CYCLE TIME
             </div>
 
-            <span className="rounded bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-600">
-              ↘ {dashboardSummary.cycleImprovement}
-            </span>
-          </div>
+            <div className="mt-1 flex items-center gap-2">
+              <div className="text-[18px] font-bold text-slate-800">
+                {dashboardSummary.cycleTime}
+              </div>
 
-          <div className="text-[10px] text-slate-400">
-            vs May 7 – May 13, 2025
-          </div>
+              <span className="rounded bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-600">
+                ↘ {dashboardSummary.cycleImprovement}
+              </span>
+            </div>
 
-          <div className="mt-3 h-[70px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={investigationCycleData} margin={{ top: 5, right: 10, left: -30, bottom: 5 }}>
-                <defs>
-                  <linearGradient id="colorInvestigation" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6886D1" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#6886D1" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="0" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="name" hide={true} />
-                <YAxis hide={true} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '4px' }}
-                  formatter={(value) => `${value.toFixed(1)} Days`}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="value"
-                  stroke="#6886D1"
-                  strokeWidth={2}
-                  fill="url(#colorInvestigation)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+            <div className="text-[10px] text-slate-400">
+              vs May 7 – May 13, 2025
+            </div>
+
+            <div className="mt-3 h-[70px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={investigationCycleData}
+                  margin={{ top: 5, right: 10, left: -30, bottom: 5 }}
+                >
+                  <defs>
+                    <linearGradient
+                      id="colorInvestigation"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="5%" stopColor="#6886D1" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#6886D1" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid
+                    strokeDasharray="0"
+                    vertical={false}
+                    stroke="#f0f0f0"
+                  />
+                  <XAxis dataKey="name" hide={true} />
+                  <YAxis hide={true} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                    }}
+                    formatter={(value) => `${value.toFixed(1)} Days`}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#6886D1"
+                    strokeWidth={2}
+                    fill="url(#colorInvestigation)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
           {/* SLA */}
           <div className={cardClass}>
             {/* your existing SLA code */}
             <h3 className="text-[14px] font-semibold text-[#475569] uppercase">
-            SLA COMPLIANCE
-          </h3>
+              SLA COMPLIANCE
+            </h3>
 
-          <div className="flex justify-center">
-            <div className="relative w-[300px] h-[150px]">
+            <div className="flex justify-center">
+              <div className="relative w-[300px] h-[150px]">
+                <svg viewBox="0 0 220 140" className="w-full h-full">
+                  {/* Background Arc */}
+                  <path
+                    d="M40 110 A70 70 0 0 1 180 110"
+                    fill="none"
+                    stroke="#DFE5ED"
+                    strokeWidth="12"
+                    strokeLinecap="round"
+                    pathLength="100"
+                  />
 
-              <svg
-                viewBox="0 0 220 140"
-                className="w-full h-full"
-              >
-                {/* Background Arc */}
-                <path
-                  d="M40 110 A70 70 0 0 1 180 110"
-                  fill="none"
-                  stroke="#DFE5ED"
-                  strokeWidth="12"
-                  strokeLinecap="round"
-                  pathLength="100"
-                />
+                  {/* Progress Arc = 92.4% */}
+                  <path
+                    d="M40 110 A70 70 0 0 1 180 110"
+                    fill="none"
+                    stroke="#61D2AE"
+                    strokeWidth="12"
+                    strokeLinecap="round"
+                    pathLength="100"
+                    strokeDasharray={`${parseFloat(dashboardSummary.slaCompliance) || 0} 100`}
+                  />
+                </svg>
 
-                {/* Progress Arc = 92.4% */}
-                <path
-                  d="M40 110 A70 70 0 0 1 180 110"
-                  fill="none"
-                  stroke="#61D2AE"
-                  strokeWidth="12"
-                  strokeLinecap="round"
-                  pathLength="100"
-                  strokeDasharray={`${parseFloat(dashboardSummary.slaCompliance) || 0} 100`}
-                />
-              </svg>
+                {/* Center Content */}
+                <div className="absolute top-[90px] inset-0 flex flex-col items-center justify-center">
+                  <div className="text-[28px] font-bold leading-none text-[#1E293B]">
+                    {dashboardSummary.slaCompliance}
+                  </div>
 
-              {/* Center Content */}
-              <div className="absolute top-[90px] inset-0 flex flex-col items-center justify-center">
-                <div className="text-[28px] font-bold leading-none text-[#1E293B]">
-                  {dashboardSummary.slaCompliance}
-                </div>
+                  <div className="mt-1 text-[14px] font-medium text-[#64748B]">
+                    SLA Met
+                  </div>
 
-                <div className="mt-1 text-[14px] font-medium text-[#64748B]">
-                  SLA Met
-                </div>
-
-                <div
-                  className="
+                  <div
+                    className="
                     mt-1
                     rounded-xl
                     border
@@ -532,61 +566,78 @@ export default function ManagementDashboard({ data }) {
                     text-[#10B981]
                     shadow-sm
                   "
-                >
-                  Target: ≥90%
+                  >
+                    Target: ≥90%
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
           </div>
 
           {/* HIGH RISK */}
           <div className={cardClass}>
             {/* your existing High Risk Vendor code */}
             <div className="text-[10px] font-bold text-slate-500">
-            HIGH-RISK VENDOR TRENDS
-          </div>
-
-          <div className="mt-1 flex items-center gap-2">
-            <div className="text-[20px] font-bold text-red-500">
-              {dashboardSummary.highRiskVendors}
+              HIGH-RISK VENDOR TRENDS
             </div>
 
-            <span className="rounded bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-500">
-              ↗ {dashboardSummary.highRiskGrowth}
-            </span>
-          </div>
+            <div className="mt-1 flex items-center gap-2">
+              <div className="text-[20px] font-bold text-red-500">
+                {dashboardSummary.highRiskVendors}
+              </div>
 
-          <div className="text-[10px] text-slate-400">
-            vs May 7 – May 13, 2025
-          </div>
+              <span className="rounded bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-500">
+                ↗ {dashboardSummary.highRiskGrowth}
+              </span>
+            </div>
 
-          <div className="mt-3 h-[80px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={vendorTrendData} margin={{ top: 5, right: 10, left: -30, bottom: 5 }}>
-                <defs>
-                  <linearGradient id="colorVendor" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#E57373" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#E57373" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="0" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="name" hide={true} />
-                <YAxis hide={true} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '4px' }}
-                  formatter={(value) => `${value} Vendors`}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="value"
-                  stroke="#E57373"
-                  strokeWidth={2}
-                  fill="url(#colorVendor)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+            <div className="text-[10px] text-slate-400">
+              vs May 7 – May 13, 2025
+            </div>
+
+            <div className="mt-3 h-[80px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={vendorTrendData}
+                  margin={{ top: 5, right: 10, left: -30, bottom: 5 }}
+                >
+                  <defs>
+                    <linearGradient
+                      id="colorVendor"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="5%" stopColor="#E57373" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#E57373" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid
+                    strokeDasharray="0"
+                    vertical={false}
+                    stroke="#f0f0f0"
+                  />
+                  <XAxis dataKey="name" hide={true} />
+                  <YAxis hide={true} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                    }}
+                    formatter={(value) => `${value} Vendors`}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#E57373"
+                    strokeWidth={2}
+                    fill="url(#colorVendor)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
       </div>

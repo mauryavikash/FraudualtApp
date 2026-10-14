@@ -36,12 +36,7 @@ export default function KpiCardsGrid({
 
   return (
     // <div className={`grid grid-cols-2 md:grid-cols-3 ${columns} gap-3`}>
-  <div
-  className="grid gap-3"
-  style={{
-    gridTemplateColumns: `repeat(${items.length}, minmax(0,1fr))`,
-  }}
->
+      <div className={`grid gap-3 ${columns}`}>
         {items.map((item) => {
         const Icon = item.icon;
         return (
@@ -50,22 +45,6 @@ export default function KpiCardsGrid({
             invoiceCount={item.invoiceCount}
             invoiceValue={item.invoiceValue}
           >
-            {/* <div
-              className={`
-                rounded-[10px]
-                border
-                ${style.border}
-                bg-white
-                shadow-[0px_1px_4px_rgba(15,23,42,0.05)]
-                px-2
-                py-2
-                min-h-[105px]
-                flex
-                flex-col
-                justify-between
-              `}
-            > */}
-
             <div
               className="
                 rounded-[10px]

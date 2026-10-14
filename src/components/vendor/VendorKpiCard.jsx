@@ -59,5 +59,5 @@ export const VendorKpiCard = ({ data }) => {
       }))
     : [];
 
-  return <KpiCardsGrid items={kpiData} columns="xl:grid-cols-6" variant="vendor" />;
+  return <KpiCardsGrid items={kpiData} columns="grid-cols-1 md:grid-cols-3 lg:grid-cols-6" variant="vendor" />;
 };

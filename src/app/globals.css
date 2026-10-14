@@ -513,7 +513,7 @@ html.dark .rfq-table th {
   position: absolute;
   top: 0;
   left: -200px;
-  width: 150px; /* animation width */
+  width: 150px;
   height: 100%;
   background: linear-gradient(
     90deg,
@@ -523,7 +523,9 @@ html.dark .rfq-table th {
     rgba(168, 85, 247, 0.2),
     transparent
   );
-  animation: shineMove 4s linear infinite;
+
+  /* Run only once */
+  animation: shineMove 4s linear forwards;
 }
 
 @keyframes shineMove {
@@ -535,6 +537,7 @@ html.dark .rfq-table th {
     left: calc(100% + 200px);
   }
 }
+
 
 
 @media (max-width: 950px) {
