@@ -36,8 +36,8 @@ function normalizeRecovery(recovery) {
   return {
     ...recovery,
     recoveryId: recovery.recoveryId,
-    type: recovery.type?.includes("DUPLICATE") ? "Duplicate" : "Anomaly",
-    status: recovery.status === "CLOSED" ? "Completed" : recovery.status,
+    type: recovery.type,
+    status: recovery.status,
     vendor: recovery.vendor || "-",
     relatedCaseId: recovery.originalPaymentId ?? "-",
     amount: formatCurrency(recovery.amount),
@@ -325,11 +325,11 @@ export default function Recoveries() {
 
                       <td className="px-3">
                         <div className="flex items-center gap-1.5 text-[12px] text-[#334155] whitespace-nowrap">
-                          {row.type === "Duplicate" ? (
+                          {/* {row.type === "Duplicate" ? (
                             <RefreshCw size={12} className="text-[#3B82F6]" />
                           ) : (
                             <TriangleAlert size={12} className="text-[#F59E0B]" />
-                          )}
+                          )} */}
                           {row.type}
                         </div>
                       </td>
