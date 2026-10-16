@@ -18,18 +18,18 @@ export default function DashboardPage() {
   const [homeData, setHomeData] = useState(null);
 
   const loggedInUser = useMemo(() => {
-  if (typeof window === "undefined") return null;
+    if (typeof window === "undefined") return null;
 
-  const user = sessionStorage.getItem("user");
-  return user ? JSON.parse(user) : null;
-}, []);
+    const user = sessionStorage.getItem("user");
+    return user ? JSON.parse(user) : null;
+  }, []);
   useEffect(() => {
-  const isLoggedIn = sessionStorage.getItem("isLoggedIn");
+    const isLoggedIn = sessionStorage.getItem("isLoggedIn");
 
-  if (isLoggedIn !== "true") {
-    router.replace("/login");
-  }
-}, []);
+    if (isLoggedIn !== "true") {
+      router.replace("/login");
+    }
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -59,43 +59,40 @@ export default function DashboardPage() {
 
   const headerData = homeData.header ?? {};
   const userName =
-  headerData.userName ??
-  homeData.userName ??
-  loggedInUser?.first_name ??
-  "User";
-  const dateRange = headerData.dateRange ?? homeData.dateRange ?? "May 14 – May 20, 2025";
-
+    headerData.userName ??
+    homeData.userName ??
+    loggedInUser?.first_name ??
+    "User";
+  const dateRange =
+    headerData.dateRange ?? homeData.dateRange ?? "May 14 – May 20, 2025";
 
   return (
     <div className="min-h-screen text-slate-800">
       <div className="mx-auto max-w-[1800px] space-y-3">
-      
         {/* HEADER */}
-       <div className="contentHeader rounded-2xl border border-slate-200 bg-white px-4 py-4">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          
-          {/* Left Content */}
-          <div>
-            <h1 className="text-[20px] font-semibold text-[#0F172A]">
-              Welcome back, {userName}! 👋
-            </h1>
+        <div className="contentHeader rounded-2xl border border-slate-200 bg-white px-4 py-4">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            {/* Left Content */}
+            <div>
+              <h1 className="text-[20px] font-semibold text-[#0F172A]">
+                Welcome back, {userName}! 👋
+              </h1>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Monitor operations, track performance, and drive value across the
-              duplicate & anomaly management lifecycle.
-            </p>
-          </div>
+              <p className="mt-1 text-sm text-slate-500">
+                Monitor operations, track performance, and drive value across
+                the duplicate & anomaly management lifecycle.
+              </p>
+            </div>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-3">
-            
-            {/* Date Range */}
-            {/* <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+            {/* Right Actions */}
+            <div className="flex items-center gap-3">
+              {/* Date Range */}
+              {/* <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
               <CalendarDays size={16} />
               <span>{dateRange}</span>
               <ChevronDown size={14} />
             </button> */}
-            {/* <div className="flex gap-2">
+              {/* <div className="flex gap-2">
               <button
                 onClick={downloadExcel}
                 className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
@@ -103,11 +100,10 @@ export default function DashboardPage() {
                 Download Excel
               </button>
             </div> */}
+            </div>
           </div>
-
         </div>
-      </div>
-      
+
         {/* KPI CARDS */}
         <DashboardKpiCards data={homeData.kpiCards} />
 
@@ -115,7 +111,7 @@ export default function DashboardPage() {
 
         {/* MANAGEMENT DASHBOARD */}
         <ManagementDashboard data={homeData.managementDashboard} />
-                    
+
         {/* OPERATIONAL REPORTING & AUDIT ACTIVITIES */}
         {/* <div className="grid grid-cols-12 gap-4">
           <OperationalReporting data={homeData.operationalReports} />
