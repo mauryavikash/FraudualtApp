@@ -6,24 +6,24 @@ const VARIANTS = {
     // border: "border-[2px] border-[#103feb]",
     titleClass:
       "text-[10px] font-bold uppercase tracking-[0.06em] text-[#64748B] leading-tight",
-    iconBox: "h-8 w-8",
+    iconBox: "h-7 w-7",
     iconSize: 15,
-    valueClass: "text-[22px] leading-[26px]",
+    valueClass: "text-[16px] leading-[20px]",
   },
   audit: {
     // border: "border-[2px] border-[#103feb]",
     titleClass: "text-[12px] font-medium text-[#475569]",
     iconBox: "h-7 w-7",
     iconSize: 14,
-    valueClass: "text-[22px] leading-[26px]",
+    valueClass: "text-[16px] leading-[20px]",
   },
   vendor: {
     // border: "border-[2px] border-[#103feb]",
     titleClass:
       "text-[10px] font-bold uppercase tracking-[0.06em] text-[#64748B]",
-    iconBox: "h-8 w-8",
+    iconBox: "h-7 w-7",
     iconSize: 15,
-    valueClass: "text-[24px] leading-[28px]",
+    valueClass: "text-[16px] leading-[20px]",
   },
 };
 
@@ -52,7 +52,7 @@ export default function KpiCardsGrid({
                 shadow-[0px_1px_4px_rgba(15,23,42,0.05)]
                 px-2
                 py-2
-                min-h-[105px]
+                min-h-[110px]
                 flex
                 flex-col
                 justify-between
@@ -69,7 +69,7 @@ export default function KpiCardsGrid({
             >
 
             
-              <div className="flex items-start justify-between gap-2">
+              <div className="flex items-start break-all justify-between gap-1">
                 <p className={style.titleClass}>{item.title}</p>
 
                 {Icon && (

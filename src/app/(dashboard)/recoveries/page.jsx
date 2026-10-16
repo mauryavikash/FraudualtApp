@@ -35,15 +35,15 @@ function normalizeRecovery(recovery) {
 
   return {
     ...recovery,
-    recoveryId: `REC-${String(recovery.recoveryId).padStart(8, "0")}`,
+    recoveryId: recovery.recoveryId,
     type: recovery.type?.includes("DUPLICATE") ? "Duplicate" : "Anomaly",
     status: recovery.status === "CLOSED" ? "Completed" : recovery.status,
     vendor: recovery.vendor || "-",
-    relatedCaseId: recovery.relatedCaseId ?? "-",
+    relatedCaseId: recovery.originalPaymentId ?? "-",
     amount: formatCurrency(recovery.amount),
-    recoveryDate: formatDate(recovery.recoveredOn),
+    recoveryDate: formatDate(recovery.paymentDate),
     slaDue: recovery.slaDue ? formatDate(recovery.slaDue) : "-",
-    investigator: recovery.investigator ?? "Unassigned",
+    investigator: recovery.investigator,
   };
 }
 
@@ -379,9 +379,9 @@ export default function Recoveries() {
                         {row.investigator}
                       </td>
 
-                      <td className="pr-4">
+                      {/* <td className="pr-4">
                         <MoreVertical size={15} className="text-[#94A3B8]" />
-                      </td>
+                      </td> */}
                     </tr>
                   ))}
                 </tbody>
