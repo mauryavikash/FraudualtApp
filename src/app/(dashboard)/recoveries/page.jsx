@@ -174,273 +174,281 @@ export default function Recoveries() {
           priorities={recoveriesData.recoveriesByPriority}
           metrics={recoveriesData.recoveryMetrics}
         />
-
-        <div className="mt-4 grid grid-cols-12 gap-4">
+        <div className="mt-4 grid grid-cols-12 gap-4 items-stretch">
+        {/* <div className="mt-4 grid grid-cols-12 gap-4"> */}
           {/* CONTENT */}
           <div className="col-span-12 lg:col-span-8">
-          <div
-            className="
-            h-full
-            bg-white
-            rounded-[16px]
-            border
-            border-[#D9E1EA]
-            shadow-[0px_2px_8px_rgba(15,23,42,0.05)]
-            overflow-hidden
-            "
-            >
-            {/* Tabs */}
-            <div className="px-5 pt-4 border-b border-[#E2E8F0] overflow-x-auto">
-              <div className="flex gap-5 whitespace-nowrap">
-                {TABS.map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => {
-                      setActiveTab(tab);
-                      setPage(1);
-                    }}
-                    className={`pb-3 text-[13px] font-medium transition-all ${
-                      activeTab === tab
-                        ? "text-[#2563EB] border-b-2 border-[#2563EB]"
-                        : "text-[#475569]"
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Filters */}
-            <div className="px-5 py-4 border-b border-[#E2E8F0]">
-              <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-                <FilterSelect
-                  label="Status"
-                  value={statusFilter}
-                  onChange={(e) => {
-                    setStatusFilter(e.target.value);
-                    setPage(1);
-                  }}
-                >
-                  <option>All</option>
-                  <option>IDENTIFIED</option>
-                  <option>COMPLETED</option>
-                  <option>FAILED</option>
-                </FilterSelect>
-
-                <FilterSelect
-                  label="Recovery Type"
-                  value={typeFilter}
-                  onChange={(e) => {
-                    setTypeFilter(e.target.value);
-                    setPage(1);
-                  }}
-                >
-                  <option>All</option>
-                  <option>Duplicate</option>
-                  <option>Anomaly</option>
-                </FilterSelect>
-
-                <FilterSelect
-                  label="Source"
-                  value={sourceFilter}
-                  onChange={(e) => setSourceFilter(e.target.value)}
-                >
-                  <option>All</option>
-                  <option>SAP</option>
-                  <option>Oracle</option>
-                </FilterSelect>
-
-                <FilterSelect label="Vendor">
-                  <option>Select vendor</option>
-                </FilterSelect>
-
-                <FilterSelect
-                  label="Investigator"
-                  value={investigatorFilter}
-                  onChange={(e) => {
-                    setInvestigatorFilter(e.target.value);
-                    setPage(1);
-                  }}
-                >
-                  <option>All</option>
-                  <option>Sarah Johnson</option>
-                  <option>Michael Brown</option>
-                  <option>Priya Nair</option>
-                  <option>David Lee</option>
-                  <option>Emma Wilson</option>
-                </FilterSelect>
-
-                <div className="flex items-end">
-                  <button className="h-9 w-full px-4 rounded-xl border border-[#D9E1EA] text-[12px] font-medium text-[#475569]">
-                    More Filters
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* TABLE */}
-            <div className="overflow-x-auto flex-1 min-h-[550px]">
-              <table className="w-full">
-                <thead>
-                  <tr className="h-[42px] border-b border-[#E2E8F0]">
-                    <th className="w-12 px-5">
-                      <input type="checkbox" aria-label="Select all recoveries" />
-                    </th>
-
-                    {[
-                      "RECOVERY ID",
-                      "TYPE",
-                      "STATUS",
-                      "VENDOR",
-                      "RELATED CASE ID",
-                      "AMOUNT (USD)",
-                      "RECOVERY DATE",
-                      "SLA DUE",
-                      "INVESTIGATOR",
-                    ].map((item) => (
-                      <th
-                        key={item}
-                        className="px-3 text-left text-[10px] font-bold uppercase tracking-[0.08em] text-[#64748B] whitespace-nowrap"
-                      >
-                        {item}
-                      </th>
-                    ))}
-
-                    <th className="w-10" />
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {paginatedData.map((row) => (
-                    <tr
-                      key={row.recoveryId}
-                      onClick={() => setSelectedRecovery(row)}
-                      className={`h-[52px] border-b border-[#E2E8F0] hover:bg-[#F8FAFC] cursor-pointer transition-colors ${
-                        selectedRecovery?.recoveryId === row.recoveryId
-                          ? "bg-[#F8FAFC]"
-                          : ""
+            <div
+                className="
+                h-full
+                flex
+                flex-col
+                bg-white
+                rounded-[16px]
+                border
+                border-[#D9E1EA]
+                shadow-[0px_2px_8px_rgba(15,23,42,0.05)]
+                overflow-hidden
+              "
+              >
+              {/* Tabs */}
+              <div className="px-5 pt-4 border-b border-[#E2E8F0] overflow-x-auto">
+                <div className="flex gap-5 whitespace-nowrap">
+                  {TABS.map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => {
+                        setActiveTab(tab);
+                        setPage(1);
+                      }}
+                      className={`pb-3 text-[13px] font-medium transition-all ${
+                        activeTab === tab
+                          ? "text-[#2563EB] border-b-2 border-[#2563EB]"
+                          : "text-[#475569]"
                       }`}
                     >
-                      <td className="px-5">
-                        <input
-                          type="checkbox"
-                          onClick={(e) => e.stopPropagation()}
-                          aria-label={`Select recovery ${row.recoveryId}`}
-                        />
-                      </td>
-
-                      <td className="px-3 text-[12px] font-semibold text-[#2563EB] whitespace-nowrap">
-                        {row.recoveryId}
-                      </td>
-
-                      <td className="px-3">
-                        <div className="flex items-center gap-1.5 text-[12px] text-[#334155] whitespace-nowrap">
-                          {/* {row.type === "Duplicate" ? (
-                            <RefreshCw size={12} className="text-[#3B82F6]" />
-                          ) : (
-                            <TriangleAlert size={12} className="text-[#F59E0B]" />
-                          )} */}
-                          {row.type}
-                        </div>
-                      </td>
-
-                      <td className="px-3">
-                        <span
-                          className={`px-2.5 py-[2px] rounded-md text-[10px] font-semibold whitespace-nowrap ${statusClass(
-                            row.status
-                          )}`}
-                        >
-                          {row.status}
-                        </span>
-                      </td>
-
-                      <td className="px-3 text-[12px] text-[#334155] whitespace-nowrap">
-                        {row.vendor}
-                      </td>
-
-                      <td className="px-3 text-[12px] font-medium text-[#2563EB] whitespace-nowrap">
-                        {row.relatedCaseId}
-                      </td>
-
-                      <td className="px-3 text-[12px] font-semibold text-[#0F172A] whitespace-nowrap">
-                        {row.amount}
-                      </td>
-
-                      <td className="px-3 text-[12px] text-[#64748B] whitespace-nowrap">
-                        {row.recoveryDate}
-                      </td>
-
-                      <td className="px-3 whitespace-nowrap">
-                        <div className="text-[12px] text-[#334155]">{row.slaDue}</div>
-                        {row.slaState && (
-                          <div
-                            className={`text-[10px] font-semibold ${
-                              row.slaState === "Overdue"
-                                ? "text-[#EF4444]"
-                                : "text-[#F59E0B]"
-                            }`}
-                          >
-                            {row.slaState}
-                          </div>
-                        )}
-                      </td>
-
-                      <td className="px-3 text-[12px] text-[#64748B] whitespace-nowrap">
-                        {row.investigator}
-                      </td>
-
-                      {/* <td className="pr-4">
-                        <MoreVertical size={15} className="text-[#94A3B8]" />
-                      </td> */}
-                    </tr>
+                      {tab}
+                    </button>
                   ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination */}
-            <div className="border-t border-[#E2E8F0] px-5 py-3 flex items-center justify-between flex-wrap gap-2">
-              <div className="text-[12px] text-[#64748B]">
-                Showing {(page - 1) * pageSize + 1} to{" "}
-                {Math.min(page * pageSize, filteredData.length)} of{" "}
-                {filteredData.length.toLocaleString()} recoveries
+                </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="w-7 h-7 rounded-lg border border-[#D9E1EA] text-[#475569]"
-                >
-                  ‹
-                </button>
-
-                {Array.from({ length: totalPages }, (_, index) => index + 1).map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => setPage(n)}
-                    className={`w-7 h-7 rounded-lg text-[12px] font-medium ${
-                      page === n
-                        ? "bg-[#2563EB] text-white"
-                        : "border border-[#D9E1EA] text-[#475569]"
-                    }`}
+              {/* Filters */}
+              <div className="px-5 py-4 border-b border-[#E2E8F0]">
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+                  <FilterSelect
+                    label="Status"
+                    value={statusFilter}
+                    onChange={(e) => {
+                      setStatusFilter(e.target.value);
+                      setPage(1);
+                    }}
                   >
-                    {n}
-                  </button>
-                ))}
+                    <option>All</option>
+                    <option>IDENTIFIED</option>
+                    <option>COMPLETED</option>
+                    <option>FAILED</option>
+                  </FilterSelect>
 
-                <button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="w-7 h-7 rounded-lg border border-[#D9E1EA] text-[#475569]"
-                >
-                  ›
-                </button>
+                  <FilterSelect
+                    label="Recovery Type"
+                    value={typeFilter}
+                    onChange={(e) => {
+                      setTypeFilter(e.target.value);
+                      setPage(1);
+                    }}
+                  >
+                    <option>All</option>
+                    <option>Duplicate</option>
+                    <option>Anomaly</option>
+                  </FilterSelect>
 
-                <select className="h-7 rounded-lg border border-[#D9E1EA] px-2 text-[12px]">
-                  <option>10 / page</option>
-                </select>
+                  <FilterSelect
+                    label="Source"
+                    value={sourceFilter}
+                    onChange={(e) => setSourceFilter(e.target.value)}
+                  >
+                    <option>All</option>
+                    <option>SAP</option>
+                    <option>Oracle</option>
+                  </FilterSelect>
+
+                  <FilterSelect label="Vendor">
+                    <option>Select vendor</option>
+                  </FilterSelect>
+
+                  <FilterSelect
+                    label="Investigator"
+                    value={investigatorFilter}
+                    onChange={(e) => {
+                      setInvestigatorFilter(e.target.value);
+                      setPage(1);
+                    }}
+                  >
+                    <option>All</option>
+                    <option>Sarah Johnson</option>
+                    <option>Michael Brown</option>
+                    <option>Priya Nair</option>
+                    <option>David Lee</option>
+                    <option>Emma Wilson</option>
+                  </FilterSelect>
+
+                  <div className="flex items-end">
+                    <button className="h-9 w-full px-4 rounded-xl border border-[#D9E1EA] text-[12px] font-medium text-[#475569]">
+                      More Filters
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+
+              {/* TABLE */}
+              <div className="overflow-x-auto flex-1 min-h-[550px]">
+                <table className="w-full">
+                  <thead>
+                    <tr className="h-[42px] border-b border-[#E2E8F0]">
+                      <th className="w-12 px-5">
+                        <input type="checkbox" aria-label="Select all recoveries" />
+                      </th>
+
+                      {[
+                        "RECOVERY ID",
+                        "TYPE",
+                        "STATUS",
+                        "VENDOR",
+                        "RELATED CASE ID",
+                        "AMOUNT (USD)",
+                        "RECOVERY DATE",
+                        "SLA DUE",
+                        "INVESTIGATOR",
+                      ].map((item) => (
+                        <th
+                          key={item}
+                          className="px-3 text-left text-[10px] font-bold uppercase tracking-[0.08em] text-[#64748B] whitespace-nowrap"
+                        >
+                          {item}
+                        </th>
+                      ))}
+
+                      <th className="w-10" />
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {paginatedData.map((row) => (
+                      <tr
+                        key={row.recoveryId}
+                        onClick={() => setSelectedRecovery(row)}
+                        className={`h-[52px] border-b border-[#E2E8F0] hover:bg-[#F8FAFC] cursor-pointer transition-colors ${
+                          selectedRecovery?.recoveryId === row.recoveryId
+                            ? "bg-[#F8FAFC]"
+                            : ""
+                        }`}
+                      >
+                        <td className="px-5">
+                          {/* <input
+                            type="checkbox"
+                            onClick={(e) => e.stopPropagation()}
+                            aria-label={`Select recovery ${row.recoveryId}`}
+                          /> */}
+                          <input
+                            type="checkbox"
+                            checked={selectedRecovery?.recoveryId === row.recoveryId}
+                            onChange={() => setSelectedRecovery(row)}
+                            aria-label={`Select recovery ${row.recoveryId}`}
+                          />
+                        </td>
+
+                        <td className="px-3 text-[12px] font-semibold text-[#2563EB] whitespace-nowrap">
+                          {row.recoveryId}
+                        </td>
+
+                        <td className="px-3">
+                          <div className="flex items-center gap-1.5 text-[12px] text-[#334155] whitespace-nowrap">
+                            {/* {row.type === "Duplicate" ? (
+                              <RefreshCw size={12} className="text-[#3B82F6]" />
+                            ) : (
+                              <TriangleAlert size={12} className="text-[#F59E0B]" />
+                            )} */}
+                            {row.type}
+                          </div>
+                        </td>
+
+                        <td className="px-3">
+                          <span
+                            className={`px-2.5 py-[2px] rounded-md text-[10px] font-semibold whitespace-nowrap ${statusClass(
+                              row.status
+                            )}`}
+                          >
+                            {row.status}
+                          </span>
+                        </td>
+
+                        <td className="px-3 text-[12px] text-[#334155] whitespace-nowrap">
+                          {row.vendor}
+                        </td>
+
+                        <td className="px-3 text-[12px] font-medium text-[#2563EB] whitespace-nowrap">
+                          {row.relatedCaseId}
+                        </td>
+
+                        <td className="px-3 text-[12px] font-semibold text-[#0F172A] whitespace-nowrap">
+                          {row.amount}
+                        </td>
+
+                        <td className="px-3 text-[12px] text-[#64748B] whitespace-nowrap">
+                          {row.recoveryDate}
+                        </td>
+
+                        <td className="px-3 whitespace-nowrap">
+                          <div className="text-[12px] text-[#334155]">{row.slaDue}</div>
+                          {row.slaState && (
+                            <div
+                              className={`text-[10px] font-semibold ${
+                                row.slaState === "Overdue"
+                                  ? "text-[#EF4444]"
+                                  : "text-[#F59E0B]"
+                              }`}
+                            >
+                              {row.slaState}
+                            </div>
+                          )}
+                        </td>
+
+                        <td className="px-3 text-[12px] text-[#64748B] whitespace-nowrap">
+                          {row.investigator}
+                        </td>
+
+                        {/* <td className="pr-4">
+                          <MoreVertical size={15} className="text-[#94A3B8]" />
+                        </td> */}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              <div className="border-t border-[#E2E8F0] px-5 py-3 flex items-center justify-between flex-wrap gap-2">
+                <div className="text-[12px] text-[#64748B]">
+                  Showing {(page - 1) * pageSize + 1} to{" "}
+                  {Math.min(page * pageSize, filteredData.length)} of{" "}
+                  {filteredData.length.toLocaleString()} recoveries
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    className="w-7 h-7 rounded-lg border border-[#D9E1EA] text-[#475569]"
+                  >
+                    ‹
+                  </button>
+
+                  {Array.from({ length: totalPages }, (_, index) => index + 1).map((n) => (
+                    <button
+                      key={n}
+                      onClick={() => setPage(n)}
+                      className={`w-7 h-7 rounded-lg text-[12px] font-medium ${
+                        page === n
+                          ? "bg-[#2563EB] text-white"
+                          : "border border-[#D9E1EA] text-[#475569]"
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    className="w-7 h-7 rounded-lg border border-[#D9E1EA] text-[#475569]"
+                  >
+                    ›
+                  </button>
+
+                  <select className="h-7 rounded-lg border border-[#D9E1EA] px-2 text-[12px]">
+                    <option>10 / page</option>
+                  </select>
+                </div>
+              </div>
           </div>
 
           {/* <RecoveriesCharts

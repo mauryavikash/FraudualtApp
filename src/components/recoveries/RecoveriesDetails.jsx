@@ -29,8 +29,9 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
   const isClosed = selected.status === "Completed";
 
   return (
-    <div className="w-full flex flex-col bg-white rounded-[16px] border border-[#D9E1EA] shadow-[0px_2px_8px_rgba(15,23,42,0.05)] overflow-hidden">
-      {/* Header */}
+    // <div className="w-full flex flex-col bg-white rounded-[16px] border border-[#D9E1EA] shadow-[0px_2px_8px_rgba(15,23,42,0.05)] overflow-hidden">
+      <div className="w-full h-full flex flex-col bg-white rounded-[16px] border border-[#D9E1EA] shadow-[0px_2px_8px_rgba(15,23,42,0.05)] overflow-hidden">
+    {/* Header */}
       <div className="px-4 pt-4">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
@@ -75,7 +76,8 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
       </div>
 
       {/* Overview */}
-      <div className="px-4 pt-4 flex-1 overflow-y-auto">
+      <div className="px-4 pt-4 flex-1 min-h-0 overflow-y-auto">
+
         <div className="flex flex-col gap-2.5 text-[12px]">
           <MetaRow label="Recovery Type" value={selected.type} />
           <MetaRow
