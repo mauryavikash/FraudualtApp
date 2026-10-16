@@ -13,11 +13,9 @@ import { getRecoveries } from "@/app/lib/api";
 
 const TABS = [
   "All Recoveries",
-  "In Progress",
-  "Completed",
-  "Failed",
-  // "Written Off",
-  // "Prevention (Duplicates Stopped)",
+  "IDENTIFIED",
+  "COMPLETED",
+  "FAILED",
 ];
 
 const formatCurrency = (value) => new Intl.NumberFormat("en-US", {
@@ -29,34 +27,38 @@ const formatCurrency = (value) => new Intl.NumberFormat("en-US", {
 const formatDate = (value) => value ? new Date(value).toLocaleDateString() : "-";
 
 function normalizeRecovery(recovery) {
-  if (!recovery) {
-    return null;
-  }
+  if (!recovery) return null;
 
   return {
-    ...recovery,
     recoveryId: recovery.recoveryId,
-    type: recovery.type,
-    status: recovery.status,
+    caseId: recovery.caseId,
+    type: recovery.type?.replaceAll("_", " "),
+    status: recovery.status?.replaceAll("_", " "),
     vendor: recovery.vendor || "-",
-    relatedCaseId: recovery.originalPaymentId ?? "-",
+    relatedCaseId: recovery.originalPaymentId || "-",
     amount: formatCurrency(recovery.amount),
     recoveryDate: formatDate(recovery.paymentDate),
-    slaDue: recovery.slaDue ? formatDate(recovery.slaDue) : "-",
-    investigator: recovery.investigator,
+    slaDue: recovery.recoveredOn
+      ? formatDate(recovery.recoveredOn)
+      : "-",
+    investigator: recovery.investigator || "-",
+    sourceSystem: recovery.sourceSystem || "-",
+    recoveryMethod: recovery.recoveryMethod || "-",
+    invoiceImageUrl: recovery.invoice_image_url || "",
   };
 }
 
 const statusClass = (status) => {
   switch (status) {
-    case "Completed":
-      return "bg-[#D1FAE5] text-[#10B981]";
-    case "In Progress":
+    case "IDENTIFIED":
       return "bg-[#DBEAFE] text-[#2563EB]";
-    case "Failed":
+
+    case "COMPLETED":
+      return "bg-[#D1FAE5] text-[#10B981]";
+
+    case "FAILED":
       return "bg-[#FEE2E2] text-[#EF4444]";
-    case "Written Off":
-      return "bg-[#F1F5F9] text-[#64748B]";
+
     default:
       return "bg-[#F1F5F9] text-[#64748B]";
   }
@@ -95,7 +97,12 @@ export default function Recoveries() {
       if (isMounted) {
         const payload = data?.data ?? data;
         setRecoveriesData(payload);
-        setSelectedRecovery(normalizeRecovery(payload.recoveryDetails));
+        // setSelectedRecovery(normalizeRecovery(payload.recoveryDetails));
+        const normalizedRecoveries = (payload.recoveryDetails || []).map(normalizeRecovery);
+        setSelectedRecovery(
+          normalizedRecoveries.length > 0 ? normalizedRecoveries[0] : null
+        );
+
       }
     }).catch(() => {
       if (isMounted) {
@@ -109,9 +116,10 @@ export default function Recoveries() {
   }, []);
 
   const recoveryData = useMemo(() => {
-    const recovery = normalizeRecovery(recoveriesData?.recoveryDetails);
-    return recovery ? [recovery] : [];
-  }, [recoveriesData]);
+  return (recoveriesData?.recoveryDetails || [])
+    .map(normalizeRecovery)
+    .filter(Boolean);
+}, [recoveriesData]);
 
   const filteredData = useMemo(() => {
     return recoveryData.filter((item) => {
@@ -139,6 +147,10 @@ export default function Recoveries() {
     });
   }, [search, activeTab, statusFilter, typeFilter, sourceFilter, investigatorFilter, recoveryData]);
 
+  const paginatedData = useMemo(() => {
+  const start = (page - 1) * pageSize;
+  return filteredData.slice(start, start + pageSize);
+}, [filteredData, page, pageSize]);
   const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
 
   if (!recoveriesData) {
@@ -211,10 +223,9 @@ export default function Recoveries() {
                   }}
                 >
                   <option>All</option>
-                  <option>Completed</option>
-                  <option>In Progress</option>
-                  <option>Failed</option>
-                  <option>Written Off</option>
+                  <option>IDENTIFIED</option>
+                  <option>COMPLETED</option>
+                  <option>FAILED</option>
                 </FilterSelect>
 
                 <FilterSelect
@@ -301,7 +312,7 @@ export default function Recoveries() {
                 </thead>
 
                 <tbody>
-                  {filteredData.map((row) => (
+                  {paginatedData.map((row) => (
                     <tr
                       key={row.recoveryId}
                       onClick={() => setSelectedRecovery(row)}
