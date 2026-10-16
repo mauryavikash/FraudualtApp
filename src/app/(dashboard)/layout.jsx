@@ -50,7 +50,7 @@ import Sidebar from '../../components/layout/sidebar';
 import AiCopilot from '../../components/layout/AiCopilot';
 import { Toaster } from "sonner";
 export default function DashboardLayout({ children }) {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [loading, setLoading] = useState(true);
 
     const router = useRouter();

@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import {
   ChevronDown,
   ChevronRight,
@@ -42,9 +44,90 @@ export default function VendorInsight({ vendor }) {
     .join("")
     .slice(0, 2);
   const exceptionInvoices = (vendor.invoices ?? []).filter(
-    (invoice) => invoice.deviation
+    (invoice) => invoice.deviation,
   );
 
+  const VendorDetailDownload = () => {
+    const doc = new jsPDF("landscape");
+
+    doc.setFontSize(18);
+    doc.text("Vendor Exceptions Report", 14, 15);
+
+    doc.setFontSize(10);
+    doc.text(`Vendor ID: ${vendor.vendorId || "-"}`, 14, 25);
+    const tableRows = exceptionInvoices.map((invoice) => [
+      invoice.posted || "-",
+      vendor.vendorName || "-",
+      invoice.invoiceNo || invoice.invoice_no || "-",
+      invoice.docNo || "-",
+      invoice.invDate || "-",
+      invoice.amount || "-",
+      invoice.category || "-",
+      invoice.costCenter || "-",
+      invoice.glAccount || "-",
+      invoice.risk || "-",
+      invoice.text || "-",
+    ]);
+
+    autoTable(doc, {
+      startY: 35,
+
+      head: [
+        [
+          "Posted",
+          "Vendor",
+          "Invoice No.",
+          "Doc No.",
+          "Inv Date",
+          "Amount",
+          "Category",
+          "Cost Center",
+          "GL Account",
+          "Risk",
+          "Text",
+        ],
+      ],
+
+      body: tableRows,
+
+      theme: "grid",
+
+      styles: {
+        fontSize: 9,
+        cellPadding: 3,
+        overflow: "linebreak",
+        valign: "middle",
+      },
+
+      headStyles: {
+        fillColor: [1, 212, 209], // Same blue/turquoise as Case Detail page
+        textColor: [255, 255, 255],
+        fontStyle: "bold",
+        halign: "center",
+      },
+
+      columnStyles: {
+        0: { cellWidth: 20 }, // Posted
+        1: { cellWidth: 40 }, // Vendor
+        2: { cellWidth: 30 }, // Invoice
+        3: { cellWidth: 20 }, // Doc No
+        4: { cellWidth: 20 }, // Inv Date
+        5: { cellWidth: 20 }, // Amount
+        6: { cellWidth: 35 }, // Category
+        7: { cellWidth: 20 }, // Cost Center
+        8: { cellWidth: 20 }, // GL Account
+        9: { cellWidth: 20 }, // Risk
+        10: { cellWidth: 40 }, // Text
+      },
+
+      margin: {
+        left: 10,
+        right: 10,
+      },
+    });
+
+    doc.save(`${vendor.vendorId || "Vendor"}_Exceptions.pdf`);
+  };
   return (
     <aside className="flex h-full flex-col overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm">
       {/* HEADER */}
@@ -59,9 +142,7 @@ export default function VendorInsight({ vendor }) {
               Vendor {vendor.vendorId}
             </h2>
 
-            <p className="text-[10px] text-slate-500">
-              {vendor.vendorName}
-            </p>
+            <p className="text-[10px] text-slate-500">{vendor.vendorName}</p>
 
             <p className="mt-1 flex items-center gap-1 text-[10px] text-emerald-600">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -82,9 +163,9 @@ export default function VendorInsight({ vendor }) {
       >
         {[
           ["overview", "Overview"],
-          ["deviations", `Deviations (${vendor.issues})`],
-          ["invoices", `Invoices (${vendor.summary.invoices})`],
-          ["history", "History"],
+          // ["deviations", `Deviations (${vendor.issues})`],
+          // ["invoices", `Invoices (${vendor.summary.invoices})`],
+          // ["history", "History"],
         ].map(([id, label]) => (
           <button
             key={id}
@@ -108,8 +189,7 @@ export default function VendorInsight({ vendor }) {
             {/* {vendor.deviations.map((deviation) => { */}
             {(vendor?.deviations || []).map((deviation) => {
               const visual =
-                deviationVisuals[deviation.type] ??
-                deviationVisuals.invoice;
+                deviationVisuals[deviation.type] ?? deviationVisuals.invoice;
 
               const Icon = visual.icon;
 
@@ -139,10 +219,7 @@ export default function VendorInsight({ vendor }) {
                     </span>
                   </span>
 
-                  <ChevronRight
-                    size={15}
-                    className="text-slate-400"
-                  />
+                  <ChevronRight size={15} className="text-slate-400" />
                 </button>
               );
             })}
@@ -184,68 +261,127 @@ export default function VendorInsight({ vendor }) {
           <ChevronDown size={13} />
         </button> */}
       </footer>
-      {isExceptionsOpen && typeof document !== "undefined" && createPortal(
-        <div
-          role="presentation"
-          onClick={() => setIsExceptionsOpen(false)}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 p-4"
-        >
-          <section
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="vendor-exceptions-title"
-            onClick={(event) => event.stopPropagation()}
-            className="w-full max-w-4xl overflow-hidden rounded-lg bg-white shadow-xl"
+      {isExceptionsOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            role="presentation"
+            onClick={() => setIsExceptionsOpen(false)}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 p-4"
           >
-            <header className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Vendor exceptions</p>
-                <h2 id="vendor-exceptions-title" className="mt-1 text-lg font-semibold text-slate-900">
-                  {vendor.vendorName}
-                </h2>
-              </div>
-              <button
-                type="button"
-                aria-label="Close vendor exceptions"
-                onClick={() => setIsExceptionsOpen(false)}
-                className="rounded-md p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-              >
-                <X size={20} />
-              </button>
-            </header>
+            <section
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="vendor-exceptions-title"
+              onClick={(event) => event.stopPropagation()}
+              className="w-full max-w-4xl overflow-hidden rounded-lg bg-white shadow-xl"
+            >
+              <header className="flex justify-between border-b border-slate-200 px-5 py-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Vendor exceptions
+                  </p>
 
-            <div className="max-h-[60vh] overflow-auto p-5">
-              <table className="w-full min-w-[620px] text-left text-sm">
-                <thead className="border-b bg-slate-100 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  <tr>
-                    <th className="px-3 py-2">Invoice no.</th>
-                    <th className="px-3 py-2">Posted</th>
-                    <th className="px-3 py-2">Category</th>
-                    <th className="px-3 py-2">Amount</th>
-                    <th className="px-3 py-2">Risk</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {exceptionInvoices.map((invoice) => (
-                    <tr key={invoice.id} className="border-b border-slate-100 text-slate-700">
-                      <td className="px-3 py-3">{invoice.invoiceNo ?? invoice.invoice_no ?? "-"}</td>
-                      <td className="px-3 py-3">{invoice.posted ?? invoice.posted_date ?? "-"}</td>
-                      <td className="px-3 py-3">{invoice.category ?? invoice.deviation}</td>
-                      <td className="px-3 py-3 font-semibold">{invoice.amount ?? "-"}</td>
-                      <td className="px-3 py-3">{invoice.risk ?? "-"}</td>
+                  <h2
+                    id="vendor-exceptions-title"
+                    className="mt-1 text-lg font-semibold text-slate-900"
+                  >
+                    {vendor.vendorName}
+                  </h2>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    aria-label="Download PDF"
+                    onClick={VendorDetailDownload}
+                    className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                  >
+                    <Download size={20} />
+                  </button>
+
+                  <button
+                    type="button"
+                    aria-label="Close vendor exceptions"
+                    onClick={() => setIsExceptionsOpen(false)}
+                    className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </header>
+
+              <div className="max-h-[60vh] overflow-auto p-5">
+                <table className="w-full min-w-[620px] text-left text-sm">
+                  <thead className="border-b bg-slate-100 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <tr>
+                      <th className="px-3 py-2">Posted</th>
+                      <th className="px-3 py-2">Vendor</th>
+                      <th className="px-3 py-2">Invoice No.</th>
+                      <th className="px-3 py-2">Doc No.</th>
+                      <th className="px-3 py-2">Inv Date</th>
+                      <th className="px-3 py-2">Amount</th>
+                      <th className="px-3 py-2">Category</th>
+                      <th className="px-3 py-2">Cost Center</th>
+                      <th className="px-3 py-2">GL Account</th>
+                      <th className="px-3 py-2">Risk</th>
+                      <th className="px-3 py-2">Text</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {exceptionInvoices.map((invoice) => (
+                      <tr
+                        key={invoice.id}
+                        className="border-b border-slate-100 text-slate-700"
+                      >
+                        <td className="px-3 py-3">{invoice.posted ?? "-"}</td>
 
-              {exceptionInvoices.length === 0 && (
-                <p className="py-10 text-center text-sm text-slate-500">No exceptions found for this vendor.</p>
-              )}
-            </div>
-          </section>
-        </div>,
-        document.body
-      )}
+                        <td className="px-3 py-3">
+                          {vendor.vendorName ?? "-"}
+                        </td>
+
+                        <td className="px-3 py-3">
+                          {invoice.invoiceNo ?? invoice.invoice_no ?? "-"}
+                        </td>
+
+                        <td className="px-3 py-3">{invoice.docNo ?? "-"}</td>
+
+                        <td className="px-3 py-3">{invoice.invDate ?? "-"}</td>
+
+                        <td className="px-3 py-3 font-semibold">
+                          {invoice.amount ?? "-"}
+                        </td>
+
+                        <td className="px-3 py-3">{invoice.category ?? "-"}</td>
+
+                        <td className="px-3 py-3">
+                          {invoice.costCenter ?? "-"}
+                        </td>
+
+                        <td className="px-3 py-3">
+                          {invoice.glAccount ?? "-"}
+                        </td>
+
+                        <td className="px-3 py-3">{invoice.risk ?? "-"}</td>
+
+                        <td className="px-3 py-3 min-w-[250px]">
+                          {invoice.text ?? "-"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {exceptionInvoices.length === 0 && (
+                  <p className="py-10 text-center text-sm text-slate-500">
+                    No exceptions found for this vendor.
+                  </p>
+                )}
+              </div>
+            </section>
+          </div>,
+          document.body,
+        )}
     </aside>
   );
 }
@@ -260,16 +396,9 @@ function Summary({ summary }) {
       <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4">
         <Metric label="Total invoices" value={summary.invoices} />
 
-        <Metric
-          label="Open exceptions"
-          value={summary.exceptions}
-          alert
-        />
+        <Metric label="Open exceptions" value={summary.exceptions} alert />
 
-        <Metric
-          label="Total amount (USD)"
-          value={summary.totalAmount}
-        />
+        <Metric label="Total amount (USD)" value={summary.totalAmount} />
 
         <Metric
           label="Exception amount"

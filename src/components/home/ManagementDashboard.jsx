@@ -40,107 +40,68 @@ export default function ManagementDashboard({ data }) {
     hover:shadow-[0_12px_30px_rgba(15,23,42,0.12)]
   `;
 
-  const staticOpenClosedData = [
-    { name: "Open", value: 4723, percent: "47.9%", color: "#6886d1" },
-    { name: "Closed", value: 5119, percent: "52.1%", color: "#5ed3af" },
-  ];
-
-  const staticPriorityData = [
-    { name: "High", value: 1892, percent: "19.2%", color: "#e28282" },
-    { name: "Medium", value: 3913, percent: "39.7%", color: "#ebbc62" },
-    { name: "Low", value: 4037, percent: "41.1%", color: "#5ed3af" },
-  ];
-
-  const staticRecoveryTrendData = [
-    { name: "May 14", value: 1.1 },
-    { name: "May 15", value: 1.5 },
-    { name: "May 16", value: 1.4 },
-    { name: "May 17", value: 1.9 },
-    { name: "May 18", value: 1.7 },
-    { name: "May 19", value: 2.4 },
-    { name: "May 20", value: 1.95 },
-  ];
-
-  const staticInvestigationCycleData = [
-    { name: "May 14", value: 5.1 },
-    { name: "May 15", value: 6.0 },
-    { name: "May 16", value: 5.5 },
-    { name: "May 17", value: 5.0 },
-    { name: "May 18", value: 6.1 },
-    { name: "May 19", value: 7.6 },
-    { name: "May 20", value: 6.5 },
-  ];
-
-  const staticVendorTrendData = [
-    { name: "May 14", value: 180 },
-    { name: "May 15", value: 220 },
-    { name: "May 16", value: 215 },
-    { name: "May 17", value: 245 },
-    { name: "May 18", value: 225 },
-    { name: "May 19", value: 235 },
-    { name: "May 20", value: 270 },
-  ];
-
-  const staticDashboardSummary = {
-    totalCases: "9,842",
-    recoveryValue: "$3.42M",
-    recoveryGrowth: "+18.7%",
-    cycleTime: "6.2 Days",
-    cycleImprovement: "-1.3 Days",
-    slaCompliance: "92.4%",
-    automationRate: "68.2%",
-    automationGrowth: "+6.8%",
-    highRiskVendors: "245",
-    highRiskGrowth: "+8.4%",
+  const openClosedColors = ["#6886d1", "#5ed3af"];
+  const priorityColors = {
+    HIGH: "#e28282",
+    MEDIUM: "#ebbc62",
+    LOW: "#5ed3af",
   };
+  const recoveryTrendData = data?.recoveryTrend || [];
+  const investigationCycleData = data?.investigationCycleTrend || [];
+  const vendorTrendData = data?.vendorTrend || [];
+  const getDateRange = (trendData = []) => {
+  if (!trendData.length) return "";
 
-  const openClosedData =
-    Array.isArray(data?.openClosedData) && data.openClosedData.length
-      ? data.openClosedData.map((item, index) => ({
-          name: item.name ?? item.status,
-          value: Number(item.value ?? item.count ?? 0),
-          percent: item.percent ?? formatPercent(item.percentage),
-          color: staticOpenClosedData[index]?.color ?? "#6886d1",
-        }))
-      : staticOpenClosedData;
-  const priorityData =
-    Array.isArray(data?.priorityData) && data.priorityData.length
-      ? data.priorityData.map((item, index) => ({
-          name: item.name ?? item.priority,
-          value: Number(item.value ?? item.count ?? 0),
-          percent: item.percent ?? formatPercent(item.percentage),
-          color: staticPriorityData[index]?.color ?? "#e28282",
-        }))
-      : staticPriorityData;
-  const recoveryTrendData =
-    Array.isArray(data?.recoveryTrendData) && data.recoveryTrendData.length
-      ? data.recoveryTrendData
-      : staticRecoveryTrendData;
-  const investigationCycleData =
-    Array.isArray(data?.investigationCycleTrend) &&
-    data.investigationCycleTrend.length
-      ? data.investigationCycleTrend
-      : staticInvestigationCycleData;
-  const vendorTrendData =
-    Array.isArray(data?.vendorTrend) && data.vendorTrend.length
-      ? data.vendorTrend
-      : staticVendorTrendData;
-  const apiSummary = data?.summary ?? data?.dashboardSummary;
+  const startDate = trendData[0]?.name;
+  const endDate = trendData[trendData.length - 1]?.name;
+
+  return `${startDate} – ${endDate}`;
+};
+
+const dashboardDateRange = getDateRange(recoveryTrendData);
+
+  const summary = data?.dashboardSummary || {};
+
   const dashboardSummary = {
-    ...staticDashboardSummary,
-    ...(apiSummary && {
-      totalCases: Number(apiSummary.totalCases ?? 0).toLocaleString(),
-      recoveryValue: formatCurrency(apiSummary.recoveryValue),
-      recoveryGrowth: `${Number(apiSummary.recoveryGrowth ?? 0) >= 0 ? "+" : ""}${apiSummary.recoveryGrowth ?? 0}%`,
-      cycleTime: `${apiSummary.cycleTimeDays ?? 0} Days`,
-      cycleImprovement: `${apiSummary.cycleImprovementDays ?? 0} Days`,
-      slaCompliance: formatPercent(apiSummary.slaCompliance),
-      automationRate: formatPercent(apiSummary.automationRate),
-      automationGrowth: `${Number(apiSummary.automationGrowth ?? 0) >= 0 ? "+" : ""}${apiSummary.automationGrowth ?? 0}%`,
-      highRiskVendors: Number(apiSummary.highRiskVendors ?? 0).toLocaleString(),
-      highRiskGrowth: `${Number(apiSummary.highRiskVendorGrowth ?? 0) >= 0 ? "+" : ""}${apiSummary.highRiskVendorGrowth ?? 0}%`,
-    }),
+    totalCases: Number(summary.totalCases || 0).toLocaleString(),
+
+    recoveryValue: formatCurrency(summary.recoveryValue || 0),
+
+    recoveryGrowth: `${
+      Number(summary.recoveryGrowth || 0) >= 0 ? "+" : ""
+    }${summary.recoveryGrowth || 0}%`,
+
+    cycleTime: `${summary.cycleTimeDays || 0} Days`,
+
+    cycleImprovement: `${summary.cycleImprovementDays || 0} Days`,
+
+    slaCompliance: formatPercent(summary.slaCompliance || 0),
+
+    automationRate: formatPercent(summary.automationRate || 0),
+
+    automationGrowth: `${
+      Number(summary.automationGrowth || 0) >= 0 ? "+" : ""
+    }${summary.automationGrowth || 0}%`,
+
+    highRiskVendors: Number(summary.highRiskVendors || 0).toLocaleString(),
+
+    highRiskGrowth: `${
+      Number(summary.highRiskVendorGrowth || 0) >= 0 ? "+" : ""
+    }${summary.highRiskVendorGrowth || 0}%`,
   };
+
+  const openClosedData = (data?.openClosedData || []).map((item, index) => ({
+    name: item.status,
+    value: Number(item.count || 0),
+    percent: `${item.percentage || 0}%`,
+    color: openClosedColors[index] || "#6886d1",
+  }));
+  const priorityData = (data?.priorityData || []).map((item) => ({
+    name: item.priority,
+    value: Number(item.count || 0),
+    percent: `${item.percentage || 0}%`,
+    color: priorityColors[item.priority] || "#6886d1",
+  }));
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
@@ -238,7 +199,7 @@ export default function ManagementDashboard({ data }) {
               </div>
 
               <div className="text-[11px] text-slate-400">
-                vs May 7 – May 13, 2025
+                {dashboardDateRange}
               </div>
 
               <div className="mt-4 h-[90px]">
@@ -280,7 +241,9 @@ export default function ManagementDashboard({ data }) {
                         border: "1px solid #ccc",
                         borderRadius: "4px",
                       }}
-                      formatter={(value) => `$${value.toFixed(2)}M`}
+                      // formatter={(value) => `$${value.toFixed(2)}M`}
+                      formatter={(value) => [`$${Number(value).toFixed(2)}M`, "Recovery"]}
+
                     />
                     <Area
                       type="monotone"
@@ -435,7 +398,8 @@ export default function ManagementDashboard({ data }) {
 
                 {/* Footer */}
                 <div className="mt-1 text-center text-[12px] font-medium text-[#94A3B8]">
-                  vs May 7 – May 13, 2025
+                  {dashboardDateRange}
+
                 </div>
               </div>
             </div>
@@ -462,7 +426,7 @@ export default function ManagementDashboard({ data }) {
             </div>
 
             <div className="text-[10px] text-slate-400">
-              vs May 7 – May 13, 2025
+              {dashboardDateRange}
             </div>
 
             <div className="mt-3 h-[70px]">
@@ -538,6 +502,7 @@ export default function ManagementDashboard({ data }) {
                     strokeWidth="12"
                     strokeLinecap="round"
                     pathLength="100"
+                    // strokeDasharray={`${parseFloat(dashboardSummary.slaCompliance) || 0} 100`}
                     strokeDasharray={`${parseFloat(dashboardSummary.slaCompliance) || 0} 100`}
                   />
                 </svg>
@@ -592,7 +557,8 @@ export default function ManagementDashboard({ data }) {
             </div>
 
             <div className="text-[10px] text-slate-400">
-              vs May 7 – May 13, 2025
+              {dashboardDateRange}
+
             </div>
 
             <div className="mt-3 h-[80px]">

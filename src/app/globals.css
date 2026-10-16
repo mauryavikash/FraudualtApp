@@ -524,7 +524,6 @@ html.dark .rfq-table th {
     transparent
   );
 
-  /* Run only once */
   animation: shineMove 4s linear forwards;
 }
 

@@ -1,143 +1,255 @@
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import {
   Sparkles,
   MoreHorizontal,
   X,
   Plus,
-    ArrowRight,
-    UserPlus,
-    FileSearch,
-    AlertTriangle,
-    BanknoteArrowUp,
+  ArrowRight,
+  UserPlus,
+  FileSearch,
+  AlertTriangle,
+  BanknoteArrowUp,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 import { submitCaseAction } from "@/app/lib/api";
 export const CasesDetails = ({ caseData, userName }) => {
-    
-    const selectedCase = caseData ?? {};
-    const [reason, setReason] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [isCaseDetailsOpen, setIsCaseDetailsOpen] = useState(false);
-    
- 
-    const handleAction = async (action) => {
-  if (action === "approve" && !reason) {
-    toast.error("Please select a reason code.");
-    return;
-  }
+  const selectedCase = caseData ?? {};
+  const [reason, setReason] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isCaseDetailsOpen, setIsCaseDetailsOpen] = useState(false);
 
-  const toastId = toast.loading("Processing action...");
+  const handleAction = async (action) => {
+    if (action === "approve" && !reason) {
+      toast.error("Please select a reason code.");
+      return;
+    }
 
-  try {
-    const payload = {
-      pair_id: selectedCase?.pair_id,
-      action,
-      reason_code: reason,
-      comments: "",
-      performed_by: userName,
-      actionedAt: new Date().toISOString(),
-    };
+    const toastId = toast.loading("Processing action...");
 
-    await submitCaseAction(payload);
+    try {
+      const payload = {
+        pair_id: selectedCase?.pair_id,
+        action,
+        reason_code: reason,
+        comments: "",
+        performed_by: userName,
+        actionedAt: new Date().toISOString(),
+      };
 
-    toast.success("Action completed successfully", {
-      id: toastId,
-    });
-  } catch (error) {
-    toast.error(
-      error?.response?.data?.message || "Something went wrong",
-      {
+      await submitCaseAction(payload);
+
+      toast.success("Action completed successfully", {
         id: toastId,
-      }
-    );
-  }
-};
-    const amount = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        maximumFractionDigits: 2,
-    }).format(Number(selectedCase.amount ?? 0));
-    const detectedOn = selectedCase.detectedOn
-        ? new Date(selectedCase.detectedOn).toLocaleString()
-        : "-";
+      });
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Something went wrong", {
+        id: toastId,
+      });
+    }
+  };
+  const amount = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 2,
+  }).format(Number(selectedCase.amount ?? 0));
+  const detectedOn = selectedCase.detectedOn
+    ? new Date(selectedCase.detectedOn).toLocaleString()
+    : "-";
+  const caseDetailDownload = () => {
+    const doc = new jsPDF("landscape");
+
+    // Header
+    doc.setFontSize(18);
+    doc.text("Duplicate Case Report", 14, 15);
+
+    doc.setFontSize(10);
+    doc.text(`Pair ID: ${selectedCase?.pair_id || "-"}`, 14, 25);
+    //   doc.text(`Case Type: ${selectedCase?.case_type || "-"}`, 80, 25);
+    //   doc.text(`Priority: ${selectedCase?.priority || "-"}`, 150, 25);
+    //   doc.text(`Risk Level: ${selectedCase?.risk_level || "-"}`, 220, 25);
+
+    // Table Data
+    const tableRows = [];
+
+    [selectedCase?.invoice_1, selectedCase?.invoice_2]
+      .filter(Boolean)
+      .forEach((invoice) => {
+        tableRows.push([
+          invoice?.invoice_number || "-",
+          invoice?.invoice_date || "-",
+          invoice?.vendor_name || "-",
+          invoice?.vendor_number || "-",
+          invoice?.amount || "-",
+          invoice?.currency || "-",
+          invoice?.cost_center || "-",
+          invoice?.gl_account || "-",
+          invoice?.text || "-",
+        ]);
+      });
+
+    autoTable(doc, {
+      startY: 35,
+
+      head: [
+        [
+          "Invoice Number",
+          "Invoice Date",
+          "Vendor Name",
+          "Vendor Number",
+          "Amount",
+          "Currency",
+          "Cost Center",
+          "GL Account",
+          "Text",
+        ],
+      ],
+
+      body: tableRows,
+
+      theme: "grid",
+
+      styles: {
+        fontSize: 8,
+        cellPadding: 3,
+        overflow: "linebreak",
+        valign: "middle",
+      },
+
+      headStyles: {
+        fillColor: [1, 212, 209], // same as your UI
+        textColor: [255, 255, 255],
+        fontStyle: "bold",
+        halign: "center",
+      },
+
+      columnStyles: {
+        0: { cellWidth: 30 }, // Invoice Number
+        1: { cellWidth: 25 }, // Invoice Date
+        2: { cellWidth: 55 }, // Vendor Name
+        3: { cellWidth: 30 }, // Vendor Number
+        4: { cellWidth: 25 }, // Amount
+        5: { cellWidth: 20 }, // Currency
+        6: { cellWidth: 25 }, // Cost Center
+        7: { cellWidth: 25 }, // GL Account
+        8: { cellWidth: 45 }, // Text
+      },
+
+      margin: {
+        left: 10,
+        right: 10,
+      },
+    });
+
+    doc.save(`Case_${selectedCase?.pair_id || "Details"}.pdf`);
+  };
   return (
-   <div className="w-full bg-white rounded-[16px] border border-[#D1D5DB] shadow-[0px_2px_8px_rgba(0,0,0,0.08)] overflow-hidden">
-    {/* Header */}
-    <div className="px-4 pt-4">
+    <div className="w-full bg-white rounded-[16px] border border-[#D1D5DB] shadow-[0px_2px_8px_rgba(0,0,0,0.08)] overflow-hidden">
+      {/* Header */}
+      <div className="px-4 pt-4">
         <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <h2 className="text-[18px] leading-[24px] font-semibold text-[#0F172A]">
-            {selectedCase.pair_id}
+              {selectedCase.pair_id}
             </h2>
 
             <span className="px-2 py-[2px] text-[10px] font-medium rounded bg-[#F3E8FF] text-[#9333EA]">
-            {selectedCase.case_type}
+              {selectedCase.case_type}
             </span>
-        </div>
-        
+          </div>
 
-        <button className="text-[#64748B] hover:text-[#334155]">
+          <button className="text-[#64748B] hover:text-[#334155]">
             <X size={16} />
-        </button>
+          </button>
         </div>
         <div className="mt-2 overflow-x-auto rounded-lg">
-            <table className="min-w-[1400px] w-full">
-                <thead>
-                <tr className="bg-[#01d4d1] text-white text-[11px]">
-                    <th className="px-3 py-2 text-left">Invoice Number</th>
-                    <th className="px-3 py-2 text-left">Invoice Date</th>
-                    <th className="px-3 py-2 text-left">Vendor Name</th>
-                    <th className="px-3 py-2 text-left">Vendor Number</th>
-                    <th className="px-3 py-2 text-left">Count</th>
-                    <th className="px-3 py-2 text-left">Currency</th>
-                    <th className="px-3 py-2 text-left">Amount</th>
-                    <th className="px-3 py-2 text-left">Cost Center</th>
-                    <th className="px-3 py-2 text-left">GL Account</th>
-                    <th className="px-3 py-2 text-left">Text</th>
+          <table className="min-w-[1400px] w-full">
+            <thead>
+              <tr className="bg-[#01d4d1] text-white text-[11px]">
+                <th className="px-3 py-2 text-left">Invoice Number</th>
+                <th className="px-3 py-2 text-left">Invoice Date</th>
+                <th className="px-3 py-2 text-left">Vendor Name</th>
+                <th className="px-3 py-2 text-left">Vendor Number</th>
+                <th className="px-3 py-2 text-left">Count</th>
+                <th className="px-3 py-2 text-left">Currency</th>
+                <th className="px-3 py-2 text-left">Amount</th>
+                <th className="px-3 py-2 text-left">Cost Center</th>
+                <th className="px-3 py-2 text-left">GL Account</th>
+                <th className="px-3 py-2 text-left">Text</th>
+              </tr>
+            </thead>
+
+            <tbody className="bg-[#01d4d1] text-white text-[11px]">
+              {selectedCase?.invoice_1 && (
+                <tr className="border-t">
+                  <td className="px-3 py-2">
+                    {selectedCase.invoice_1.invoice_number}
+                  </td>
+                  <td className="px-3 py-2">
+                    {selectedCase.invoice_1.invoice_date}
+                  </td>
+                  <td className="px-3 py-2">
+                    {selectedCase.invoice_1.vendor_name}
+                  </td>
+                  <td className="px-3 py-2">
+                    {selectedCase.invoice_1.vendor_number}
+                  </td>
+                  <td className="px-3 py-2">{selectedCase.invoice_count}</td>
+                  <td className="px-3 py-2">
+                    {selectedCase.invoice_1.currency}
+                  </td>
+                  <td className="px-3 py-2">{selectedCase.invoice_1.amount}</td>
+                  <td className="px-3 py-2">
+                    {selectedCase.invoice_1.cost_center}
+                  </td>
+                  <td className="px-3 py-2">
+                    {selectedCase.invoice_1.gl_account}
+                  </td>
+                  <td className="px-3 py-2">{selectedCase.invoice_1.text}</td>
                 </tr>
-                </thead>
+              )}
 
-                <tbody className="bg-[#01d4d1] text-white text-[11px]">
-                {selectedCase?.invoice_1 && (
-                    <tr className="border-t">
-                    <td className="px-3 py-2">{selectedCase.invoice_1.invoice_number}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_1.invoice_date}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_1.vendor_name}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_1.vendor_number}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_count}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_1.currency}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_1.amount}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_1.cost_center}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_1.gl_account}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_1.text}</td>
-                    </tr>
-                )}
-
-                {selectedCase?.invoice_2 && (
-                    <tr className="border-t">
-                    <td className="px-3 py-2">{selectedCase.invoice_2.invoice_number}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_2.invoice_date}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_2.vendor_name}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_2.vendor_number}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_count}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_2.currency}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_2.amount}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_2.cost_center}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_2.gl_account}</td>
-                    <td className="px-3 py-2">{selectedCase.invoice_2.text}</td>
-                    </tr>
-                )}
-                </tbody>
-            </table>
-</div>
+              {selectedCase?.invoice_2 && (
+                <tr className="border-t">
+                  <td className="px-3 py-2">
+                    {selectedCase.invoice_2.invoice_number}
+                  </td>
+                  <td className="px-3 py-2">
+                    {selectedCase.invoice_2.invoice_date}
+                  </td>
+                  <td className="px-3 py-2">
+                    {selectedCase.invoice_2.vendor_name}
+                  </td>
+                  <td className="px-3 py-2">
+                    {selectedCase.invoice_2.vendor_number}
+                  </td>
+                  <td className="px-3 py-2">{selectedCase.invoice_count}</td>
+                  <td className="px-3 py-2">
+                    {selectedCase.invoice_2.currency}
+                  </td>
+                  <td className="px-3 py-2">{selectedCase.invoice_2.amount}</td>
+                  <td className="px-3 py-2">
+                    {selectedCase.invoice_2.cost_center}
+                  </td>
+                  <td className="px-3 py-2">
+                    {selectedCase.invoice_2.gl_account}
+                  </td>
+                  <td className="px-3 py-2">{selectedCase.invoice_2.text}</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
         {/* Tabs */}
         <div className="flex gap-5 mt-4 border-b border-[#E5E7EB]">
-        <button className="pb-2 text-[12px] font-medium text-[#2563EB] border-b border-[#2563EB]">
+          <button className="pb-2 text-[12px] font-medium text-[#2563EB] border-b border-[#2563EB]">
             Details
-        </button>
+          </button>
 
-        {/* <button className="pb-2 text-[12px] text-[#475569]">
+          {/* <button className="pb-2 text-[12px] text-[#475569]">
             Transactions (4)
         </button>
 
@@ -149,280 +261,340 @@ export const CasesDetails = ({ caseData, userName }) => {
             Audit Trail
         </button> */}
         </div>
-    </div>
+      </div>
 
-    {/* Details */}
-    <div className="px-4 pt-4">
+      {/* Details */}
+      <div className="px-4 pt-4">
         <div className="grid grid-cols-2 gap-y-3 gap-x-3">
-        <Info
+          <Info
             label="STATUS"
             value={
-            <span className="inline-flex px-2 py-[2px] rounded text-[10px] font-medium bg-[#DBEAFE] text-[#2563EB]">
+              <span className="inline-flex px-2 py-[2px] rounded text-[10px] font-medium bg-[#DBEAFE] text-[#2563EB]">
                 {selectedCase.risk_level ?? "-"}
-            </span>
+              </span>
             }
-        />
+          />
 
-        <Info
+          <Info
             label="PRIORITY"
             value={
-            <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5">
                 <span className="w-[6px] h-[6px] rounded-full bg-[#EF4444]" />
                 <span>{selectedCase.priority ?? "-"}</span>
-            </div>
+              </div>
             }
-        />
+          />
 
-        <Info
+          <Info
             label="AMOUNT (USD)"
             value={
-            <span className="font-semibold text-[14px]">
+              <span className="font-semibold text-[14px]">
                 {selectedCase?.invoice_1?.amount}
-            </span>
+              </span>
             }
-        />
+          />
 
-        <Info
-            label="VENDOR"
-            value={selectedCase.vendor || "-"}
-        />
+          <Info label="VENDOR" value={selectedCase.vendor || "-"} />
 
-        <Info
-            label="DETECTED ON"
-            value={detectedOn}
-        />
+          <Info label="DETECTED ON" value={detectedOn} />
 
-        <Info
+          <Info
             label="INVOICE DATE"
             value={
-            <span className="text-[#F59E0B]">
+              <span className="text-[#F59E0B]">
                 {selectedCase.invoice_1?.invoice_date ?? "-"}
-            </span>
+              </span>
             }
-        />
+          />
 
-        <Info
+          <Info
             label="INVOICE ID"
             value={selectedCase.invoice_1?.invoice_id ?? "-"}
-        />
+          />
 
-        <Info
+          <Info
             label="INVOICE NUMBER"
             value={selectedCase.invoice_1?.invoice_number ?? "-"}
-        />
+          />
         </div>
 
-                <button
-                    type="button"
-                    onClick={() => setIsCaseDetailsOpen(true)}
-                    className="h-8 rounded-md bg-blue-600 mt-3 px-2 text-xs font-semibold text-white hover:bg-blue-700"
-                >
-                    View Case Details
-                </button>
+        <button
+          type="button"
+          onClick={() => setIsCaseDetailsOpen(true)}
+          className="h-8 rounded-md bg-blue-600 mt-3 px-2 text-xs font-semibold text-white hover:bg-blue-700"
+        >
+          View Case Details
+        </button>
         {/* Progress */}
         <div className="mt-2">
-        <div className="text-[11px] font-semibold tracking-wide text-[#64748B]">
+          <div className="text-[11px] font-semibold tracking-wide text-[#64748B]">
             CASE PROGRESS
-        </div>
+          </div>
 
-        <div className="mt-2 flex items-center">
+          <div className="mt-2 flex items-center">
             <div className="flex flex-col items-center">
-            <div className="w-3.5 h-3.5 rounded-full bg-[#10B981]" />
-            <span className="mt-2 text-[10px] text-[#334155]">
-                Detected
-            </span>
+              <div className="w-3.5 h-3.5 rounded-full bg-[#10B981]" />
+              <span className="mt-2 text-[10px] text-[#334155]">Detected</span>
             </div>
 
             <div className="w-14 h-[2px] bg-[#2563EB] mx-3" />
 
             <div className="flex flex-col items-center">
-            <div className="w-3.5 h-3.5 rounded-full bg-[#2563EB]" />
-            <span className="mt-2 text-[10px] text-[#2563EB] font-medium">
+              <div className="w-3.5 h-3.5 rounded-full bg-[#2563EB]" />
+              <span className="mt-2 text-[10px] text-[#2563EB] font-medium">
                 Under Review
-            </span>
+              </span>
             </div>
 
             <div className="w-14 h-[2px] bg-[#E2E8F0] mx-3" />
 
             <div className="flex flex-col items-center">
-            <div className="w-3.5 h-3.5 rounded-full bg-[#F1F5F9] border border-[#CBD5E1]" />
-            <span className="mt-2 text-[10px] text-[#64748B]">
+              <div className="w-3.5 h-3.5 rounded-full bg-[#F1F5F9] border border-[#CBD5E1]" />
+              <span className="mt-2 text-[10px] text-[#64748B]">
                 Resolution
-            </span>
+              </span>
             </div>
 
             <div className="w-14 h-[2px] bg-[#E2E8F0] mx-3" />
 
             <div className="flex flex-col items-center">
-            <div className="w-3.5 h-3.5 rounded-full bg-[#F1F5F9] border border-[#CBD5E1]" />
-            <span className="mt-2 text-[10px] text-[#64748B]">
-                Closed
-            </span>
+              <div className="w-3.5 h-3.5 rounded-full bg-[#F1F5F9] border border-[#CBD5E1]" />
+              <span className="mt-2 text-[10px] text-[#64748B]">Closed</span>
             </div>
-        </div>
+          </div>
         </div>
 
         {/* Quick Actions */}
         <div className="mt-2 mb-2 rounded-xl border border-slate-200 bg-slate-50 p-2">
-          <h3 className="text-sm font-semibold text-slate-900">Quick Actions</h3>
+          <h3 className="text-sm font-semibold text-slate-900">
+            Quick Actions
+          </h3>
 
           <div className="mt-2">
             <label className="text-xs font-medium text-slate-600">
-            Reason Code (Required for Confirm)
+              Reason Code (Required for Confirm)
             </label>
 
             <select
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-2 py-2 text-sm outline-none focus:border-blue-500"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-2 py-2 text-sm outline-none focus:border-blue-500"
             >
-            <option value="">Select a reason...</option>
-            <option value="EXACT_MATCH">Exact Match</option>
-            <option value="DUPLICATE_INVOICE">Duplicate Invoice</option>
-            <option value="PAYMENT_ERROR">Payment Error</option>
-            <option value="VENDOR_ISSUE">Vendor Issue</option>
+              <option value="">Select a reason...</option>
+              <option value="EXACT_MATCH">Exact Match</option>
+              <option value="DUPLICATE_INVOICE">Duplicate Invoice</option>
+              <option value="PAYMENT_ERROR">Payment Error</option>
+              <option value="VENDOR_ISSUE">Vendor Issue</option>
             </select>
-        </div>
+          </div>
 
-        <div className="mt-2 grid grid-cols-3 gap-3">
+          <div className="mt-2 grid grid-cols-3 gap-3">
             {/* Confirm */}
             <button
-            disabled={loading}
-            onClick={() => handleAction("approve")}
-            className="flex flex-col items-center justify-center rounded-lg bg-emerald-600 py-2 text-white hover:bg-emerald-700"
+              disabled={loading}
+              onClick={() => handleAction("approve")}
+              className="flex flex-col items-center justify-center rounded-lg bg-emerald-600 py-2 text-white hover:bg-emerald-700"
             >
-            <FileSearch size={18} />
-            <span className="mt-1 text-xs font-medium">
-                Approve
-            </span>
+              <FileSearch size={18} />
+              <span className="mt-1 text-xs font-medium">Approve</span>
             </button>
 
             {/* Reject */}
             <button
-            disabled={loading}
-            onClick={() => handleAction("reject")}
-            className="flex flex-col items-center justify-center rounded-lg bg-rose-600 py-2 text-white hover:bg-rose-700"
+              disabled={loading}
+              onClick={() => handleAction("reject")}
+              className="flex flex-col items-center justify-center rounded-lg bg-rose-600 py-2 text-white hover:bg-rose-700"
             >
-            <X size={18} />
-            <span className="mt-1 text-xs font-medium">
-                Reject
-            </span>
+              <X size={18} />
+              <span className="mt-1 text-xs font-medium">Reject</span>
             </button>
 
             {/* Escalate */}
             <button
-            disabled={loading}
-            onClick={() => handleAction("escalate")}
-            className="flex flex-col items-center justify-center rounded-lg border border-amber-500 bg-white py-2 text-amber-600 hover:bg-amber-50"
+              disabled={loading}
+              onClick={() => handleAction("escalate")}
+              className="flex flex-col items-center justify-center rounded-lg border border-amber-500 bg-white py-2 text-amber-600 hover:bg-amber-50"
             >
-            <AlertTriangle size={18} />
-            <span className="mt-1 text-xs font-medium">
-                Escalate
-            </span>
+              <AlertTriangle size={18} />
+              <span className="mt-1 text-xs font-medium">Escalate</span>
             </button>
-        </div>
+          </div>
 
-        <p className="mt-2 text-xs text-slate-500">
+          <p className="mt-2 text-xs text-slate-500">
             Confirm requires a reason code. Reject and Escalate do not.
-        </p>
+          </p>
 
-        <div className="mt-2 border-t pt-2">
+          <div className="mt-2 border-t pt-2">
             <div className="grid grid-cols-2 gap-y-2 text-sm">
-            <span className="text-slate-500">Category</span>
-            <span className="font-medium text-right">Exact Match</span>
+              <span className="text-slate-500">Category</span>
+              <span className="font-medium text-right">
+                {selectedCase?.classification ?? "-"}
+              </span>
 
-            <span className="text-slate-500">Rule</span>
-            <span className="font-medium text-right">Rule_1</span>
+              <span className="text-slate-500">Rule</span>
+              <span className="font-medium text-right">
+                {selectedCase?.rule ?? "-"}
+              </span>
 
-            <span className="text-slate-500">Similarity</span>
-            <span className="font-medium text-right">{selectedCase?.confidence_score ?? "-"}</span>
+              <span className="text-slate-500">Similarity</span>
+              <span className="font-medium text-right">
+                {selectedCase?.confidence_score ?? "-"}
+              </span>
 
-            <span className="text-slate-500">Total Amount</span>
-            <span className="font-medium text-right">{selectedCase?.invoice_1?.amount ?? "-"}</span>
+              <span className="text-slate-500">Total Amount</span>
+              <span className="font-medium text-right">
+                {selectedCase?.invoice_1?.amount ?? "-"}
+              </span>
 
-            <span className="text-slate-500">Records</span>
-            <span className="font-medium text-right">{selectedCase?.invoice_count ?? "-"}</span>
+              <span className="text-slate-500">Records</span>
+              <span className="font-medium text-right">
+                {selectedCase?.invoice_count ?? "-"}
+              </span>
             </div>
 
             <div className="mt-2 rounded-lg bg-slate-100 p-3">
-                <div className="text-xs font-semibold text-slate-600">
-                    Rule Explanation
+              <div className="text-xs font-semibold text-slate-600">
+                Rule Explanation
+              </div>
+
+              <p className="mt-1 text-sm text-slate-700">
+                Exact match on all fields.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {isCaseDetailsOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            role="presentation"
+            onClick={() => setIsCaseDetailsOpen(false)}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 p-4"
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="case-details-title"
+              onClick={(event) => event.stopPropagation()}
+              className="w-full max-w-3xl overflow-hidden rounded-lg bg-white shadow-xl"
+            >
+              <div className="flex items-start justify-between border-b border-slate-200 px-6 py-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Case Details
+                  </p>
+                  <h2
+                    id="case-details-title"
+                    className="mt-1 text-lg font-semibold text-slate-900"
+                  >
+                    {selectedCase.pair_id ?? "Case"}
+                  </h2>
                 </div>
 
-                <p className="mt-1 text-sm text-slate-700">
-                    Exact match on all fields.
-                </p>
-            </div>
-        </div>
-        </div>
-    </div>
-     {isCaseDetailsOpen && typeof document !== "undefined" && createPortal(
-            <div
-                role="presentation"
-                onClick={() => setIsCaseDetailsOpen(false)}
-                className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 p-4"
-            >
-                <div
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="case-details-title"
-                    onClick={(event) => event.stopPropagation()}
-                    className="w-full max-w-3xl overflow-hidden rounded-lg bg-white shadow-xl"
-                >
-                    <div className="flex items-start justify-between border-b border-slate-200 px-6 py-4">
-                        <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Case Details</p>
-                            <h2 id="case-details-title" className="mt-1 text-lg font-semibold text-slate-900">
-                                {selectedCase.pair_id ?? "Case"}
-                            </h2>
-                        </div>
-                        <button
-                            type="button"
-                            aria-label="Close case details"
-                            onClick={() => setIsCaseDetailsOpen(false)}
-                            className="rounded-md mt-3 p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-                        >
-                            <X size={20} />
-                        </button>
-                    </div>
+                {/* Right Side Actions */}
+                <div className="flex items-center gap-2 ml-auto">
+                  <button
+                    type="button"
+                    aria-label="Download PDF"
+                    onClick={caseDetailDownload}
+                    className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                  >
+                    <Download size={20} />
+                  </button>
 
-                    <div className="grid grid-cols-1 gap-4 px-6 py-5 text-sm sm:grid-cols-2">
+                  <button
+                    type="button"
+                    aria-label="Close case details"
+                    onClick={() => setIsCaseDetailsOpen(false)}
+                    className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+
+              {/* <div className="grid grid-cols-1 gap-4 px-6 py-5 text-sm sm:grid-cols-2">
                         <ModalInfo label="Case Type" value={selectedCase.case_type} />
                         <ModalInfo label="Duplicate Type" value={selectedCase.duplicateType ?? selectedCase.duplicate_type} />
                         <ModalInfo label="Status" value={selectedCase.case_status ?? selectedCase.risk_level} />
                         <ModalInfo label="Priority" value={selectedCase.priority} />
                         <ModalInfo label="Vendor" value={selectedCase.vendor} />
                         <ModalInfo label="Similarity" value={selectedCase.similarity} />
-                    </div>
+                    </div> */}
 
-                    <div className="border-t border-slate-200 px-6 py-5">
-                        <h3 className="text-sm font-semibold text-slate-900">Invoices</h3>
-                        <div className="mt-3 overflow-x-auto">
-                            <table className="w-full min-w-[540px] text-left text-sm">
-                                <thead className="bg-slate-100 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                    <tr>
-                                        <th className="px-3 py-2">Invoice Number</th>
-                                        <th className="px-3 py-2">Invoice Date</th>
-                                        <th className="px-3 py-2">Vendor</th>
-                                        <th className="px-3 py-2">Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {[selectedCase.invoice_1, selectedCase.invoice_2].filter(Boolean).map((invoice, index) => (
-                                        <tr key={`${invoice.invoice_id ?? invoice.invoice_number ?? "invoice"}-${index}`} className="border-b border-slate-100 text-slate-700">
-                                            <td className="px-3 py-2">{invoice.invoice_number ?? "-"}</td>
-                                            <td className="px-3 py-2">{invoice.invoice_date ?? "-"}</td>
-                                            <td className="px-3 py-2">{invoice.vendor_name ?? selectedCase.vendor ?? "-"}</td>
-                                            <td className="px-3 py-2">{invoice.amount ?? "-"}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+              <div className="border-t border-slate-200 px-6 py-5">
+                <h3 className="text-sm font-semibold text-slate-900">
+                  Invoices
+                </h3>
+                <div className="mt-3 overflow-x-auto">
+                  <table className="min-w-[1400px] w-full text-left text-sm">
+                    <thead className="bg-slate-100 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      <tr>
+                        <th className="px-3 py-2">Invoice Number</th>
+                        <th className="px-3 py-2">Invoice Date</th>
+                        <th className="px-3 py-2">Vendor Name</th>
+                        <th className="px-3 py-2">Vendor Number</th>
+                        <th className="px-3 py-2">Amount</th>
+                        <th className="px-3 py-2">Currency</th>
+                        <th className="px-3 py-2">Cost Center</th>
+                        <th className="px-3 py-2">GL Account</th>
+                        <th className="px-3 py-2">Text</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {[selectedCase.invoice_1, selectedCase.invoice_2]
+                        .filter(Boolean)
+                        .map((invoice, index) => (
+                          <tr
+                            key={`${invoice.invoice_id ?? invoice.invoice_number ?? "invoice"}-${index}`}
+                            className="border-b border-slate-100 text-slate-700"
+                          >
+                            <td className="px-3 py-2 whitespace-nowrap">
+                              {invoice?.invoice_number ?? "-"}
+                            </td>
+
+                            <td className="px-3 py-2 whitespace-nowrap">
+                              {invoice?.invoice_date ?? "-"}
+                            </td>
+
+                            <td className="px-3 py-2 min-w-[250px]">
+                              {invoice?.vendor_name ?? "-"}
+                            </td>
+
+                            <td className="px-3 py-2 whitespace-nowrap">
+                              {invoice?.vendor_number ?? "-"}
+                            </td>
+
+                            <td className="px-3 py-2 whitespace-nowrap">
+                              {invoice?.amount ?? "-"}
+                            </td>
+
+                            <td className="px-3 py-2 whitespace-nowrap">
+                              {invoice?.currency ?? "-"}
+                            </td>
+
+                            <td className="px-3 py-2 whitespace-nowrap">
+                              {invoice?.cost_center ?? "-"}
+                            </td>
+
+                            <td className="px-3 py-2 whitespace-nowrap">
+                              {invoice?.gl_account ?? "-"}
+                            </td>
+
+                            <td className="px-3 py-2 min-w-[300px]">
+                              {invoice?.text ?? "-"}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
                 </div>
-            </div>,
-            document.body
+              </div>
+            </div>
+          </div>,
+          document.body,
         )}
     </div>
   );
@@ -435,20 +607,18 @@ function Info({ label, value }) {
         {label}
       </div>
 
-      <div className="text-sm text-slate-800 font-medium">
-        {value}
-      </div>
+      <div className="text-sm text-slate-800 font-medium">{value}</div>
     </div>
   );
 }
 
 function ModalInfo({ label, value }) {
-    return (
-        <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                {label}
-            </div>
-            <div className="mt-1 font-medium text-slate-900">{value ?? "-"}</div>
-        </div>
-    );
+  return (
+    <div>
+      <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        {label}
+      </div>
+      <div className="mt-1 font-medium text-slate-900">{value ?? "-"}</div>
+    </div>
+  );
 }
