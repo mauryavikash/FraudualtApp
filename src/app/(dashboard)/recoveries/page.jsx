@@ -30,22 +30,23 @@ function normalizeRecovery(recovery) {
   if (!recovery) return null;
 
   return {
-    recoveryId: recovery.recoveryId,
-    caseId: recovery.caseId,
-    type: recovery.type?.replaceAll("_", " "),
-    status: recovery.status?.replaceAll("_", " "),
-    vendor: recovery.vendor || "-",
-    relatedCaseId: recovery.originalPaymentId || "-",
-    amount: formatCurrency(recovery.amount),
-    recoveryDate: formatDate(recovery.paymentDate),
-    slaDue: recovery.recoveredOn
-      ? formatDate(recovery.recoveredOn)
-      : "-",
-    investigator: recovery.investigator || "-",
-    sourceSystem: recovery.sourceSystem || "-",
-    recoveryMethod: recovery.recoveryMethod || "-",
-    invoiceImageUrl: recovery.invoice_image_url || "",
-  };
+  recoveryId: recovery.recoveryId,
+  caseId: recovery.caseId,
+  type: recovery.type?.replaceAll("_", " "),
+  status: recovery.status?.replaceAll("_", " "),
+  vendor: recovery.vendor || "-",
+  amount: formatCurrency(recovery.amount),
+  recoveryDate: formatDate(recovery.paymentDate),
+  slaDue: formatDate(recovery.slaDue),
+  investigator: recovery.investigator || "-",
+  sourceSystem: recovery.sourceSystem || "-",
+  recoveryMethod: recovery.recoveryMethod || "-",
+  originalPaymentId: recovery.originalPaymentId || "-",
+  paymentDate: formatDate(recovery.paymentDate),
+  recoveredOn: formatDate(recovery.recoveredOn),
+  notes: recovery.notes || "-",
+  invoiceImageUrl: recovery.invoice_image_url || "",
+};
 }
 
 const statusClass = (status) => {
@@ -368,7 +369,7 @@ export default function Recoveries() {
                         </td>
 
                         <td className="px-3 text-[12px] font-medium text-[#2563EB] whitespace-nowrap">
-                          {row.relatedCaseId}
+                          {row.caseId}
                         </td>
 
                         <td className="px-3 text-[12px] font-semibold text-[#0F172A] whitespace-nowrap">
@@ -379,28 +380,14 @@ export default function Recoveries() {
                           {row.recoveryDate}
                         </td>
 
-                        <td className="px-3 whitespace-nowrap">
-                          <div className="text-[12px] text-[#334155]">{row.slaDue}</div>
-                          {row.slaState && (
-                            <div
-                              className={`text-[10px] font-semibold ${
-                                row.slaState === "Overdue"
-                                  ? "text-[#EF4444]"
-                                  : "text-[#F59E0B]"
-                              }`}
-                            >
-                              {row.slaState}
-                            </div>
-                          )}
+                        
+                        <td className="px-3 text-[12px] text-[#64748B] whitespace-nowrap">
+                          {row.slaDue}
                         </td>
-
                         <td className="px-3 text-[12px] text-[#64748B] whitespace-nowrap">
                           {row.investigator}
                         </td>
 
-                        {/* <td className="pr-4">
-                          <MoreVertical size={15} className="text-[#94A3B8]" />
-                        </td> */}
                       </tr>
                     ))}
                   </tbody>
@@ -451,11 +438,6 @@ export default function Recoveries() {
               </div>
           </div>
 
-          {/* <RecoveriesCharts
-            summary={recoveriesData.recoverySummary}
-            trend={recoveriesData.recoveryTrend}
-            vendors={recoveriesData.vendorRecoveries}
-          /> */}
           </div>
 
           <div className="col-span-12 lg:col-span-4">

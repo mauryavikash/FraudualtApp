@@ -9,6 +9,9 @@ import {
   PieChart,
   Pie,
   Cell,
+  ScatterChart,
+  Scatter,
+  ZAxis,
 } from "recharts";
 
 function formatCurrency(value) {
@@ -48,43 +51,38 @@ export default function ManagementDashboard({ data }) {
   };
   const recoveryTrendData = data?.recoveryTrend || [];
   const investigationCycleData = data?.investigationCycleTrend || [];
-  const vendorTrendData = data?.vendorTrend || [];
+  const categoryBreakdownData = data?.categoryBreakdown ?? [];
+  const timelineScatterData = data?.timelineScatter || [];
+  const timelineChartData = [...(timelineScatterData || [])]
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .slice(-12);
+  const vendorConcentrationData = data?.vendorConcentration || [];
+  const maxGroups = Math.max(
+    ...categoryBreakdownData.map((item) => Number(item.groups || 0)),
+    1,
+  );
   const getDateRange = (trendData = []) => {
-  if (!trendData.length) return "";
-
-  const startDate = trendData[0]?.name;
-  const endDate = trendData[trendData.length - 1]?.name;
-
-  return `${startDate} – ${endDate}`;
-};
-
-const dashboardDateRange = getDateRange(recoveryTrendData);
-
+    if (!trendData.length) return "";
+    const startDate = trendData[0]?.name;
+    const endDate = trendData[trendData.length - 1]?.name;
+    return `${startDate} – ${endDate}`;
+  };
+  const dashboardDateRange = getDateRange(recoveryTrendData);
   const summary = data?.dashboardSummary || {};
-
   const dashboardSummary = {
     totalCases: Number(summary.totalCases || 0).toLocaleString(),
-
     recoveryValue: formatCurrency(summary.recoveryValue || 0),
-
     recoveryGrowth: `${
       Number(summary.recoveryGrowth || 0) >= 0 ? "+" : ""
     }${summary.recoveryGrowth || 0}%`,
-
     cycleTime: `${summary.cycleTimeDays || 0} Days`,
-
     cycleImprovement: `${summary.cycleImprovementDays || 0} Days`,
-
     slaCompliance: formatPercent(summary.slaCompliance || 0),
-
     automationRate: formatPercent(summary.automationRate || 0),
-
     automationGrowth: `${
       Number(summary.automationGrowth || 0) >= 0 ? "+" : ""
     }${summary.automationGrowth || 0}%`,
-
     highRiskVendors: Number(summary.highRiskVendors || 0).toLocaleString(),
-
     highRiskGrowth: `${
       Number(summary.highRiskVendorGrowth || 0) >= 0 ? "+" : ""
     }${summary.highRiskVendorGrowth || 0}%`,
@@ -96,121 +94,371 @@ const dashboardDateRange = getDateRange(recoveryTrendData);
     percent: `${item.percentage || 0}%`,
     color: openClosedColors[index] || "#6886d1",
   }));
-  const priorityData = (data?.priorityData || []).map((item) => ({
-    name: item.priority,
-    value: Number(item.count || 0),
-    percent: `${item.percentage || 0}%`,
-    color: priorityColors[item.priority] || "#6886d1",
-  }));
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5">
-      <div className="grid grid-cols-12 gap-4 items-stretch">
-        {/* Header */}
-        <div className="col-span-12 flex items-center justify-between">
-          <h2 className="text-[18px] font-semibold text-slate-800">
-            Management Dashboard
-          </h2>
+    <>
+      <div className="rounded-xl border border-slate-200 bg-white p-5">
+        <div className="grid grid-cols-12 gap-4 items-stretch">
+          {/* Header */}
+          <div className="col-span-12 flex items-center justify-between">
+            <h2 className="text-[18px] font-semibold text-slate-800">
+              Management Dashboard
+            </h2>
 
-          <button className="text-[14px] font-semibold text-blue-600 hover:text-blue-700">
-            View full dashboard
-          </button>
-        </div>
+            <button className="text-[14px] font-semibold text-blue-600 hover:text-blue-700">
+              View full dashboard
+            </button>
+          </div>
 
-        {/* LEFT SECTION */}
-        <div className="col-span-12 lg:col-span-8 h-full">
-          <div className="grid grid-cols-12 gap-4 h-full">
-            {/* OPEN VS CLOSED */}
-            <div className={`col-span-12 md:col-span-6 ${cardClass}`}>
-              <h3 className="mb-4 text-[13px] font-bold text-slate-800">
-                OPEN VS CLOSED CASES
-              </h3>
+          {/* LEFT SECTION */}
+          <div className="col-span-12 lg:col-span-8 h-full">
+            <div className="grid grid-cols-12 gap-4 h-full">
+              {/* OPEN VS CLOSED */}
+              <div className={`col-span-12 md:col-span-6 ${cardClass}`}>
+                <h3 className="mb-4 text-[13px] font-bold text-slate-800">
+                  OPEN VS CLOSED CASES
+                </h3>
 
-              <div className="flex items-center justify-between">
-                <div className="relative h-[128px] w-[128px]">
+                <div className="flex items-center justify-between">
+                  <div className="relative h-[128px] w-[128px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={openClosedData}
+                          dataKey="value"
+                          innerRadius={34}
+                          outerRadius={50}
+                          stroke="none"
+                        >
+                          {openClosedData.map((item, index) => (
+                            <Cell key={index} fill={item.color} />
+                          ))}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <div className="text-[18px] font-bold text-slate-800">
+                        {dashboardSummary.totalCases}
+                      </div>
+
+                      <div className="text-[10px] font-semibold text-slate-400">
+                        TOTAL
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    {openClosedData.map((item) => (
+                      <div key={item.name}>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="h-2.5 w-2.5 rounded-full"
+                            style={{ backgroundColor: item.color }}
+                          />
+
+                          <span className="text-[13px] font-semibold text-slate-700">
+                            {item.name}
+                          </span>
+                        </div>
+
+                        <div className="ml-4 text-[16px] font-bold text-slate-800">
+                          {item.value.toLocaleString()}
+                          <span className="ml-1 text-[12px] text-slate-400">
+                            ({item.percent})
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* RECOVERY VALUE */}
+              <div className={`col-span-12 md:col-span-6 ${cardClass}`}>
+                {/* your existing Recovery Value code */}
+                <div className="flex items-start justify-between">
+                  <h3 className="text-[13px] font-bold text-slate-800">
+                    RECOVERY VALUE (USD)
+                  </h3>
+
+                  <span className="rounded bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-600">
+                    ↗ {dashboardSummary.recoveryGrowth}
+                  </span>
+                </div>
+
+                <div className="mt-2 text-[24px] font-bold text-slate-800">
+                  {dashboardSummary.recoveryValue}
+                </div>
+
+                <div className="text-[11px] text-slate-400">
+                  {dashboardDateRange}
+                </div>
+
+                <div className="mt-4 h-[90px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={openClosedData}
+                    <AreaChart
+                      data={recoveryTrendData}
+                      margin={{ top: 5, right: 10, left: -30, bottom: 5 }}
+                    >
+                      <defs>
+                        <linearGradient
+                          id="colorRecovery"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#5ED3AF"
+                            stopOpacity={0.3}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#5ED3AF"
+                            stopOpacity={0}
+                          />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid
+                        strokeDasharray="0"
+                        vertical={false}
+                        stroke="#f0f0f0"
+                      />
+                      <XAxis dataKey="name" hide={true} />
+                      <YAxis hide={true} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#fff",
+                          border: "1px solid #ccc",
+                          borderRadius: "4px",
+                        }}
+                        // formatter={(value) => `$${value.toFixed(2)}M`}
+                        formatter={(value) => [
+                          `$${Number(value).toFixed(2)}M`,
+                          "Recovery",
+                        ]}
+                      />
+                      <Area
+                        type="monotone"
                         dataKey="value"
-                        innerRadius={34}
-                        outerRadius={50}
-                        stroke="none"
-                      >
-                        {openClosedData.map((item, index) => (
-                          <Cell key={index} fill={item.color} />
-                        ))}
-                      </Pie>
-                    </PieChart>
+                        stroke="#5ED3AF"
+                        strokeWidth={2.5}
+                        fill="url(#colorRecovery)"
+                      />
+                    </AreaChart>
                   </ResponsiveContainer>
+                </div>
+              </div>
+              {/* CATEGORY BREAKDOWN */}
+              <div className={`col-span-12 md:col-span-6 ${cardClass}`}>
+                <h3 className="mb-3 text-[11px] font-semibold text-slate-800">
+                  CATEGORY BREAKDOWN
+                </h3>
 
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <div className="text-[18px] font-bold text-slate-800">
-                      {dashboardSummary.totalCases}
+                <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+                  {categoryBreakdownData.map((item, index) => {
+                    const widthPercent = (item.groups / maxGroups) * 100;
+
+                    return (
+                      <div key={`${item.name}-${index}`}>
+                        <div className="flex items-start justify-between gap-2">
+                          {/* Left Section */}
+                          <div className="flex items-center gap-1.5 min-w-[140px]">
+                            <span
+                              className="h-2.5 w-2.5 rounded-full flex-shrink-0"
+                              style={{
+                                backgroundColor: item.color,
+                              }}
+                            />
+
+                            <span className="text-xs font-medium text-slate-800 truncate">
+                              {item.name}
+                            </span>
+                          </div>
+
+                          {/* Right Section */}
+                          <div className="flex items-center gap-1 text-[10px] text-slate-600 text-right flex-wrap justify-end">
+                            <span className="font-medium text-slate-800">
+                              {item.groups}{" "}
+                              {item.groups === 1 ? "group" : "groups"}
+                            </span>
+
+                            <span>
+                              ({item.records}{" "}
+                              {item.records === 1 ? "record" : "records"})
+                            </span>
+
+                            <span>|</span>
+
+                            <span className="font-normal text-slate-700">
+                              {new Intl.NumberFormat("en-US", {
+                                style: "currency",
+                                currency: "USD",
+                                maximumFractionDigits: 0,
+                              }).format(item.amount)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="mt-1.5 h-2 w-full rounded-full bg-slate-100">
+                          <div
+                            className="h-2 rounded-full transition-all duration-700"
+                            style={{
+                              width: `${widthPercent}%`,
+                              backgroundColor: item.color,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* TIMELINE SCATTER */}
+              <div className={`col-span-12 md:col-span-6 ${cardClass}`}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-[13px] font-bold text-slate-800">
+                    Timeline: Date vs Amount
+                  </h3>
+
+                  <div className="flex items-center gap-4 text-xs">
+                    <div className="flex items-center gap-1">
+                      <span className="h-3 w-3 rounded-full bg-red-500" />
+                      <span>High</span>
                     </div>
 
-                    <div className="text-[10px] font-semibold text-slate-400">
-                      TOTAL
+                    <div className="flex items-center gap-1">
+                      <span className="h-3 w-3 rounded-full bg-amber-500" />
+                      <span>Medium</span>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <span className="h-3 w-3 rounded-full bg-green-500" />
+                      <span>Low</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  {openClosedData.map((item) => (
-                    <div key={item.name}>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="h-2.5 w-2.5 rounded-full"
-                          style={{ backgroundColor: item.color }}
-                        />
+                <div className="h-[340px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ScatterChart
+                      margin={{
+                        top: 20,
+                        right: 20,
+                        left: 15,
+                        bottom: 10,
+                      }}
+                    >
+                      <CartesianGrid
+                        stroke="#E5E7EB"
+                        strokeDasharray="4 4"
+                        vertical={true}
+                        horizontal={true}
+                      />
 
-                        <span className="text-[13px] font-semibold text-slate-700">
-                          {item.name}
-                        </span>
-                      </div>
+                      <XAxis
+                        dataKey="date"
+                        tick={{
+                          fontSize: 11,
+                          fill: "#64748B",
+                        }}
+                        tickLine={false}
+                        axisLine={{ stroke: "#CBD5E1" }}
+                      />
 
-                      <div className="ml-4 text-[16px] font-bold text-slate-800">
-                        {item.value.toLocaleString()}
-                        <span className="ml-1 text-[12px] text-slate-400">
-                          ({item.percent})
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                      <YAxis
+                        dataKey="amount"
+                        tick={{
+                          fontSize: 11,
+                          fill: "#64748B",
+                        }}
+                        tickLine={false}
+                        axisLine={{ stroke: "#CBD5E1" }}
+                        tickFormatter={(value) =>
+                          `${Math.round(value / 1000)}k`
+                        }
+                      />
+
+                      <Tooltip
+                        cursor={{ strokeDasharray: "3 3" }}
+                        contentStyle={{
+                          borderRadius: "10px",
+                          border: "1px solid #E2E8F0",
+                          boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                          fontSize: "12px",
+                        }}
+                        formatter={(value) => [
+                          `$${Number(value).toLocaleString()}`,
+                          "Amount",
+                        ]}
+                      />
+
+                      <Scatter
+                        name="High"
+                        data={timelineChartData.filter(
+                          (item) => item.risk === "High",
+                        )}
+                        fill="#EF4444"
+                      />
+
+                      <Scatter
+                        name="Medium"
+                        data={timelineChartData.filter(
+                          (item) => item.risk === "Medium",
+                        )}
+                        fill="#F59E0B"
+                      />
+
+                      <Scatter
+                        name="Low"
+                        data={timelineChartData.filter(
+                          (item) => item.risk === "Low",
+                        )}
+                        fill="#22C55E"
+                      />
+                    </ScatterChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* RECOVERY VALUE */}
-            <div className={`col-span-12 md:col-span-6 ${cardClass}`}>
-              {/* your existing Recovery Value code */}
-              <div className="flex items-start justify-between">
-                <h3 className="text-[13px] font-bold text-slate-800">
-                  RECOVERY VALUE (USD)
-                </h3>
+          {/* RIGHT SECTION */}
+          <div className="col-span-12 lg:col-span-4 flex flex-col gap-4 h-full">
+            {/* INVESTIGATION */}
+            <div className={cardClass}>
+              {/* your existing Investigation code */}
+              <div className="text-[10px] font-bold text-slate-500">
+                INVESTIGATION CYCLE TIME
+              </div>
 
-                <span className="rounded bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-600">
-                  ↗ {dashboardSummary.recoveryGrowth}
+              <div className="mt-1 flex items-center gap-2">
+                <div className="text-[18px] font-bold text-slate-800">
+                  {dashboardSummary.cycleTime}
+                </div>
+
+                <span className="rounded bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-600">
+                  ↘ {dashboardSummary.cycleImprovement}
                 </span>
               </div>
 
-              <div className="mt-2 text-[24px] font-bold text-slate-800">
-                {dashboardSummary.recoveryValue}
-              </div>
-
-              <div className="text-[11px] text-slate-400">
+              <div className="text-[10px] text-slate-400">
                 {dashboardDateRange}
               </div>
 
-              <div className="mt-4 h-[90px]">
+              <div className="mt-3 h-[70px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart
-                    data={recoveryTrendData}
+                    data={investigationCycleData}
                     margin={{ top: 5, right: 10, left: -30, bottom: 5 }}
                   >
                     <defs>
                       <linearGradient
-                        id="colorRecovery"
+                        id="colorInvestigation"
                         x1="0"
                         y1="0"
                         x2="0"
@@ -218,12 +466,12 @@ const dashboardDateRange = getDateRange(recoveryTrendData);
                       >
                         <stop
                           offset="5%"
-                          stopColor="#5ED3AF"
+                          stopColor="#6886D1"
                           stopOpacity={0.3}
                         />
                         <stop
                           offset="95%"
-                          stopColor="#5ED3AF"
+                          stopColor="#6886D1"
                           stopOpacity={0}
                         />
                       </linearGradient>
@@ -241,284 +489,65 @@ const dashboardDateRange = getDateRange(recoveryTrendData);
                         border: "1px solid #ccc",
                         borderRadius: "4px",
                       }}
-                      // formatter={(value) => `$${value.toFixed(2)}M`}
-                      formatter={(value) => [`$${Number(value).toFixed(2)}M`, "Recovery"]}
-
+                      formatter={(value) => `${value.toFixed(1)} Days`}
                     />
                     <Area
                       type="monotone"
                       dataKey="value"
-                      stroke="#5ED3AF"
-                      strokeWidth={2.5}
-                      fill="url(#colorRecovery)"
+                      stroke="#6886D1"
+                      strokeWidth={2}
+                      fill="url(#colorInvestigation)"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            {/* CASES BY PRIORITY */}
-            <div className={`col-span-12 md:col-span-6 ${cardClass}`}>
-              {/* your existing Cases By Priority code */}
-              <h3 className="text-[13px] font-bold text-slate-800">
-                CASES BY PRIORITY
+            {/* SLA */}
+            <div className={cardClass}>
+              {/* your existing SLA code */}
+              <h3 className="text-[14px] font-semibold text-[#475569] uppercase">
+                SLA COMPLIANCE
               </h3>
 
-              <div className="flex items-center justify-between">
-                <div className="relative h-[140px] w-[140px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={priorityData}
-                        dataKey="value"
-                        innerRadius={42}
-                        outerRadius={56}
-                        stroke="none"
-                      >
-                        {priorityData.map((item, index) => (
-                          <Cell key={index} fill={item.color} />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
+              <div className="flex justify-center">
+                <div className="relative w-[300px] h-[150px]">
+                  <svg viewBox="0 0 220 140" className="w-full h-full">
+                    {/* Background Arc */}
+                    <path
+                      d="M40 110 A70 70 0 0 1 180 110"
+                      fill="none"
+                      stroke="#DFE5ED"
+                      strokeWidth="12"
+                      strokeLinecap="round"
+                      pathLength="100"
+                    />
 
-                <div className="flex flex-col gap-3">
-                  {priorityData.map((item) => (
-                    <div key={item.name} className="flex items-center gap-3">
-                      <span
-                        className="h-3 w-3 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: item.color }}
-                      />
+                    {/* Progress Arc = 92.4% */}
+                    <path
+                      d="M40 110 A70 70 0 0 1 180 110"
+                      fill="none"
+                      stroke="#61D2AE"
+                      strokeWidth="12"
+                      strokeLinecap="round"
+                      pathLength="100"
+                      // strokeDasharray={`${parseFloat(dashboardSummary.slaCompliance) || 0} 100`}
+                      strokeDasharray={`${parseFloat(dashboardSummary.slaCompliance) || 0} 100`}
+                    />
+                  </svg>
 
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-sm font-semibold text-slate-800">
-                          {item.name}
-                        </span>
-
-                        <span className="text-xs text-slate-500">
-                          {item.value.toLocaleString()} ({item.percent})
-                        </span>
-                      </div>
+                  {/* Center Content */}
+                  <div className="absolute top-[90px] inset-0 flex flex-col items-center justify-center">
+                    <div className="text-[28px] font-bold leading-none text-[#1E293B]">
+                      {dashboardSummary.slaCompliance}
                     </div>
-                  ))}
-                </div>
-              </div>
-            </div>
 
-            {/* AUTOMATION RATE */}
-            <div className="col-span-12 md:col-span-6 flex">
-              <div
-                className="
-                  flex-1
-                  rounded-2xl
-                  border
-                  border-[#D8E0EA]
-                  bg-white
-                  px-6
-                  py-6
-                  shadow-sm
-                  transition-all
-                  duration-300
-                  cursor-pointer
-                  hover:bg-slate-50
-                  hover:border-slate-300
-                  hover:shadow-[0_12px_30px_rgba(15,23,42,0.12)]
-                "
-              >
-                {/* your existing Automation Rate code */}
-                <h3 className="text-[14px] font-semibold text-[#1E293B] tracking-tight">
-                  AUTOMATION RATE
-                </h3>
-
-                {/* Gauge */}
-                <div className="flex justify-center">
-                  <div className="relative h-[170px] w-[240px]">
-                    <svg viewBox="0 0 240 160" className="h-full w-full">
-                      <defs>
-                        <linearGradient
-                          id="automationGradient"
-                          x1="0%"
-                          y1="0%"
-                          x2="100%"
-                          y2="0%"
-                        >
-                          <stop offset="0%" stopColor="#6783D0" />
-                          <stop offset="100%" stopColor="#6D89D6" />
-                        </linearGradient>
-                      </defs>
-
-                      {/* Background Arc */}
-                      <path
-                        d="M40 120 A80 80 0 0 1 200 120"
-                        fill="none"
-                        stroke="#DADFE8"
-                        strokeWidth="14"
-                        strokeLinecap="round"
-                      />
-
-                      {/* Progress Arc 68.2% */}
-                      <path
-                        d="M40 120 A80 80 0 0 1 168 58"
-                        fill="none"
-                        stroke="url(#automationGradient)"
-                        strokeWidth="14"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-
-                    {/* Center Content */}
-                    <div className="absolute top-[60px] inset-0 flex flex-col items-center justify-center">
-                      <div className="text-[26px] font-bold leading-none text-[#26334D]">
-                        {dashboardSummary.automationRate}
-                      </div>
-
-                      <div className="mt-2 text-[13px] font-medium text-[#66758C]">
-                        Automation
-                      </div>
-
-                      <div
-                        className="
-                        mt-2
-                        rounded-full
-                        bg-[#DDF7E7]
-                        px-4
-                        py-[7px]
-                        text-[13px]
-                        font-semibold
-                        text-[#10B981]
-                        leading-none
-                      "
-                      >
-                        ↗ {dashboardSummary.automationGrowth}
-                      </div>
+                    <div className="mt-1 text-[14px] font-medium text-[#64748B]">
+                      SLA Met
                     </div>
-                  </div>
-                </div>
 
-                {/* Footer */}
-                <div className="mt-1 text-center text-[12px] font-medium text-[#94A3B8]">
-                  {dashboardDateRange}
-
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* RIGHT SECTION */}
-        <div className="col-span-12 lg:col-span-4 flex flex-col gap-4 h-full">
-          {/* INVESTIGATION */}
-          <div className={cardClass}>
-            {/* your existing Investigation code */}
-            <div className="text-[10px] font-bold text-slate-500">
-              INVESTIGATION CYCLE TIME
-            </div>
-
-            <div className="mt-1 flex items-center gap-2">
-              <div className="text-[18px] font-bold text-slate-800">
-                {dashboardSummary.cycleTime}
-              </div>
-
-              <span className="rounded bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-600">
-                ↘ {dashboardSummary.cycleImprovement}
-              </span>
-            </div>
-
-            <div className="text-[10px] text-slate-400">
-              {dashboardDateRange}
-            </div>
-
-            <div className="mt-3 h-[70px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={investigationCycleData}
-                  margin={{ top: 5, right: 10, left: -30, bottom: 5 }}
-                >
-                  <defs>
-                    <linearGradient
-                      id="colorInvestigation"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop offset="5%" stopColor="#6886D1" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#6886D1" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid
-                    strokeDasharray="0"
-                    vertical={false}
-                    stroke="#f0f0f0"
-                  />
-                  <XAxis dataKey="name" hide={true} />
-                  <YAxis hide={true} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#fff",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                    }}
-                    formatter={(value) => `${value.toFixed(1)} Days`}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    stroke="#6886D1"
-                    strokeWidth={2}
-                    fill="url(#colorInvestigation)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* SLA */}
-          <div className={cardClass}>
-            {/* your existing SLA code */}
-            <h3 className="text-[14px] font-semibold text-[#475569] uppercase">
-              SLA COMPLIANCE
-            </h3>
-
-            <div className="flex justify-center">
-              <div className="relative w-[300px] h-[150px]">
-                <svg viewBox="0 0 220 140" className="w-full h-full">
-                  {/* Background Arc */}
-                  <path
-                    d="M40 110 A70 70 0 0 1 180 110"
-                    fill="none"
-                    stroke="#DFE5ED"
-                    strokeWidth="12"
-                    strokeLinecap="round"
-                    pathLength="100"
-                  />
-
-                  {/* Progress Arc = 92.4% */}
-                  <path
-                    d="M40 110 A70 70 0 0 1 180 110"
-                    fill="none"
-                    stroke="#61D2AE"
-                    strokeWidth="12"
-                    strokeLinecap="round"
-                    pathLength="100"
-                    // strokeDasharray={`${parseFloat(dashboardSummary.slaCompliance) || 0} 100`}
-                    strokeDasharray={`${parseFloat(dashboardSummary.slaCompliance) || 0} 100`}
-                  />
-                </svg>
-
-                {/* Center Content */}
-                <div className="absolute top-[90px] inset-0 flex flex-col items-center justify-center">
-                  <div className="text-[28px] font-bold leading-none text-[#1E293B]">
-                    {dashboardSummary.slaCompliance}
-                  </div>
-
-                  <div className="mt-1 text-[14px] font-medium text-[#64748B]">
-                    SLA Met
-                  </div>
-
-                  <div
-                    className="
+                    <div
+                      className="
                     mt-1
                     rounded-xl
                     border
@@ -531,82 +560,100 @@ const dashboardDateRange = getDateRange(recoveryTrendData);
                     text-[#10B981]
                     shadow-sm
                   "
-                  >
-                    Target: ≥90%
+                    >
+                      Target: ≥90%
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* HIGH RISK */}
-          <div className={cardClass}>
-            {/* your existing High Risk Vendor code */}
-            <div className="text-[10px] font-bold text-slate-500">
-              HIGH-RISK VENDOR TRENDS
-            </div>
+            {/* VENDOR CONCENTRATION */}
+            {/* VENDOR CONCENTRATION */}
+            <div className={cardClass}>
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-[15px] font-bold text-slate-800">
+                  Vendor Concentration (Top 10 by $ at Risk)
+                </h3>
 
-            <div className="mt-1 flex items-center gap-2">
-              <div className="text-[20px] font-bold text-red-500">
-                {dashboardSummary.highRiskVendors}
+                <div className="flex gap-4 text-xs font-medium">
+                  <div className="flex items-center gap-1">
+                    <span className="h-3 w-3 rounded-full bg-orange-500" />
+                    <span>High</span>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <span className="h-3 w-3 rounded-full bg-yellow-500" />
+                    <span>Medium</span>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <span className="h-3 w-3 rounded-full bg-slate-500" />
+                    <span>Low</span>
+                  </div>
+                </div>
               </div>
 
-              <span className="rounded bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-500">
-                ↗ {dashboardSummary.highRiskGrowth}
-              </span>
-            </div>
+              <div className="flex flex-wrap gap-2">
+                {vendorConcentrationData.slice(0, 10).map((item, index) => {
+                  const percentage = Number(item.percentage || 0);
+                  const cardWidth =
+                    percentage >= 25
+                      ? "calc(66.666% - 8px)"
+                      : percentage >= 10
+                        ? "calc(33.333% - 8px)"
+                        : "calc(33.333% - 8px)";
 
-            <div className="text-[10px] text-slate-400">
-              {dashboardDateRange}
+                  const bgColor =
+                    item.risk === "High"
+                      ? "bg-orange-600"
+                      : item.risk === "Medium"
+                        ? "bg-yellow-500"
+                        : "bg-slate-500";
 
-            </div>
-
-            <div className="mt-3 h-[80px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={vendorTrendData}
-                  margin={{ top: 5, right: 10, left: -30, bottom: 5 }}
-                >
-                  <defs>
-                    <linearGradient
-                      id="colorVendor"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
+                  return (
+                    <div
+                      key={`${item.vendor}-${index}`}
+                      style={{
+                        width: cardWidth,
+                        minHeight: "90px",
+                      }}
+                      className={`
+                        ${bgColor}
+                        rounded-2xl
+                        p-2
+                        text-white
+                        shadow-lg
+                        transition-all
+                        duration-300
+                        hover:scale-[1.02]
+                      `}
                     >
-                      <stop offset="5%" stopColor="#E57373" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#E57373" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid
-                    strokeDasharray="0"
-                    vertical={false}
-                    stroke="#f0f0f0"
-                  />
-                  <XAxis dataKey="name" hide={true} />
-                  <YAxis hide={true} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#fff",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                    }}
-                    formatter={(value) => `${value} Vendors`}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    stroke="#E57373"
-                    strokeWidth={2}
-                    fill="url(#colorVendor)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+                      <div className="text-[12px] font-medium opacity-90 truncate">
+                        {item.vendor}
+                      </div>
+
+                      <div className="mt-2 text-[16px] leading-none break-words font-semibold">
+                        ${Number(item.amount || 0).toLocaleString()}
+                      </div>
+
+                      <div className="mt-2 flex items-end justify-between">
+                        <div className="text-[12px] opacity-90">
+                          {item.records} rec
+                        </div>
+
+                        <div className="text-[12px]  opacity-90">
+                          {percentage}%
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

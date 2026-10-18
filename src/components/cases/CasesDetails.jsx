@@ -3,16 +3,10 @@ import { createPortal } from "react-dom";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
-  Sparkles,
-  MoreHorizontal,
   X,
-  Plus,
-  ArrowRight,
-  UserPlus,
   FileSearch,
   AlertTriangle,
-  BanknoteArrowUp,
-  Download,
+   Eye
 } from "lucide-react";
 import { toast } from "sonner";
 import { submitCaseAction } from "@/app/lib/api";
@@ -21,7 +15,7 @@ export const CasesDetails = ({ caseData, userName }) => {
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
   const [isCaseDetailsOpen, setIsCaseDetailsOpen] = useState(false);
-
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
   const handleAction = async (action) => {
     if (action === "approve" && !reason) {
       toast.error("Please select a reason code.");
@@ -59,93 +53,15 @@ export const CasesDetails = ({ caseData, userName }) => {
   const detectedOn = selectedCase.detectedOn
     ? new Date(selectedCase.detectedOn).toLocaleString()
     : "-";
-  const caseDetailDownload = () => {
-    const doc = new jsPDF("landscape");
+  
+const openInvoiceImage = (imageUrl) => {
+  if (!imageUrl) {
+    toast.error("Invoice image not available");
+    return;
+  }
 
-    // Header
-    doc.setFontSize(18);
-    doc.text("Duplicate Case Report", 14, 15);
-
-    doc.setFontSize(10);
-    doc.text(`Pair ID: ${selectedCase?.pair_id || "-"}`, 14, 25);
-    //   doc.text(`Case Type: ${selectedCase?.case_type || "-"}`, 80, 25);
-    //   doc.text(`Priority: ${selectedCase?.priority || "-"}`, 150, 25);
-    //   doc.text(`Risk Level: ${selectedCase?.risk_level || "-"}`, 220, 25);
-
-    // Table Data
-    const tableRows = [];
-
-    [selectedCase?.invoice_1, selectedCase?.invoice_2]
-      .filter(Boolean)
-      .forEach((invoice) => {
-        tableRows.push([
-          invoice?.invoice_number || "-",
-          invoice?.invoice_date || "-",
-          invoice?.vendor_name || "-",
-          invoice?.vendor_number || "-",
-          invoice?.amount || "-",
-          invoice?.currency || "-",
-          invoice?.cost_center || "-",
-          invoice?.gl_account || "-",
-          invoice?.text || "-",
-        ]);
-      });
-
-    autoTable(doc, {
-      startY: 35,
-
-      head: [
-        [
-          "Invoice Number",
-          "Invoice Date",
-          "Vendor Name",
-          "Vendor Number",
-          "Amount",
-          "Currency",
-          "Cost Center",
-          "GL Account",
-          "Text",
-        ],
-      ],
-
-      body: tableRows,
-
-      theme: "grid",
-
-      styles: {
-        fontSize: 8,
-        cellPadding: 3,
-        overflow: "linebreak",
-        valign: "middle",
-      },
-
-      headStyles: {
-        fillColor: [1, 212, 209], // same as your UI
-        textColor: [255, 255, 255],
-        fontStyle: "bold",
-        halign: "center",
-      },
-
-      columnStyles: {
-        0: { cellWidth: 30 }, // Invoice Number
-        1: { cellWidth: 25 }, // Invoice Date
-        2: { cellWidth: 55 }, // Vendor Name
-        3: { cellWidth: 30 }, // Vendor Number
-        4: { cellWidth: 25 }, // Amount
-        5: { cellWidth: 20 }, // Currency
-        6: { cellWidth: 25 }, // Cost Center
-        7: { cellWidth: 25 }, // GL Account
-        8: { cellWidth: 45 }, // Text
-      },
-
-      margin: {
-        left: 10,
-        right: 10,
-      },
-    });
-
-    doc.save(`Case_${selectedCase?.pair_id || "Details"}.pdf`);
-  };
+  window.open(imageUrl, "_blank", "noopener,noreferrer");
+};
   return (
     <div className="w-full bg-white rounded-[16px] border border-[#D1D5DB] shadow-[0px_2px_8px_rgba(0,0,0,0.08)] overflow-hidden">
       {/* Header */}
@@ -494,14 +410,7 @@ export const CasesDetails = ({ caseData, userName }) => {
 
                 {/* Right Side Actions */}
                 <div className="flex items-center gap-2 ml-auto">
-                  <button
-                    type="button"
-                    aria-label="Download PDF"
-                    onClick={caseDetailDownload}
-                    className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-                  >
-                    <Download size={20} />
-                  </button>
+                 
 
                   <button
                     type="button"
@@ -552,9 +461,28 @@ export const CasesDetails = ({ caseData, userName }) => {
                             className="border-b border-slate-100 text-slate-700"
                           >
                             <td className="px-3 py-2 whitespace-nowrap">
-                              {invoice?.invoice_number ?? "-"}
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">
+                                  {invoice?.invoice_number ?? "-"}
+                                </span>
+                                {invoice?.invoice_image_url && (
+                                  <button
+                                    type="button"
+                                    title="View Invoice Image"
+                                    onClick={() =>
+                                      window.open(
+                                        invoice.invoice_image_url,
+                                        "_blank",
+                                        "noopener,noreferrer"
+                                      )
+                                    }
+                                    className="text-slate-500 hover:text-blue-600"
+                                  >
+                                    <Eye size={16} />
+                                  </button>
+                                )}
+                              </div>
                             </td>
-
                             <td className="px-3 py-2 whitespace-nowrap">
                               {invoice?.invoice_date ?? "-"}
                             </td>
@@ -595,6 +523,16 @@ export const CasesDetails = ({ caseData, userName }) => {
             </div>
           </div>,
           document.body,
+          
+        )}
+        {selectedInvoice?.invoice_image_url && (
+          <div className="mt-6">
+            <h3 className="mb-2 text-sm font-semibold text-slate-700">
+              Invoice Image
+            </h3>
+
+            {selectedInvoice.invoice_image_url}
+          </div>
         )}
     </div>
   );

@@ -1,18 +1,10 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
-import { CalendarDays, SlidersHorizontal } from "lucide-react";
-import { ChevronDown } from "lucide-react";
 import DashboardKpiCards from "@/components/home/DashboardKpiCards";
 import ManagementDashboard from "@/components/home/ManagementDashboard";
-import OperationalReporting from "@/components/home/OperationalReporting";
-import AuditActivitiesPanel from "@/components/home/AuditActivitiesPanel";
-// import ExecutiveInsightsPanel from "@/components/home/ExecutiveInsightsPanel";
 import AiExecutiveBriefing from "@/components/home/AiExecutiveBriefing";
 import { LoadingState } from "@/components/common/LoadingState";
-import PdfDownloadButton from "@/components/common/PdfDownloadButton";
 import { getHomeDashboard } from "@/app/lib/api";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
 
 export default function DashboardPage() {
   const [homeData, setHomeData] = useState(null);
@@ -110,16 +102,16 @@ export default function DashboardPage() {
         <AiExecutiveBriefing data={homeData.aiExecutiveBriefing} />
 
         {/* MANAGEMENT DASHBOARD */}
-        <ManagementDashboard data={homeData.managementDashboard} />
-
-        {/* OPERATIONAL REPORTING & AUDIT ACTIVITIES */}
-        {/* <div className="grid grid-cols-12 gap-4">
-          <OperationalReporting data={homeData.operationalReports} />
-          <div className="col-span-12 space-y-4 md:col-span-6">
-            <AuditActivitiesPanel data={homeData.auditActivities} />
-
-          </div>
-        </div> */}
+        {/* <ManagementDashboard data={homeData.managementDashboard} /> */}
+        <ManagementDashboard
+          data={{
+            ...homeData.managementDashboard,
+            categoryBreakdown: homeData.categoryBreakdown,
+            timelineScatter: homeData.timelineScatter,
+            vendorConcentration: homeData.vendorConcentration,
+          }}
+        />
+       
       </div>
     </div>
   );
