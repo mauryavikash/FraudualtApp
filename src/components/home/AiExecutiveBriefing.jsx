@@ -174,7 +174,10 @@ export default function AiExecutiveBriefing({ data }) {
               <div key={rowIndex} className="contents">
                 <span className="self-center text-left font-semibold text-slate-600">{["High", "Medium", "Low"][rowIndex]}</span>
                 {row?.map((value, columnIndex) => (
-                  <Link key={value} href="/cases" className={`flex min-h-9 items-center justify-center px-1 font-semibold text-slate-700 transition hover:ring-2 hover:ring-violet-400 ${matrixColors[rowIndex][columnIndex]}`}>
+                  <Link 
+                  // key={value}
+                  key={`${value}-${columnIndex}`}
+                   href="/cases" className={`flex min-h-9 items-center justify-center px-1 font-semibold text-slate-700 transition hover:ring-2 hover:ring-violet-400 ${matrixColors[rowIndex][columnIndex]}`}>
                     {value}
                   </Link>
                 ))}

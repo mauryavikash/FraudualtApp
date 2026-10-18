@@ -29,8 +29,9 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
   const isClosed = selected.status === "Completed";
 
   return (
-    <div className="w-full flex flex-col bg-white rounded-[16px] border border-[#D9E1EA] shadow-[0px_2px_8px_rgba(15,23,42,0.05)] overflow-hidden">
-      {/* Header */}
+    // <div className="w-full flex flex-col bg-white rounded-[16px] border border-[#D9E1EA] shadow-[0px_2px_8px_rgba(15,23,42,0.05)] overflow-hidden">
+      <div className="w-full h-full flex flex-col bg-white rounded-[16px] border border-[#D9E1EA] shadow-[0px_2px_8px_rgba(15,23,42,0.05)] overflow-hidden">
+    {/* Header */}
       <div className="px-4 pt-4">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
@@ -75,7 +76,8 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
       </div>
 
       {/* Overview */}
-      <div className="px-4 pt-4 flex-1 overflow-y-auto">
+      <div className="px-4 pt-4 flex-1 min-h-0 overflow-y-auto">
+
         <div className="flex flex-col gap-2.5 text-[12px]">
           <MetaRow label="Recovery Type" value={selected.type} />
           <MetaRow
@@ -143,32 +145,6 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
           </span>
         </div>
 
-        {/* <div className="mt-5 rounded-md border border-[#DDD6FE] bg-[#FCFAFF] p-3">
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#6D28D9]">
-            <Sparkles size={14} />
-            AI Next Best Action
-          </div>
-          <p className="mt-3 text-[10px] leading-4 text-[#475569]">
-            The vendor has not responded for 6 days.
-          </p>
-          <p className="mt-3 text-[10px] leading-4 text-[#475569]">
-            <span className="font-semibold text-[#334155]">Recommendation:</span> Send follow-up email and request expected credit memo date.
-          </p>
-          <div className="mt-3 text-[10px] font-semibold text-[#475569]">Suggested Action:</div>
-          <div className="mt-2 space-y-1.5 text-[10px] text-[#475569]">
-            <div className="flex items-center gap-1.5"><CircleCheck size={12} className="text-[#22C55E]" /> Send follow-up email (Template available)</div>
-            <div className="flex items-center gap-1.5"><CircleCheck size={12} className="text-[#22C55E]" /> Escalate if no response in 3 days</div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setIsDraftGenerated(true)}
-            className="mt-3 inline-flex h-7 items-center gap-1.5 rounded border border-[#C4B5FD] bg-white px-2 text-[10px] font-semibold text-[#6D28D9] hover:bg-[#F5F3FF]"
-          >
-            <FilePenLine size={12} />
-            {isDraftGenerated ? "Email Draft Generated" : "Generate Email Draft"}
-          </button>
-        </div> */}
-
         {/* Recovery Timeline */}
         <div className="mt-6 pb-4">
           <div className="text-[11px] font-semibold tracking-wide text-[#64748B] mb-3">
@@ -201,25 +177,6 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
           </ol>
         </div>
       </div>
-
-      {/* Footer actions */}
-      {/* <div className="border-t border-[#E2E8F0] p-3 flex items-center gap-2">
-        <button className="flex-[2] h-9 rounded-lg bg-[#2563EB] text-white text-[12px] font-medium hover:bg-[#1D4ED8]">
-          View Related Case
-        </button>
-
-        <button className="flex-[1.4] h-9 rounded-lg border border-[#CBD5E1] bg-white text-[12px] font-medium text-[#334155]">
-          Download Receipt
-        </button>
-
-        <button
-          className="h-9 w-9 shrink-0 rounded-lg border border-[#CBD5E1] bg-white flex items-center justify-center text-[#334155]"
-          aria-haspopup="menu"
-          aria-label="More recovery actions"
-        >
-          <ChevronDown size={14} />
-        </button>
-      </div> */}
     </div>
   );
 };

@@ -2,16 +2,13 @@
 
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import {
-  ChevronDown,
   ChevronRight,
   DollarSign,
-  Download,
   FileText,
   Repeat2,
   X,
+  Eye,
 } from "lucide-react";
 
 const deviationVisuals = {
@@ -47,87 +44,16 @@ export default function VendorInsight({ vendor }) {
     (invoice) => invoice.deviation,
   );
 
-  const VendorDetailDownload = () => {
-    const doc = new jsPDF("landscape");
+const openInvoiceImage = (imageUrl) => {
+  if (!imageUrl) return;
 
-    doc.setFontSize(18);
-    doc.text("Vendor Exceptions Report", 14, 15);
+  window.open(
+    imageUrl,
+    "_blank",
+    "noopener,noreferrer"
+  );
+};
 
-    doc.setFontSize(10);
-    doc.text(`Vendor ID: ${vendor.vendorId || "-"}`, 14, 25);
-    const tableRows = exceptionInvoices.map((invoice) => [
-      invoice.posted || "-",
-      vendor.vendorName || "-",
-      invoice.invoiceNo || invoice.invoice_no || "-",
-      invoice.docNo || "-",
-      invoice.invDate || "-",
-      invoice.amount || "-",
-      invoice.category || "-",
-      invoice.costCenter || "-",
-      invoice.glAccount || "-",
-      invoice.risk || "-",
-      invoice.text || "-",
-    ]);
-
-    autoTable(doc, {
-      startY: 35,
-
-      head: [
-        [
-          "Posted",
-          "Vendor",
-          "Invoice No.",
-          "Doc No.",
-          "Inv Date",
-          "Amount",
-          "Category",
-          "Cost Center",
-          "GL Account",
-          "Risk",
-          "Text",
-        ],
-      ],
-
-      body: tableRows,
-
-      theme: "grid",
-
-      styles: {
-        fontSize: 9,
-        cellPadding: 3,
-        overflow: "linebreak",
-        valign: "middle",
-      },
-
-      headStyles: {
-        fillColor: [1, 212, 209], // Same blue/turquoise as Case Detail page
-        textColor: [255, 255, 255],
-        fontStyle: "bold",
-        halign: "center",
-      },
-
-      columnStyles: {
-        0: { cellWidth: 20 }, // Posted
-        1: { cellWidth: 40 }, // Vendor
-        2: { cellWidth: 30 }, // Invoice
-        3: { cellWidth: 20 }, // Doc No
-        4: { cellWidth: 20 }, // Inv Date
-        5: { cellWidth: 20 }, // Amount
-        6: { cellWidth: 35 }, // Category
-        7: { cellWidth: 20 }, // Cost Center
-        8: { cellWidth: 20 }, // GL Account
-        9: { cellWidth: 20 }, // Risk
-        10: { cellWidth: 40 }, // Text
-      },
-
-      margin: {
-        left: 10,
-        right: 10,
-      },
-    });
-
-    doc.save(`${vendor.vendorId || "Vendor"}_Exceptions.pdf`);
-  };
   return (
     <aside className="flex h-full flex-col overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm">
       {/* HEADER */}
@@ -291,15 +217,7 @@ export default function VendorInsight({ vendor }) {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    aria-label="Download PDF"
-                    onClick={VendorDetailDownload}
-                    className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-                  >
-                    <Download size={20} />
-                  </button>
-
+                 
                   <button
                     type="button"
                     aria-label="Close vendor exceptions"
@@ -341,8 +259,25 @@ export default function VendorInsight({ vendor }) {
                         </td>
 
                         <td className="px-3 py-3">
-                          {invoice.invoiceNo ?? invoice.invoice_no ?? "-"}
-                        </td>
+  <div className="flex items-center gap-2">
+    <span>
+      {invoice.invoiceNo ?? invoice.invoice_no ?? "-"}
+    </span>
+
+    {invoice.invoice_image_url && (
+      <button
+        type="button"
+        title="View Invoice Image"
+        onClick={() =>
+          openInvoiceImage(invoice.invoice_image_url)
+        }
+        className="text-slate-500 hover:text-blue-600"
+      >
+        <Eye size={16} />
+      </button>
+    )}
+  </div>
+</td>
 
                         <td className="px-3 py-3">{invoice.docNo ?? "-"}</td>
 
