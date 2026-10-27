@@ -73,51 +73,30 @@ export default function DashboardKpiCards({ data }) {
   ];
 
   const kpiData =
-    Array.isArray(apiKpis) && apiKpis.length
-      ? apiKpis.map((apiKpi, index) => {
-          const config =
-            iconConfig[index] || iconConfig[0];
+  Array.isArray(apiKpis) && apiKpis.length
+    ? apiKpis.map((apiKpi, index) => {
+        const config =
+          iconConfig[index] || iconConfig[0];
 
-          return {
-            title: apiKpi.metric || "",
+        return {
+          title: apiKpi.title || "",
+          value: apiKpi.value || "-",
+          change: apiKpi.change || "",
+          comparison: apiKpi.comparison || "",
+          positive: apiKpi.positive ?? true,
 
-            value: currencyMetrics.includes(apiKpi.metric)
-              ? formatCurrency(
-                  apiKpi.invoiceValue || apiKpi.value
-                )
-              : Number(
-                  apiKpi.value || 0
-                ).toLocaleString(),
+          invoiceCount:
+            apiKpi.invoiceCount || "-",
 
-            change:
-              Number(apiKpi.changePercentage || 0) !== 0
-                ? `${
-                    Number(apiKpi.changePercentage) > 0
-                      ? "+"
-                      : ""
-                  }${apiKpi.changePercentage}%`
-                : "",
+          invoiceValue:
+            apiKpi.invoiceValue || "-",
 
-            comparison:
-              apiKpi.comparisonPeriod || "",
-
-            positive:
-              apiKpi.trend === "positive",
-
-            invoiceCount: Number(
-              apiKpi.invoiceCount || 0
-            ).toLocaleString(),
-
-            invoiceValue: formatCurrency(
-              apiKpi.invoiceValue || 0
-            ),
-
-            icon: config.icon,
-            iconColor: config.iconColor,
-            iconBg: config.iconBg,
-          };
-        })
-      : [];
+          icon: config.icon,
+          iconColor: config.iconColor,
+          iconBg: config.iconBg,
+        };
+      })
+    : [];
 
   return (
     <KpiCardsGrid

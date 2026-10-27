@@ -53,9 +53,32 @@ export default function ManagementDashboard({ data }) {
   const investigationCycleData = data?.investigationCycleTrend || [];
   const categoryBreakdownData = data?.categoryBreakdown ?? [];
   const timelineScatterData = data?.timelineScatter || [];
+  // const timelineChartData = [...(timelineScatterData || [])]
+  //   .sort((a, b) => new Date(a.date) - new Date(b.date))
+  //   .slice(-12);
+  const monthOrder = {
+    Jan: 1,
+    Feb: 2,
+    Mar: 3,
+    Apr: 4,
+    May: 5,
+    Jun: 6,
+    Jul: 7,
+    Aug: 8,
+    Sep: 9,
+    Oct: 10,
+    Nov: 11,
+    Dec: 12,
+  };
+
   const timelineChartData = [...(timelineScatterData || [])]
-    .sort((a, b) => new Date(a.date) - new Date(b.date))
-    .slice(-12);
+    .filter((item) => Number(item.amount) > 0)
+    .map((item) => ({
+      ...item,
+      monthName: item.month || item.date,
+      monthIndex: monthOrder[item.month || item.date],
+    }))
+    .sort((a, b) => a.monthIndex - b.monthIndex);
   const vendorConcentrationData = data?.vendorConcentration || [];
   const maxGroups = Math.max(
     ...categoryBreakdownData.map((item) => Number(item.groups || 0)),
@@ -119,15 +142,15 @@ export default function ManagementDashboard({ data }) {
                   OPEN VS CLOSED CASES
                 </h3>
 
-                <div className="flex items-center justify-between">
-                  <div className="relative h-[128px] w-[128px]">
+                <div className="mt-5 flex items-center justify-between">
+                  <div className="relative h-[200px] w-[200px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={openClosedData}
                           dataKey="value"
-                          innerRadius={34}
-                          outerRadius={50}
+                          innerRadius={60}
+                          outerRadius={82}
                           stroke="none"
                         >
                           {openClosedData.map((item, index) => (
@@ -138,11 +161,11 @@ export default function ManagementDashboard({ data }) {
                     </ResponsiveContainer>
 
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <div className="text-[18px] font-bold text-slate-800">
+                      <div className="text-[22px] font-bold text-slate-800">
                         {dashboardSummary.totalCases}
                       </div>
 
-                      <div className="text-[10px] font-semibold text-slate-400">
+                      <div className="text-[14px] font-semibold text-slate-400">
                         TOTAL
                       </div>
                     </div>
@@ -178,7 +201,7 @@ export default function ManagementDashboard({ data }) {
               <div className={`col-span-12 md:col-span-6 ${cardClass}`}>
                 {/* your existing Recovery Value code */}
                 <div className="flex items-start justify-between">
-                  <h3 className="text-[13px] font-bold text-slate-800">
+                  <h3 className="mb-5 text-[13px] font-bold text-slate-800">
                     RECOVERY VALUE (USD)
                   </h3>
 
@@ -253,16 +276,16 @@ export default function ManagementDashboard({ data }) {
               </div>
               {/* CATEGORY BREAKDOWN */}
               <div className={`col-span-12 md:col-span-6 ${cardClass}`}>
-                <h3 className="mb-3 text-[11px] font-semibold text-slate-800">
+                <h3 className="mb-5 text-[13px] font-bold text-slate-800">
                   CATEGORY BREAKDOWN
                 </h3>
 
-                <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+                <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1">
                   {categoryBreakdownData.map((item, index) => {
                     const widthPercent = (item.groups / maxGroups) * 100;
 
                     return (
-                      <div key={`${item.name}-${index}`}>
+                      <div key={`${item.name}-${index}`} className="mb-5">
                         <div className="flex items-start justify-between gap-2">
                           {/* Left Section */}
                           <div className="flex items-center gap-1.5 min-w-[140px]">
@@ -303,7 +326,7 @@ export default function ManagementDashboard({ data }) {
                         </div>
 
                         {/* Progress Bar */}
-                        <div className="mt-1.5 h-2 w-full rounded-full bg-slate-100">
+                        <div className="mt-3 h-2 w-full rounded-full bg-slate-100">
                           <div
                             className="h-2 rounded-full transition-all duration-700"
                             style={{
@@ -320,12 +343,12 @@ export default function ManagementDashboard({ data }) {
 
               {/* TIMELINE SCATTER */}
               <div className={`col-span-12 md:col-span-6 ${cardClass}`}>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-[13px] font-bold text-slate-800">
+                <div className="">
+                  <h3 className="mb-5 text-[13px] font-bold text-slate-800">
                     Timeline: Date vs Amount
                   </h3>
 
-                  <div className="flex items-center gap-4 text-xs">
+                  <div className="flex items-center mt-3 mb-3 gap-3 text-xs">
                     <div className="flex items-center gap-1">
                       <span className="h-3 w-3 rounded-full bg-red-500" />
                       <span>High</span>
@@ -343,14 +366,14 @@ export default function ManagementDashboard({ data }) {
                   </div>
                 </div>
 
-                <div className="h-[340px]">
+                <div className="h-[400px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <ScatterChart
                       margin={{
                         top: 20,
-                        right: 20,
-                        left: 15,
-                        bottom: 10,
+                        right: 5,
+                        left: 0,
+                        bottom: 25,
                       }}
                     >
                       <CartesianGrid
@@ -359,18 +382,28 @@ export default function ManagementDashboard({ data }) {
                         vertical={true}
                         horizontal={true}
                       />
-
                       <XAxis
-                        dataKey="date"
-                        tick={{
-                          fontSize: 11,
-                          fill: "#64748B",
+                        type="number"
+                        dataKey="monthIndex"
+                        domain={[5, 10]}
+                        ticks={[5, 6, 7, 8, 9, 10]}
+                        tickFormatter={(value) => {
+                          const months = {
+                            5: "May",
+                            6: "Jun",
+                            7: "Jul",
+                            8: "Aug",
+                            9: "Sep",
+                            10: "Oct",
+                          };
+                          return months[value] || "";
                         }}
                         tickLine={false}
                         axisLine={{ stroke: "#CBD5E1" }}
                       />
 
                       <YAxis
+                        type="number"
                         dataKey="amount"
                         tick={{
                           fontSize: 11,
@@ -382,21 +415,29 @@ export default function ManagementDashboard({ data }) {
                           `${Math.round(value / 1000)}k`
                         }
                       />
-
                       <Tooltip
-                        cursor={{ strokeDasharray: "3 3" }}
-                        contentStyle={{
-                          borderRadius: "10px",
-                          border: "1px solid #E2E8F0",
-                          boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-                          fontSize: "12px",
-                        }}
-                        formatter={(value) => [
-                          `$${Number(value).toLocaleString()}`,
-                          "Amount",
-                        ]}
-                      />
+                        content={({ active, payload }) => {
+                          if (!active || !payload?.length) return null;
 
+                          const row = payload[0].payload;
+
+                          return (
+                            <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg">
+                              <div className="font-semibold">
+                                {row.monthName}
+                              </div>
+
+                              <div>Risk: {row.risk}</div>
+
+                              <div>
+                                Amount: ${Number(row.amount).toLocaleString()}
+                              </div>
+
+                              <div>Records: {row.records}</div>
+                            </div>
+                          );
+                        }}
+                      />
                       <Scatter
                         name="High"
                         data={timelineChartData.filter(
@@ -571,12 +612,12 @@ export default function ManagementDashboard({ data }) {
             {/* VENDOR CONCENTRATION */}
             {/* VENDOR CONCENTRATION */}
             <div className={cardClass}>
-              <div className="flex items-center justify-between mb-5">
-                <h3 className="text-[15px] font-bold text-slate-800">
+              <div className="">
+                <h3 className="text-[14px] font-bold text-slate-700">
                   Vendor Concentration (Top 10 by $ at Risk)
                 </h3>
 
-                <div className="flex gap-4 text-xs font-medium">
+                <div className="mt-3 mb-3 flex gap-4 text-xs font-medium">
                   <div className="flex items-center gap-1">
                     <span className="h-3 w-3 rounded-full bg-orange-500" />
                     <span>High</span>

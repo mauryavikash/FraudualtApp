@@ -161,7 +161,7 @@ export default function Recoveries() {
   return (
     <div>
       {/* HEADER */}
-      <RecoveriesHeader />
+      <RecoveriesHeader  data={recoveriesData.meta} />
       {/* KPI */}
       <div className="mt-4">
         <RecoveriesKpiCards data={recoveriesData.recoveryKpis} />

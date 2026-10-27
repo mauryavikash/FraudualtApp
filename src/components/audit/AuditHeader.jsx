@@ -1,11 +1,25 @@
 import React from "react";
-import {
-  SlidersHorizontal,
-  FlaskConical,
-} from "lucide-react";
-import PdfDownloadButton from "@/components/common/PdfDownloadButton";
 
-export const AuditHeader = () => {
+export const AuditHeader = ({ data }) => {
+  const meta = data ?? {};
+
+  const dataAsOf = meta?.dataAsOf
+    ? new Date(meta.dataAsOf).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : "";
+
+  const lastRefreshedAt = meta?.lastRefreshedAt
+    ? new Date(meta.lastRefreshedAt).toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "";
   return (
             <div className="contentHeader bg-white border border-[#D9E1EA] rounded-2xl shadow-[0px_2px_8px_rgba(15,23,42,0.05)] px-4 py-4 mb-4">
                 <div className="flex items-center justify-between flex-wrap gap-3">
@@ -18,9 +32,33 @@ export const AuditHeader = () => {
                     </p>
                 </div>
 
-                {/* <div className="flex gap-2.5">
-                    <PdfDownloadButton fileName="audit" />
-                </div> */}
+                 <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                <span className="text-lg">📅</span>
+
+                <div>
+                  <div className="text-[11px] text-slate-500">Data As Of</div>
+
+                  <div className="text-[15px] font-semibold text-slate-800">
+                    {dataAsOf}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                <span className="text-lg">🔄</span>
+
+                <div>
+                  <div className="text-[11px] text-slate-500">
+                    Last Refreshed
+                  </div>
+
+                  <div className="text-[15px] font-semibold text-slate-800">
+                    {lastRefreshedAt}
+                  </div>
+                </div>
+              </div>
+            </div>
                 </div>
             </div>
   );

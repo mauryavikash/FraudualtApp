@@ -40,7 +40,7 @@ export default function Audit() {
   return (
      <div>
       {/* HEADER */}
-       <AuditHeader/>
+       <AuditHeader data={auditData.meta} />
       {/* KPI */}
       <AuditKpiCards data={auditData.auditKpis} />
       {/* CONTENT */}
