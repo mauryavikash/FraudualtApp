@@ -55,9 +55,27 @@ export default function DashboardPage() {
     homeData.userName ??
     loggedInUser?.first_name ??
     "User";
-  const dateRange =
-    headerData.dateRange ?? homeData.dateRange ?? "May 14 – May 20, 2025";
 
+
+  const meta = homeData?.meta ?? {};
+
+  const dataAsOf = meta?.dataAsOf
+    ? new Date(meta.dataAsOf).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : "";
+
+  const lastRefreshedAt = meta?.lastRefreshedAt
+    ? new Date(meta.lastRefreshedAt).toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "";
   return (
     <div className="min-h-screen text-slate-800">
       <div className="mx-auto max-w-[1800px] space-y-3">
@@ -78,20 +96,31 @@ export default function DashboardPage() {
 
             {/* Right Actions */}
             <div className="flex items-center gap-3">
-              {/* Date Range */}
-              {/* <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
-              <CalendarDays size={16} />
-              <span>{dateRange}</span>
-              <ChevronDown size={14} />
-            </button> */}
-              {/* <div className="flex gap-2">
-              <button
-                onClick={downloadExcel}
-                className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
-              >
-                Download Excel
-              </button>
-            </div> */}
+              <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                <span className="text-lg">📅</span>
+
+                <div>
+                  <div className="text-[11px] text-slate-500">Data As Of</div>
+
+                  <div className="text-[15px] font-semibold text-slate-800">
+                    {dataAsOf}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                <span className="text-lg">🔄</span>
+
+                <div>
+                  <div className="text-[11px] text-slate-500">
+                    Last Refreshed
+                  </div>
+
+                  <div className="text-[15px] font-semibold text-slate-800">
+                    {lastRefreshedAt}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -99,7 +128,10 @@ export default function DashboardPage() {
         {/* KPI CARDS */}
         <DashboardKpiCards data={homeData.kpiCards} />
 
-        <AiExecutiveBriefing data={homeData.aiExecutiveBriefing} />
+        <AiExecutiveBriefing
+          data={homeData.aiExecutiveBriefing}
+          paymentStatus={homeData.paymentStatus}
+        />
 
         {/* MANAGEMENT DASHBOARD */}
         {/* <ManagementDashboard data={homeData.managementDashboard} /> */}
@@ -111,7 +143,6 @@ export default function DashboardPage() {
             vendorConcentration: homeData.vendorConcentration,
           }}
         />
-       
       </div>
     </div>
   );

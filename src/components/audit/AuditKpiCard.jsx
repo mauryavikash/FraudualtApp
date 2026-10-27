@@ -1,68 +1,59 @@
+import React from "react";
 import {
   CheckSquare,
-  PieChart,
+  Users,
   CircleDollarSign,
   RotateCcw,
-  Users,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
 import KpiCardsGrid from "../common/KpiCardsGrid";
 
-
-const visualConfig = [
-  {
-    icon: CheckSquare,
-    iconColor: "#2563EB",
-    iconBg: "#DBEAFE",
-    supportingColor: "text-[#10B981]",
-  },
-
-  {
-    icon: Users,
-    iconColor: "#2563EB",
-    iconBg: "#DBEAFE",
-    supportingColor: "text-[#10B981]",
-  },
-  {
-    icon: CircleDollarSign,
-    iconColor: "#10B981",
-    iconBg: "#DCFCE7",
-    supportingColor: "text-[#10B981]",
-  },
-  {
-    icon: RotateCcw,
-    iconColor: "#2563EB",
-    iconBg: "#DBEAFE",
-    supportingColor: "text-[#10B981]",
-  },
-  {
-    icon: Sparkles,
-    iconColor: "#ffffff",
-    iconBg: "#7C3AED",
-    supportingColor: "text-[#10B981]",
-  },
-];
-
-const formatCurrency = (value) => new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  notation: "compact",
-  maximumFractionDigits: 1,
-}).format(Number(value ?? 0));
+const iconMap = {
+  ClipboardCheck: CheckSquare,
+  Users,
+  DollarSign: CircleDollarSign,
+  RefreshCw: RotateCcw,
+  Sparkles,
+};
 
 export const AuditKpiCards = ({ data }) => {
-  const kpiData = Array.isArray(data)
-    ? data.map((item, index) => ({
-        ...(visualConfig[index] ?? visualConfig[0]),
-        title: item.metric,
-        value: item.metric === "Recovery Value"
-          ? formatCurrency(item.value)
-          : Number(item.value ?? 0).toLocaleString(),
-        supporting: "Current period",
-        invoiceCount: Number(item.invoiceCount ?? 0).toLocaleString(),
-        invoiceValue: formatCurrency(item.invoiceValue),
-      }))
-    : [];
+  const apiKpis = Array.isArray(data) ? data : [];
 
-  return <KpiCardsGrid items={kpiData} columns="grid-cols-1 md:grid-cols-3 lg:grid-cols-5" variant="audit" />;
+  const kpiData = apiKpis.map((item) => ({
+    title: item.title || "",
+
+    value: item.value || "0",
+
+    change: item.change || "",
+
+    comparison: item.comparison || "",
+
+    positive: item.positive ?? true,
+
+    supporting: item.comparison || "",
+
+    invoiceCount: item.invoiceCount || "0",
+
+    invoiceValue: item.invoiceValue || "$0.00",
+
+    icon:
+      iconMap[item.icon] ||
+      CheckSquare,
+
+    iconColor:
+      item.iconColor || "#2563EB",
+
+    iconBg:
+      item.iconBg || "#DBEAFE",
+  }));
+
+  return (
+    <KpiCardsGrid
+      items={kpiData}
+      columns="grid-cols-1 md:grid-cols-3 lg:grid-cols-5"
+      variant="audit"
+    />
+  );
 };
+
+export default AuditKpiCards;

@@ -7,7 +7,7 @@ import {
 import {CasesKpiCards} from "@/components/cases/CasesKpiCards";
 import {CasesDetails} from "@/components/cases/CasesDetails";
 import {CasesHeader} from "@/components/cases/CasesHeader";
-import CasesAnalyticsRow from "@/components/cases/CasesAnalyticsRow";
+// import CasesAnalyticsRow from "@/components/cases/CasesAnalyticsRow";
 import { LoadingState } from "@/components/common/LoadingState";
 import { getCases } from "@/app/lib/api";
 
@@ -244,7 +244,7 @@ const filteredData = useMemo(() => {
   return (
     <div>
       {/* HEADER */}
-       <CasesHeader/>
+       <CasesHeader data={casesData.meta} />
       {/* KPI */}
       <CasesKpiCards data={casesData.caseKpis} />
       {/* CONTENT */}
@@ -615,7 +615,7 @@ const filteredData = useMemo(() => {
 
       </div>
 
-      <CasesAnalyticsRow data={casesData.casesOverview} />
+      {/* <CasesAnalyticsRow data={casesData.casesOverview} /> */}
     </div>
   );
 }

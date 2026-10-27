@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
   ChevronRight,
@@ -32,7 +32,11 @@ const deviationVisuals = {
 export default function VendorInsight({ vendor }) {
   const [activeTab, setActiveTab] = useState("overview");
   const [isExceptionsOpen, setIsExceptionsOpen] = useState(false);
-
+const [currentPage, setCurrentPage] = useState(1);
+useEffect(() => {
+  setCurrentPage(1);
+}, [vendor?.vendorId]);
+const pageSize = 5;
   if (!vendor) return null;
 
   const initials = vendor.vendorName
@@ -43,16 +47,18 @@ export default function VendorInsight({ vendor }) {
   const exceptionInvoices = (vendor.invoices ?? []).filter(
     (invoice) => invoice.deviation,
   );
+  console.log("exceptionInvoices", exceptionInvoices);
+const totalPages = Math.ceil(exceptionInvoices.length / pageSize);
 
-const openInvoiceImage = (imageUrl) => {
-  if (!imageUrl) return;
+const paginatedInvoices = exceptionInvoices.slice(
+  (currentPage - 1) * pageSize,
+  currentPage * pageSize,
+);
+  const openInvoiceImage = (imageUrl) => {
+    if (!imageUrl) return;
 
-  window.open(
-    imageUrl,
-    "_blank",
-    "noopener,noreferrer"
-  );
-};
+    window.open(imageUrl, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <aside className="flex h-full flex-col overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm">
@@ -81,6 +87,144 @@ const openInvoiceImage = (imageUrl) => {
           {vendor.risk}
         </span>
       </header>
+
+            <div className="rounded-xl border border-slate-300 overflow-hidden">
+  <div className="max-h-[220px] overflow-auto">
+    <table className="w-full min-w-[1100px] text-[10px]">
+      <thead className="sticky top-0 bg-cyan-500 text-white z-10">
+        <tr>
+          <th className="px-2 py-1 text-left whitespace-nowrap">Posted</th>
+          <th className="px-2 py-1 text-left whitespace-nowrap">Vendor</th>
+          <th className="px-2 py-1 text-left whitespace-nowrap">Invoice No.</th>
+          <th className="px-2 py-1 text-left whitespace-nowrap">Doc No.</th>
+          <th className="px-2 py-1 text-left whitespace-nowrap">Inv Date</th>
+          <th className="px-2 py-1 text-left whitespace-nowrap">Amount</th>
+          <th className="px-2 py-1 text-left whitespace-nowrap">Category</th>
+          <th className="px-2 py-1 text-left whitespace-nowrap">Cost Center</th>
+          <th className="px-2 py-1 text-left whitespace-nowrap">GL Account</th>
+          <th className="px-2 py-1 text-left whitespace-nowrap">Risk</th>
+          <th className="px-2 py-1 text-left whitespace-nowrap">Text</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {paginatedInvoices.map((invoice, index) => (
+          <tr
+  key={`${vendor.vendorId}-${invoice.id}-${index}`}
+            className="border-b border-slate-100 text-[10px] text-slate-700 hover:bg-slate-50"
+          >
+            <td className="px-2 py-1 whitespace-nowrap">
+              {invoice.posted ?? "-"}
+            </td>
+
+            <td className="px-2 py-1 whitespace-nowrap">
+              {vendor.vendorName ?? "-"}
+            </td>
+
+            <td className="px-2 py-1 whitespace-nowrap">
+              <div className="flex items-center gap-1">
+                <span>
+                  {invoice.invoiceNo ?? invoice.invoice_no ?? "-"}
+                </span>
+
+                {invoice.invoice_image_url && (
+                  <button
+                    type="button"
+                    title="View Invoice"
+                    onClick={() =>
+                      openInvoiceImage(invoice.invoice_image_url)
+                    }
+                    className="text-slate-500 hover:text-blue-600"
+                  >
+                    <Eye size={12} />
+                  </button>
+                )}
+              </div>
+            </td>
+
+            <td className="px-2 py-1 whitespace-nowrap">
+              {invoice.docNo ?? "-"}
+            </td>
+
+            <td className="px-2 py-1 whitespace-nowrap">
+              {invoice.invDate ?? "-"}
+            </td>
+
+            <td className="px-2 py-1 whitespace-nowrap font-semibold">
+              {invoice.amount ?? "-"}
+            </td>
+
+            <td className="px-2 py-1 whitespace-nowrap">
+              {invoice.category ?? "-"}
+            </td>
+
+            <td className="px-2 py-1 whitespace-nowrap">
+              {invoice.costCenter ?? "-"}
+            </td>
+
+            <td className="px-2 py-1 whitespace-nowrap">
+              {invoice.glAccount ?? "-"}
+            </td>
+
+            <td className="px-2 py-1 whitespace-nowrap">
+              <span className="rounded bg-red-50 px-1 py-[1px] text-[9px] font-medium text-red-600">
+                {invoice.risk ?? "-"}
+              </span>
+            </td>
+
+            <td
+              className="px-2 py-1 max-w-[180px] truncate"
+              title={invoice.text}
+            >
+              {invoice.text ?? "-"}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  {totalPages > 1 && (
+    <div className="flex items-center justify-center gap-2 border-t bg-white p-2">
+      <button
+        onClick={() =>
+          setCurrentPage((prev) => Math.max(prev - 1, 1))
+        }
+        disabled={currentPage === 1}
+        className="rounded border px-2 py-1 text-[10px] disabled:opacity-50"
+      >
+        Prev
+      </button>
+
+      <span className="text-[10px] font-medium">
+        Page {currentPage} of {totalPages}
+      </span>
+
+      <button
+        onClick={() =>
+          setCurrentPage((prev) =>
+            Math.min(prev + 1, totalPages)
+          )
+        }
+        disabled={currentPage === totalPages}
+        className="rounded border px-2 py-1 text-[10px] disabled:opacity-50"
+      >
+        Next
+      </button>
+    </div>
+  )}
+</div>
+
+{/* <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4">
+         <Metric label="Total invoices" value={vendor.issues} />
+        <Metric label="Open exceptions" value={vendor.risk} alert />
+         <Metric label="Total amount (USD)" value={vendor.status} />
+        <Metric
+          label="Exception amount"
+          value={vendor.status}
+          alert
+        />
+      </div> */}
 
       {/* TABS */}
       <nav
@@ -149,11 +293,106 @@ const openInvoiceImage = (imageUrl) => {
                 </button>
               );
             })}
+            {/* <Summary summary={vendor.summary} /> */}
 
-            <Summary summary={vendor.summary} />
+           <div className="">
+
+  <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+    <div>
+      <p className="text-[12px] font-medium text-slate-500">
+        Vendor ID
+      </p>
+      <p className="text-[12px] font-semibold text-slate-800">
+        {vendor.vendorId ?? "-"}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-[12px] font-medium text-slate-500">
+        Vendor Name
+      </p>
+      <p className="text-[12px] font-semibold text-slate-800 break-words">
+        {vendor.vendorName ?? "-"}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-[12px] font-medium text-slate-500">
+        Status
+      </p>
+      <p className="text-[12px] font-semibold text-emerald-600">
+        {vendor.status ?? "-"}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-[12px] font-medium text-slate-500">
+        Risk
+      </p>
+      <p className="text-[12px] font-semibold text-rose-600">
+        {vendor.risk ?? "-"}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-[12px] font-medium text-slate-500">
+        Issues
+      </p>
+      <p className="text-[12px] font-semibold text-slate-800">
+        {vendor.issues ?? 0}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-[12px] font-medium text-slate-500">
+        Total Amount
+      </p>
+      <p className="text-[12px] font-semibold text-slate-800">
+        {vendor.totalAmount ?? "-"}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-[12px] font-medium text-slate-500">
+        Total Invoices
+      </p>
+      <p className="text-[12px] font-semibold text-slate-800">
+        {vendor.summary?.invoices ?? 0}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-[12px] font-medium text-slate-500">
+        Open Exceptions
+      </p>
+      <p className="text-[12px] font-semibold text-red-600">
+        {vendor.summary?.exceptions ?? 0}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-[12px] font-medium text-slate-500">
+        Summary Amount
+      </p>
+      <p className="text-[12px] font-semibold text-slate-800">
+        {vendor.summary?.totalAmount ?? "$0.00"}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-[12px] font-medium text-slate-500">
+        Exception Amount
+      </p>
+      <p className="text-[12px] font-semibold text-red-600">
+        {vendor.summary?.exceptionAmount ?? "$0.00"}
+      </p>
+    </div>
+  </div>
+</div>
+
+
           </>
         )}
-
         {activeTab !== "overview" && (
           <p className="py-12 text-center text-xs text-slate-500">
             Select a deviation category in the table to review {activeTab}.
@@ -171,21 +410,6 @@ const openInvoiceImage = (imageUrl) => {
           View Exceptions
         </button>
 
-        {/* <button
-          type="button"
-          className="flex h-8 items-center justify-center gap-1 rounded-md border border-slate-300 text-[10px] font-semibold text-slate-600 hover:bg-slate-50"
-        >
-          <Download size={12} />
-          Download Receipt
-        </button>
-
-        <button
-          type="button"
-          aria-label="More vendor actions"
-          className="grid h-8 place-items-center rounded-md border border-slate-300 text-slate-500"
-        >
-          <ChevronDown size={13} />
-        </button> */}
       </footer>
       {isExceptionsOpen &&
         typeof document !== "undefined" &&
@@ -217,7 +441,6 @@ const openInvoiceImage = (imageUrl) => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                 
                   <button
                     type="button"
                     aria-label="Close vendor exceptions"
@@ -259,25 +482,25 @@ const openInvoiceImage = (imageUrl) => {
                         </td>
 
                         <td className="px-3 py-3">
-  <div className="flex items-center gap-2">
-    <span>
-      {invoice.invoiceNo ?? invoice.invoice_no ?? "-"}
-    </span>
+                          <div className="flex items-center gap-2">
+                            <span>
+                              {invoice.invoiceNo ?? invoice.invoice_no ?? "-"}
+                            </span>
 
-    {invoice.invoice_image_url && (
-      <button
-        type="button"
-        title="View Invoice Image"
-        onClick={() =>
-          openInvoiceImage(invoice.invoice_image_url)
-        }
-        className="text-slate-500 hover:text-blue-600"
-      >
-        <Eye size={16} />
-      </button>
-    )}
-  </div>
-</td>
+                            {invoice.invoice_image_url && (
+                              <button
+                                type="button"
+                                title="View Invoice Image"
+                                onClick={() =>
+                                  openInvoiceImage(invoice.invoice_image_url)
+                                }
+                                className="text-slate-500 hover:text-blue-600"
+                              >
+                                <Eye size={16} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
 
                         <td className="px-3 py-3">{invoice.docNo ?? "-"}</td>
 
@@ -321,42 +544,42 @@ const openInvoiceImage = (imageUrl) => {
   );
 }
 
-function Summary({ summary }) {
-  return (
-    <section className="rounded-xl border border-slate-300 p-4">
-      <h3 className="text-[10px] font-bold uppercase tracking-wide text-slate-700">
-        Summary
-      </h3>
+// function Summary({ summary }) {
+//   return (
+//     <section className="rounded-xl border border-slate-300 p-4">
+//       <h3 className="text-[10px] font-bold uppercase tracking-wide text-slate-700">
+//         Summary
+//       </h3>
 
-      <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4">
-        <Metric label="Total invoices" value={summary.invoices} />
+//       <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4">
+//         <Metric label="Total invoices" value={summary.invoices} />
 
-        <Metric label="Open exceptions" value={summary.exceptions} alert />
+//         <Metric label="Open exceptions" value={summary.exceptions} alert />
 
-        <Metric label="Total amount (USD)" value={summary.totalAmount} />
+//         <Metric label="Total amount (USD)" value={summary.totalAmount} />
 
-        <Metric
-          label="Exception amount"
-          value={summary.exceptionAmount}
-          alert
-        />
-      </div>
-    </section>
-  );
-}
+//         <Metric
+//           label="Exception amount"
+//           value={summary.exceptionAmount}
+//           alert
+//         />
+//       </div>
+//     </section>
+//   );
+// }
 
-function Metric({ label, value, alert }) {
-  return (
-    <div>
-      <p className="text-[9px] text-slate-400">{label}</p>
+// function Metric({ label, value, alert }) {
+//   return (
+//     <div>
+//       <p className="text-[9px] text-slate-400">{label}</p>
 
-      <p
-        className={`mt-0.5 text-sm font-bold ${
-          alert ? "text-rose-500" : "text-slate-800"
-        }`}
-      >
-        {value}
-      </p>
-    </div>
-  );
-}
+//       <p
+//         className={`mt-0.5 text-sm font-bold ${
+//           alert ? "text-rose-500" : "text-slate-800"
+//         }`}
+//       >
+//         {value}
+//       </p>
+//     </div>
+//   );
+// }
