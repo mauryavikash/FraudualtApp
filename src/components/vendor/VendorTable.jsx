@@ -95,139 +95,136 @@ export default function VendorTable({
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
 
-  const filteredVendors = useMemo(() => {
-    return vendors.filter((vendor) => {
-      const vendorInvoices = vendor?.invoices || [];
+  // const filteredVendors = useMemo(() => {
+  //   return vendors.filter((vendor) => {
+  //     const vendorInvoices = vendor?.invoices || [];
 
-      if (activeDeviation === "500k") {
-        return vendorInvoices.some((invoice) => {
-          const amountText = String(invoice.amount ?? "0").toUpperCase();
+  //     if (activeDeviation === "500k") {
+  //       return vendorInvoices.some((invoice) => {
+  //         const amountText = String(invoice.amount ?? "0").toUpperCase();
 
-          let amount = parseFloat(amountText.replace(/[^0-9.]/g, ""));
+  //         let amount = parseFloat(amountText.replace(/[^0-9.]/g, ""));
 
-          if (amountText.includes("M")) {
-            amount *= 1000000;
-          } else if (amountText.includes("K")) {
-            amount *= 1000;
-          }
+  //         if (amountText.includes("M")) {
+  //           amount *= 1000000;
+  //         } else if (amountText.includes("K")) {
+  //           amount *= 1000;
+  //         }
 
-          return amount >= 500000;
-        });
-      }
+  //         return amount >= 500000;
+  //       });
+  //     }
 
-      return vendorInvoices.some((invoice) => {
-        const text = String(
-          invoice.deviation ||
-            invoice.type ||
-            invoice.category ||
-            invoice.id ||
-            "",
-        ).toLowerCase();
+  //     return vendorInvoices.some((invoice) => {
+  //       const text = String(
+  //         invoice.deviation ||
+  //           invoice.type ||
+  //           invoice.category ||
+  //           invoice.id ||
+  //           "",
+  //       ).toLowerCase();
 
-        switch (activeDeviation) {
-          case "currency":
-            return text.includes("currency");
+  //       switch (activeDeviation) {
+  //         case "currency":
+  //           return text.includes("currency");
 
-          case "invoice":
-            return text.includes("invoice") || text.includes("duplicate");
+  //         case "invoice":
+  //           return text.includes("invoice") || text.includes("duplicate");
 
-          case "recurring":
-            return text.includes("recurring") || text.includes("irregular");
+  //         case "recurring":
+  //           return text.includes("recurring") || text.includes("irregular");
 
-          case "outlier":
-            return text.includes("outlier") || text.includes("anomaly");
+  //         case "outlier":
+  //           return text.includes("outlier") || text.includes("anomaly");
 
-          case "onetime":
-            return (
-              text.includes("one-time") ||
-              text.includes("one time") ||
-              text.includes("onetime")
-            );
+  //         case "onetime":
+  //           return (
+  //             text.includes("one-time") ||
+  //             text.includes("one time") ||
+  //             text.includes("onetime")
+  //           );
 
-          default:
-            return true;
-        }
-      });
-    });
-  }, [vendors, activeDeviation]);
-
+  //         default:
+  //           return true;
+  //       }
+  //     });
+  //   });
+  // }, [vendors, activeDeviation]);
+const filteredVendors = vendors || [];
   useEffect(() => {
     if (filteredVendors.length > 0 && !selectedVendorId) {
       onSelectVendor(filteredVendors[0].vendorId);
     }
   }, [filteredVendors, selectedVendorId, onSelectVendor]);
 
-  useEffect(() => {
-    if (filteredVendors.length > 0) {
-      onSelectVendor(filteredVendors[0].vendorId);
-    }
-  }, [activeDeviation]);
-  const selectedVendor =
-    filteredVendors.find((vendor) => vendor.vendorId === selectedVendorId) ??
-    filteredVendors[0];
+  // useEffect(() => {
+  //   if (filteredVendors.length > 0) {
+  //     onSelectVendor(filteredVendors[0].vendorId);
+  //   }
+  // }, [activeDeviation]);
+ const selectedVendor = useMemo(() => {
+  return (
+    filteredVendors.find(
+      (vendor) => vendor.vendorId === selectedVendorId
+    ) || filteredVendors[0]
+  );
+}, [filteredVendors, selectedVendorId]);
 
-  const invoices = useMemo(() => {
-    return (selectedVendor?.invoices ?? []).filter((invoice) => {
-      const matchesSearch = JSON.stringify(invoice)
-        .toLowerCase()
-        .includes(search.toLowerCase());
+const invoices = useMemo(() => {
+  return (selectedVendor?.invoices || []).filter(
+    (invoice) => {
+      const matchesSearch =
+        search === "" ||
+        JSON.stringify(invoice)
+          .toLowerCase()
+          .includes(search.toLowerCase());
 
-      const text = String(
-        invoice.deviation ||
-          invoice.type ||
-          invoice.category ||
-          invoice.id ||
-          "",
-      ).toLowerCase();
+      const text = JSON.stringify(invoice)
+        .toLowerCase();
 
-      let matchesTab = false;
+      let matchesTab = true;
 
-      switch (activeDeviation) {
-        case "currency":
-          matchesTab = text.includes("currency");
-          break;
-
-        case "invoice":
-          matchesTab = text.includes("invoice") || text.includes("duplicate");
-          break;
-
-        case "recurring":
-          matchesTab = text.includes("recurring") || text.includes("irregular");
-          break;
-
-        case "outlier":
-          matchesTab = text.includes("outlier") || text.includes("anomaly");
-          break;
-
-        case "onetime":
-          matchesTab =
-            text.includes("one-time") ||
-            text.includes("one time") ||
-            text.includes("onetime");
-          break;
-
-        case "500k": {
-          const amountText = String(invoice.amount ?? "0").toUpperCase();
-
-          let amount = parseFloat(amountText.replace(/[^0-9.]/g, ""));
-
-          if (amountText.includes("M")) {
-            amount *= 1000000;
-          } else if (amountText.includes("K")) {
-            amount *= 1000;
-          }
-
-          matchesTab = amount >= 500000;
-          break;
-        }
-
-        default:
-          matchesTab = true;
+      if (activeDeviation === "currency") {
+        matchesTab =
+          text.includes("currency");
       }
 
-      return matchesTab && matchesSearch;
-    });
-  }, [selectedVendor, activeDeviation, search]);
+      if (activeDeviation === "invoice") {
+        matchesTab =
+          text.includes("invoice") ||
+          text.includes("duplicate");
+      }
+
+      if (activeDeviation === "recurring") {
+        matchesTab =
+          text.includes("recurring");
+      }
+
+      if (activeDeviation === "outlier") {
+        matchesTab =
+          text.includes("outlier") ||
+          text.includes("anomal");
+      }
+
+      if (activeDeviation === "onetime") {
+        matchesTab =
+          text.includes("one-time") ||
+          text.includes("one time") ||
+          text.includes("onetime");
+      }
+
+      if (activeDeviation === "500k") {
+        matchesTab = true;
+      }
+
+      return matchesSearch && matchesTab;
+    }
+  );
+}, [
+  selectedVendor,
+  activeDeviation,
+  search,
+]);
 
   if (!selectedVendor) {
     return (
