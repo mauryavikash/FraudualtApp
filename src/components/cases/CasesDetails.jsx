@@ -228,7 +228,7 @@ export const CasesDetails = ({ caseData, userName }) => {
             value={selectedCase.invoice_1?.invoice_number ?? "-"}
           />
         </div>
-        <div className="text-[10px] text-green-600">
+        <div className="mt-2 text-[10px] text-green-600">
           <p>{selectedCase?.audit_remarks}</p>
         </div>
         <button

@@ -47,11 +47,11 @@ export default function DashboardKpiCards({ data }) {
       iconColor: "#F59E0B",
       iconBg: "#FEF3C7",
     },
-    {
-      icon: Boxes,
-      iconColor: "#F59E0B",
-      iconBg: "#FEF3C7",
-    },
+    // {
+    //   icon: Boxes,
+    //   iconColor: "#F59E0B",
+    //   iconBg: "#FEF3C7",
+    // },
   ];
 
   const apiKpis = Array.isArray(data)
@@ -100,7 +100,7 @@ export default function DashboardKpiCards({ data }) {
   return (
     <KpiCardsGrid
       items={kpiData}
-      columns="grid-cols-1 md:grid-cols-3 lg:grid-cols-8"
+      columns="grid-cols-1 md:grid-cols-3 lg:grid-cols-7"
     />
   );
 }
