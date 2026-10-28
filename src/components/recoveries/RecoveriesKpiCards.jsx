@@ -23,29 +23,45 @@ const defaultIcon = {
 export const RecoveriesKpiCards = ({ data }) => {
   const apiKpis = Array.isArray(data) ? data : [];
 
-  const kpiData = apiKpis.map((item) => ({
-    title: item.title || "",
+  const kpiData = apiKpis.map((item) => {
+    const changeValue = String(item.change || "").trim();
 
-    value: item.value || "$0.00",
+    const isPositive = changeValue.startsWith("+");
+    const isNegative = changeValue.startsWith("-");
+    const isNeutral =
+      changeValue === "0" ||
+      changeValue === "0%" ||
+      changeValue === "+0" ||
+      changeValue === "-0" ||
+      changeValue === "";
 
-    change: item.change || "",
+    return {
+      title: item.title || "",
 
-    comparison: item.comparison || "",
+      value: item.value || "$0.00",
 
-    positive: item.positive ?? true,
+      change: changeValue,
 
-    invoiceCount: item.invoiceCount || "0",
+      comparison: item.comparison || "",
 
-    invoiceValue: item.invoiceValue || "$0.00",
+      // Arrow & Color Logic from change value
+      positive: isPositive,
+      negative: isNegative,
+      neutral: isNeutral,
 
-    icon: iconMap[item.icon] || defaultIcon.icon,
+      invoiceCount: item.invoiceCount || "0",
 
-    iconColor:
-      item.iconColor || defaultIcon.iconColor,
+      invoiceValue: item.invoiceValue || "$0.00",
 
-    iconBg:
-      item.iconBg || defaultIcon.iconBg,
-  }));
+      icon: iconMap[item.icon] || defaultIcon.icon,
+
+      iconColor:
+        item.iconColor || defaultIcon.iconColor,
+
+      iconBg:
+        item.iconBg || defaultIcon.iconBg,
+    };
+  });
 
   return (
     <KpiCardsGrid

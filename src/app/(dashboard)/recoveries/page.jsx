@@ -273,12 +273,7 @@ export default function Recoveries() {
                     <option>David Lee</option>
                     <option>Emma Wilson</option>
                   </FilterSelect>
-
-                  <div className="flex items-end">
-                    <button className="h-9 w-full px-4 rounded-xl border border-[#D9E1EA] text-[12px] font-medium text-[#475569]">
-                      More Filters
-                    </button>
-                  </div>
+                 
                 </div>
               </div>
 

@@ -1,43 +1,89 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 
 const tabs = [
   ["currency", "Currency Deviations"],
   ["invoice", "Invoice Number Deviations"],
   ["recurring", "Recurring Payment Deviations"],
+  ["outlier", "Outlier Anomaly"],
+  ["onetime", "One-time Vendor Findings"],
+  ["500k", "500K-plus Findings"],
 ];
 
 function normalizeDeviation(deviation) {
   const value = String(deviation ?? "").toLowerCase();
 
-  if (value.includes("currency") || value.includes("amount")) return "currency";
+  if (value.includes("currency") || value.includes("amount")) {
+    return "currency";
+  }
+
   if (
     value.includes("invoice") ||
     value.includes("duplicate") ||
+    value.includes("potential_duplicate") ||
     value.includes("potential-dup")
-  )
+  ) {
     return "invoice";
-  if (value.includes("recurring") || value.includes("irregular"))
+  }
+
+  if (value.includes("recurring") || value.includes("irregular")) {
     return "recurring";
+  }
+
+  if (
+    value.includes("outlier") ||
+    value.includes("anomaly") ||
+    value.includes("outlier_anomalies")
+  ) {
+    return "outlier";
+  }
+
+  if (value.includes("one-time") || value.includes("onetime")) {
+    return "onetime";
+  }
+
+  if (
+    value.includes("500k") ||
+    value.includes("500k-plus") ||
+    value.includes("500k plus")
+  ) {
+    return "500k";
+  }
 
   return value;
 }
+
 function normalizeType(type) {
   const value = String(type ?? "").toLowerCase();
 
-  if (value.includes("currency")) return "currency";
+  if (value.includes("currency")) {
+    return "currency";
+  }
 
   if (value.includes("invoice") || value.includes("duplicate")) {
     return "invoice";
   }
 
-  if (value.includes("recurring")) return "recurring";
+  if (value.includes("recurring") || value.includes("irregular")) {
+    return "recurring";
+  }
+
+  if (value.includes("outlier") || value.includes("anomaly")) {
+    return "outlier";
+  }
+
+  if (value.includes("one-time") || value.includes("onetime")) {
+    return "onetime";
+  }
+
+  if (value.includes("500k") || value.includes("500k-plus")) {
+    return "500k";
+  }
 
   return value;
 }
-
 export default function VendorTable({
   vendors,
   selectedVendorId,
@@ -49,17 +95,139 @@ export default function VendorTable({
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
 
-  const filteredVendors = useMemo(
-    () =>
-      vendors.filter(
-        (vendor) => normalizeType(vendor.type) === activeDeviation,
-      ),
-    [vendors, activeDeviation],
-  );
+  const filteredVendors = useMemo(() => {
+    return vendors.filter((vendor) => {
+      const vendorInvoices = vendor?.invoices || [];
 
+      if (activeDeviation === "500k") {
+        return vendorInvoices.some((invoice) => {
+          const amountText = String(invoice.amount ?? "0").toUpperCase();
+
+          let amount = parseFloat(amountText.replace(/[^0-9.]/g, ""));
+
+          if (amountText.includes("M")) {
+            amount *= 1000000;
+          } else if (amountText.includes("K")) {
+            amount *= 1000;
+          }
+
+          return amount >= 500000;
+        });
+      }
+
+      return vendorInvoices.some((invoice) => {
+        const text = String(
+          invoice.deviation ||
+            invoice.type ||
+            invoice.category ||
+            invoice.id ||
+            "",
+        ).toLowerCase();
+
+        switch (activeDeviation) {
+          case "currency":
+            return text.includes("currency");
+
+          case "invoice":
+            return text.includes("invoice") || text.includes("duplicate");
+
+          case "recurring":
+            return text.includes("recurring") || text.includes("irregular");
+
+          case "outlier":
+            return text.includes("outlier") || text.includes("anomaly");
+
+          case "onetime":
+            return (
+              text.includes("one-time") ||
+              text.includes("one time") ||
+              text.includes("onetime")
+            );
+
+          default:
+            return true;
+        }
+      });
+    });
+  }, [vendors, activeDeviation]);
+
+  useEffect(() => {
+    if (filteredVendors.length > 0 && !selectedVendorId) {
+      onSelectVendor(filteredVendors[0].vendorId);
+    }
+  }, [filteredVendors, selectedVendorId, onSelectVendor]);
+
+  useEffect(() => {
+    if (filteredVendors.length > 0) {
+      onSelectVendor(filteredVendors[0].vendorId);
+    }
+  }, [activeDeviation]);
   const selectedVendor =
     filteredVendors.find((vendor) => vendor.vendorId === selectedVendorId) ??
     filteredVendors[0];
+
+  const invoices = useMemo(() => {
+    return (selectedVendor?.invoices ?? []).filter((invoice) => {
+      const matchesSearch = JSON.stringify(invoice)
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+      const text = String(
+        invoice.deviation ||
+          invoice.type ||
+          invoice.category ||
+          invoice.id ||
+          "",
+      ).toLowerCase();
+
+      let matchesTab = false;
+
+      switch (activeDeviation) {
+        case "currency":
+          matchesTab = text.includes("currency");
+          break;
+
+        case "invoice":
+          matchesTab = text.includes("invoice") || text.includes("duplicate");
+          break;
+
+        case "recurring":
+          matchesTab = text.includes("recurring") || text.includes("irregular");
+          break;
+
+        case "outlier":
+          matchesTab = text.includes("outlier") || text.includes("anomaly");
+          break;
+
+        case "onetime":
+          matchesTab =
+            text.includes("one-time") ||
+            text.includes("one time") ||
+            text.includes("onetime");
+          break;
+
+        case "500k": {
+          const amountText = String(invoice.amount ?? "0").toUpperCase();
+
+          let amount = parseFloat(amountText.replace(/[^0-9.]/g, ""));
+
+          if (amountText.includes("M")) {
+            amount *= 1000000;
+          } else if (amountText.includes("K")) {
+            amount *= 1000;
+          }
+
+          matchesTab = amount >= 500000;
+          break;
+        }
+
+        default:
+          matchesTab = true;
+      }
+
+      return matchesTab && matchesSearch;
+    });
+  }, [selectedVendor, activeDeviation, search]);
 
   if (!selectedVendor) {
     return (
@@ -70,15 +238,7 @@ export default function VendorTable({
       </section>
     );
   }
-  const invoices = useMemo(
-    () =>
-      (selectedVendor?.invoices ?? []).filter(
-        (invoice) =>
-          normalizeDeviation(invoice.deviation) === activeDeviation &&
-          JSON.stringify(invoice).toLowerCase().includes(search.toLowerCase()),
-      ),
-    [activeDeviation, search, selectedVendor],
-  );
+
   const totalPages = Math.max(1, Math.ceil(invoices.length / ITEMS_PER_PAGE));
 
   const paginatedInvoices = invoices.slice(
@@ -89,7 +249,7 @@ export default function VendorTable({
     <section className="col-span-12 overflow-hidden rounded-xl border border-slate-200 bg-white lg:col-span-8">
       {/* TOP TABS */}
       <nav
-        className="flex gap-6 overflow-x-auto border-b border-slate-200 px-4"
+        className="flex gap-3 overflow-x-auto border-b border-slate-200 px-3"
         aria-label="Deviation category"
       >
         {tabs.map(([id, label]) => (
@@ -113,7 +273,7 @@ export default function VendorTable({
       </nav>
 
       {/* MAIN CONTENT */}
-      <div className="grid h-[510px] min-h-0 grid-cols-1 lg:grid-cols-[235px_minmax(0,1fr)]">
+      <div className="grid h-[650px] min-h-0 grid-cols-1 lg:grid-cols-[235px_minmax(0,1fr)]">
         {/* LEFT SIDEBAR */}
         <aside className="bg-slate-50 lg:border-r lg:border-slate-200">
           <div className="border-b border-slate-200 bg-slate-50 px-4 py-4 text-xs font-bold uppercase tracking-wide text-slate-600">
@@ -189,7 +349,7 @@ export default function VendorTable({
             </label>
           </div>
 
-          <div className="table-scrollbar h-[calc(500px-116px)] overflow-x-auto overflow-y-scroll">
+          <div className="table-scrollbar h-[calc(640px-116px)] overflow-x-auto overflow-y-scroll">
             <table className="w-full min-w-[670px] bg-white">
               <thead className="border-b bg-slate-100">
                 <tr>

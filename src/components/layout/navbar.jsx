@@ -10,6 +10,7 @@ import {
   DollarSign,
   Users,
   Clock3,
+  BarChart3,
 
 } from "lucide-react";
 import Link from "next/link";
@@ -20,10 +21,8 @@ const navItems = [
   { name: "Recoveries", href: "/recoveries", icon: DollarSign },
   { name: "Vendor", href: "/vendor", icon: Users },
   { name: "Audit Trail", href: "/audit", icon: Clock3 },
-  // { name: "Reports & Analytics", href: "/reports", icon: BarChart3 },
-  // { name: "Audit & Compliance", href: "/audit", icon: ShieldCheck },
-  // { name: "Configuration", href: "/settings", icon: Settings },
-  // { name: "Users & Roles", href: "/users-roles", icon: Users },
+  { name: "AI Review", href: "/aiReview", icon: BarChart3 },
+
 ];
 
 export default function Navbar({ isSidebarOpen }) {

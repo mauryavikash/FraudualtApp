@@ -139,9 +139,8 @@ useEffect(() => {
     else if (pathname === "/recoveries") title = "Recoveries";
     else if (pathname === "/vendor") title = "Vendor Deviations ";
     else if (pathname === "/audit") title = "Audit Log";
-    // else if (pathname === "/reports") title = "Reports & Analytics";
-    // else if (pathname === "/settings") title = "Configuration";
-    // else if (pathname === "/users-roles") title = "Users & Roles";
+    else if (pathname === "/aiReview") title = "AI Review";
+
   }
 
   const headerActions = [

@@ -23,30 +23,41 @@ const iconMap = {
 export const CasesKpiCards = ({ data }) => {
   const apiKpis = Array.isArray(data) ? data : [];
 
-  const kpiData = apiKpis.map((item) => ({
-    title: item.title || "",
-    value: item.value || "-",
+  const kpiData = apiKpis.map((item) => {
+    const changeValue = String(item.change || "").trim();
 
-    change: item.change || "",
+    const isPositive = changeValue.startsWith("+");
+    const isNegative = changeValue.startsWith("-");
+    const isNeutral =
+      changeValue === "0" ||
+      changeValue === "0%" ||
+      changeValue === "+0" ||
+      changeValue === "-0";
 
-    comparison: item.comparison || "",
+    return {
+      title: item.title || "",
+      value: item.value || "-",
 
-    positive: item.positive ?? false,
+      change: changeValue,
 
-    invoiceCount: item.invoiceCount || "0",
+      comparison: item.comparison || "",
 
-    invoiceValue: item.invoiceValue || "$0.00",
+      // Arrow & Color Logic
+      positive: isPositive,
+      negative: isNegative,
+      neutral: isNeutral,
 
-    icon:
-      iconMap[item.icon] ||
-      FolderOpen,
+      invoiceCount: item.invoiceCount || "0",
 
-    iconColor:
-      item.iconColor || "#8B5CF6",
+      invoiceValue: item.invoiceValue || "$0.00",
 
-    iconBg:
-      item.iconBg || "#F3E8FF",
-  }));
+      icon: iconMap[item.icon] || FolderOpen,
+
+      iconColor: item.iconColor || "#8B5CF6",
+
+      iconBg: item.iconBg || "#F3E8FF",
+    };
+  });
 
   return (
     <KpiCardsGrid

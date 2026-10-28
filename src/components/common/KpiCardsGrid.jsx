@@ -69,7 +69,7 @@ export default function KpiCardsGrid({
             >
 
             
-              <div className="flex items-start break-all justify-between gap-1">
+              <div className="flex items-start break-words justify-between gap-1">
                 <p className={style.titleClass}>{item.title}</p>
 
                 {Icon && (

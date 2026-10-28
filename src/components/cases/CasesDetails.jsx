@@ -2,12 +2,7 @@ import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import {
-  X,
-  FileSearch,
-  AlertTriangle,
-   Eye
-} from "lucide-react";
+import { X, FileSearch, AlertTriangle, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { submitCaseAction } from "@/app/lib/api";
 export const CasesDetails = ({ caseData, userName }) => {
@@ -53,15 +48,15 @@ export const CasesDetails = ({ caseData, userName }) => {
   const detectedOn = selectedCase.detectedOn
     ? new Date(selectedCase.detectedOn).toLocaleString()
     : "-";
-  
-const openInvoiceImage = (imageUrl) => {
-  if (!imageUrl) {
-    toast.error("Invoice image not available");
-    return;
-  }
 
-  window.open(imageUrl, "_blank", "noopener,noreferrer");
-};
+  const openInvoiceImage = (imageUrl) => {
+    if (!imageUrl) {
+      toast.error("Invoice image not available");
+      return;
+    }
+
+    window.open(imageUrl, "_blank", "noopener,noreferrer");
+  };
   return (
     <div className="w-full bg-white rounded-[16px] border border-[#D1D5DB] shadow-[0px_2px_8px_rgba(0,0,0,0.08)] overflow-hidden">
       {/* Header */}
@@ -233,7 +228,9 @@ const openInvoiceImage = (imageUrl) => {
             value={selectedCase.invoice_1?.invoice_number ?? "-"}
           />
         </div>
-
+        <div className="text-[10px] text-green-600">
+          <p>{selectedCase?.audit_remarks}</p>
+        </div>
         <button
           type="button"
           onClick={() => setIsCaseDetailsOpen(true)}
@@ -410,8 +407,6 @@ const openInvoiceImage = (imageUrl) => {
 
                 {/* Right Side Actions */}
                 <div className="flex items-center gap-2 ml-auto">
-                 
-
                   <button
                     type="button"
                     aria-label="Close case details"
@@ -422,15 +417,6 @@ const openInvoiceImage = (imageUrl) => {
                   </button>
                 </div>
               </div>
-
-              {/* <div className="grid grid-cols-1 gap-4 px-6 py-5 text-sm sm:grid-cols-2">
-                        <ModalInfo label="Case Type" value={selectedCase.case_type} />
-                        <ModalInfo label="Duplicate Type" value={selectedCase.duplicateType ?? selectedCase.duplicate_type} />
-                        <ModalInfo label="Status" value={selectedCase.case_status ?? selectedCase.risk_level} />
-                        <ModalInfo label="Priority" value={selectedCase.priority} />
-                        <ModalInfo label="Vendor" value={selectedCase.vendor} />
-                        <ModalInfo label="Similarity" value={selectedCase.similarity} />
-                    </div> */}
 
               <div className="border-t border-slate-200 px-6 py-5">
                 <h3 className="text-sm font-semibold text-slate-900">
@@ -473,7 +459,7 @@ const openInvoiceImage = (imageUrl) => {
                                       window.open(
                                         invoice.invoice_image_url,
                                         "_blank",
-                                        "noopener,noreferrer"
+                                        "noopener,noreferrer",
                                       )
                                     }
                                     className="text-slate-500 hover:text-blue-600"
@@ -523,17 +509,16 @@ const openInvoiceImage = (imageUrl) => {
             </div>
           </div>,
           document.body,
-          
         )}
-        {selectedInvoice?.invoice_image_url && (
-          <div className="mt-6">
-            <h3 className="mb-2 text-sm font-semibold text-slate-700">
-              Invoice Image
-            </h3>
+      {selectedInvoice?.invoice_image_url && (
+        <div className="mt-6">
+          <h3 className="mb-2 text-sm font-semibold text-slate-700">
+            Invoice Image
+          </h3>
 
-            {selectedInvoice.invoice_image_url}
-          </div>
-        )}
+          {selectedInvoice.invoice_image_url}
+        </div>
+      )}
     </div>
   );
 };

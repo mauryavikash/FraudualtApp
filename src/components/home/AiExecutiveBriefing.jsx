@@ -218,15 +218,15 @@ export default function AiExecutiveBriefing({ data, paymentStatus }) {
           <h2 className="mb-5 text-xs font-semibold text-slate-900">
             Detection Mix (By Source)
           </h2>
-          <div className="mt-3 flex items-center justify-center gap-4">
-            <div className="h-[180px] w-[180px] shrink-0">
+          <div className="mt-3 flex items-center justify-center gap-1">
+            <div className="h-[170px] w-[150px] shrink-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={activeDetectionMix}
                     dataKey="value"
-                    innerRadius={55}
-                    outerRadius={78}
+                    innerRadius={45}
+                    outerRadius={65}
                     paddingAngle={2}
                     stroke="none"
                   >
@@ -354,15 +354,15 @@ export default function AiExecutiveBriefing({ data, paymentStatus }) {
             Payment Status
           </h2>
 
-          <div className="mt-4 flex items-center gap-4">
-            <div className="h-[180px] w-[180px] shrink-0">
+          <div className="mt-4 flex items-center gap-1">
+            <div className="h-[170px] w-[150px] shrink-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={paymentStatusData}
                     dataKey="value"
-                    innerRadius={55}
-                    outerRadius={78}
+                    innerRadius={45}
+                    outerRadius={65}
                     paddingAngle={2}
                     stroke="none"
                   >
