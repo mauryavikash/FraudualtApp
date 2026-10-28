@@ -321,89 +321,89 @@ export default function VendorInsight({ vendor }) {
             <div className="">
               <div className="grid grid-cols-2 gap-x-3 gap-y-3">
                 <div>
-                  <p className="text-[10px] font-medium text-slate-500">
+                  <p className="text-[12px] font-medium text-slate-500">
                     Vendor ID
                   </p>
-                  <p className="text-[10px] font-semibold text-slate-800">
+                  <p className="text-[12px] font-semibold text-slate-800">
                     {vendor.vendorId ?? "-"}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-medium text-slate-500">
+                  <p className="text-[12px] font-medium text-slate-500">
                     Vendor Name
                   </p>
-                  <p className="text-[10px] font-semibold text-slate-800 break-words">
+                  <p className="text-[12px] font-semibold text-slate-800 break-words">
                     {vendor.vendorName ?? "-"}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-medium text-slate-500">
+                  <p className="text-[12px] font-medium text-slate-500">
                     Status
                   </p>
-                  <p className="text-[10px] font-semibold text-emerald-600">
+                  <p className="text-[12px] font-semibold text-emerald-600">
                     {vendor.status ?? "-"}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-medium text-slate-500">Risk</p>
-                  <p className="text-[10px] font-semibold text-rose-600">
+                  <p className="text-[12px] font-medium text-slate-500">Risk</p>
+                  <p className="text-[12px] font-semibold text-rose-600">
                     {vendor.risk ?? "-"}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-medium text-slate-500">
+                  <p className="text-[12px] font-medium text-slate-500">
                     Issues
                   </p>
-                  <p className="text-[10px] font-semibold text-slate-800">
+                  <p className="text-[12px] font-semibold text-slate-800">
                     {vendor.issues ?? 0}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-medium text-slate-500">
+                  <p className="text-[12px] font-medium text-slate-500">
                     Total Amount
                   </p>
-                  <p className="text-[10px] font-semibold text-slate-800">
+                  <p className="text-[12px] font-semibold text-slate-800">
                     {vendor.totalAmount ?? "-"}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-medium text-slate-500">
+                  <p className="text-[12px] font-medium text-slate-500">
                     Total Invoices
                   </p>
-                  <p className="text-[10px] font-semibold text-slate-800">
+                  <p className="text-[12px] font-semibold text-slate-800">
                     {vendor.summary?.invoices ?? 0}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-medium text-slate-500">
+                  <p className="text-[12px] font-medium text-slate-500">
                     Open Exceptions
                   </p>
-                  <p className="text-[10px] font-semibold text-red-600">
+                  <p className="text-[12px] font-semibold text-red-600">
                     {vendor.summary?.exceptions ?? 0}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-medium text-slate-500">
+                  <p className="text-[12px] font-medium text-slate-500">
                     Summary Amount
                   </p>
-                  <p className="text-[10px] font-semibold text-slate-800">
+                  <p className="text-[12px] font-semibold text-slate-800">
                     {vendor.summary?.totalAmount ?? "$0.00"}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-medium text-slate-500">
+                  <p className="text-[12px] font-medium text-slate-500">
                     Exception Amount
                   </p>
-                  <p className="text-[10px] font-semibold text-red-600">
+                  <p className="text-[12px] font-semibold text-red-600">
                     {vendor.summary?.exceptionAmount ?? "$0.00"}
                   </p>
                 </div>
@@ -420,14 +420,14 @@ export default function VendorInsight({ vendor }) {
 
       {/* FOOTER */}
 
-      <div className="p-2 text-[10px] text-green-600">
+      <div className="p-2 text-[12px] text-green-600">
         <p>{vendor?.auditRemarks}</p>
       </div>
       <div className="mt-auto grid grid-cols-[1fr_1fr_34px] gap-2 border-t border-slate-300 p-4">
         <button
           type="button"
           onClick={() => setIsExceptionsOpen(true)}
-          className="h-8 rounded-md bg-blue-600 text-[10px] font-semibold text-white hover:bg-blue-700"
+          className="h-8 rounded-md bg-blue-600 text-[12px] font-semibold text-white hover:bg-blue-700"
         >
           View Exceptions
         </button>

@@ -277,7 +277,7 @@ const invoices = useMemo(() => {
             Exception Vendors
           </div>
 
-          <div className="h-[calc(100vh-220px)] overflow-y-auto overflow-x-hidden">
+          <div className="h-[calc(100vh-0px)] overflow-y-auto overflow-x-hidden">
             {/* {vendors.map((vendor) => { */}
             {filteredVendors.map((vendor) => {
               const selected = vendor.vendorId === selectedVendorId;
@@ -346,8 +346,8 @@ const invoices = useMemo(() => {
             </label>
           </div>
 
-          <div className="table-scrollbar h-[calc(640px-116px)] overflow-x-auto overflow-y-scroll">
-            <table className="w-full min-w-[670px] bg-white">
+          <div className="table-scrollbar h-[calc(840px-116px)] overflow-x-auto overflow-y-scroll">
+            <table className="w-full min-w-[670px] min-h-[680px] bg-white">
               <thead className="border-b bg-slate-100">
                 <tr>
                   {[
