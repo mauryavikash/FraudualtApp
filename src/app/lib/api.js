@@ -162,7 +162,22 @@ export async function submitCaseAction(payload) {
 
   return response.data;
 }
+export async function submitRecoveryAction(payload) {
+  const response = await axiosInstance.post(
+    "recovery-action",
+    payload
+  );
 
+  return response.data;
+}
+export async function submitVendorAction(payload) {
+  const response = await axiosInstance.post(
+    "vendor-action",
+    payload
+  );
+
+  return response.data;
+}
 
 export async function getRecoveries() {
   if (!recoveriesRequest) {

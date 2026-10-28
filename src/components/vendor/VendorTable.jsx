@@ -1,43 +1,84 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 
 const tabs = [
   ["currency", "Currency Deviations"],
   ["invoice", "Invoice Number Deviations"],
   ["recurring", "Recurring Payment Deviations"],
+  ["outlier", "Outlier Anomaly"],
+  ["onetime", "One-time Vendor Findings"],
+  ["500k", "500K-plus Findings"],
 ];
 
 function normalizeDeviation(deviation) {
   const value = String(deviation ?? "").toLowerCase();
 
-  if (value.includes("currency") || value.includes("amount")) return "currency";
+  if (value.includes("currency") || value.includes("amount")) {
+    return "currency";
+  }
+
   if (
     value.includes("invoice") ||
     value.includes("duplicate") ||
     value.includes("potential-dup")
-  )
+  ) {
     return "invoice";
-  if (value.includes("recurring") || value.includes("irregular"))
+  }
+
+  if (value.includes("recurring") || value.includes("irregular")) {
     return "recurring";
+  }
+
+  if (value.includes("outlier") || value.includes("anomaly")) {
+    return "outlier";
+  }
+
+  if (value.includes("one-time") || value.includes("onetime")) {
+    return "onetime";
+  }
+
+  if (
+    value.includes("500k") ||
+    value.includes("500k-plus") ||
+    value.includes("500k plus")
+  ) {
+    return "500k";
+  }
 
   return value;
 }
+
 function normalizeType(type) {
   const value = String(type ?? "").toLowerCase();
 
-  if (value.includes("currency")) return "currency";
+  if (value.includes("currency")) {
+    return "currency";
+  }
 
   if (value.includes("invoice") || value.includes("duplicate")) {
     return "invoice";
   }
 
-  if (value.includes("recurring")) return "recurring";
+  if (value.includes("recurring") || value.includes("irregular")) {
+    return "recurring";
+  }
+
+  if (value.includes("outlier") || value.includes("anomaly")) {
+    return "outlier";
+  }
+
+  if (value.includes("one-time") || value.includes("onetime")) {
+    return "onetime";
+  }
+
+  if (value.includes("500k") || value.includes("500k-plus")) {
+    return "500k";
+  }
 
   return value;
 }
-
 export default function VendorTable({
   vendors,
   selectedVendorId,
@@ -49,17 +90,90 @@ export default function VendorTable({
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
 
-  const filteredVendors = useMemo(
-    () =>
-      vendors.filter(
-        (vendor) => normalizeType(vendor.type) === activeDeviation,
-      ),
-    [vendors, activeDeviation],
-  );
 
+  const filteredVendors = useMemo(() => {
+    return vendors.filter((vendor) => {
+      if (activeDeviation === "outlier") {
+        return (
+          String(vendor.type ?? "")
+            .toLowerCase()
+            .includes("outlier") ||
+          String(vendor.type ?? "")
+            .toLowerCase()
+            .includes("anomaly")
+        );
+      }
+
+      if (activeDeviation === "onetime") {
+        const type = String(vendor.type ?? "").toLowerCase();
+
+        return (
+          type.includes("one-time") ||
+          type.includes("one time") ||
+          type.includes("onetime")
+        );
+      }
+
+      if (activeDeviation === "500k") {
+        const amountText = String(vendor.totalAmount ?? "").toUpperCase();
+
+        let amount = parseFloat(amountText.replace(/[^0-9.]/g, ""));
+
+        if (amountText.includes("M")) {
+          amount *= 1000000;
+        } else if (amountText.includes("K")) {
+          amount *= 1000;
+        }
+
+        return amount >= 500000;
+      }
+
+      return normalizeType(vendor.type) === activeDeviation;
+    });
+  }, [vendors, activeDeviation]);
+
+    useEffect(() => {
+    if (filteredVendors.length > 0 && !selectedVendorId) {
+      onSelectVendor(filteredVendors[0].vendorId);
+    }
+  }, [filteredVendors, selectedVendorId, onSelectVendor]);
+
+  useEffect(() => {
+    if (filteredVendors.length > 0) {
+      onSelectVendor(filteredVendors[0].vendorId);
+    }
+  }, [activeDeviation]);
   const selectedVendor =
     filteredVendors.find((vendor) => vendor.vendorId === selectedVendorId) ??
     filteredVendors[0];
+
+  const invoices = useMemo(() => {
+    return (selectedVendor?.invoices ?? []).filter((invoice) => {
+      const matchesSearch = JSON.stringify(invoice)
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+      let matchesTab = false;
+
+      if (activeDeviation === "500k") {
+        const amountText = String(invoice.amount ?? "0").toUpperCase();
+
+        let amount = parseFloat(amountText.replace(/[^0-9.]/g, ""));
+
+        if (amountText.includes("M")) {
+          amount *= 1000000;
+        } else if (amountText.includes("K")) {
+          amount *= 1000;
+        }
+
+        matchesTab = amount >= 500000;
+      } else {
+        matchesTab = normalizeDeviation(invoice.deviation) === activeDeviation;
+      }
+
+      return matchesTab && matchesSearch;
+    });
+  }, [activeDeviation, search, selectedVendor]);
 
   if (!selectedVendor) {
     return (
@@ -70,15 +184,7 @@ export default function VendorTable({
       </section>
     );
   }
-  const invoices = useMemo(
-    () =>
-      (selectedVendor?.invoices ?? []).filter(
-        (invoice) =>
-          normalizeDeviation(invoice.deviation) === activeDeviation &&
-          JSON.stringify(invoice).toLowerCase().includes(search.toLowerCase()),
-      ),
-    [activeDeviation, search, selectedVendor],
-  );
+
   const totalPages = Math.max(1, Math.ceil(invoices.length / ITEMS_PER_PAGE));
 
   const paginatedInvoices = invoices.slice(
@@ -89,7 +195,7 @@ export default function VendorTable({
     <section className="col-span-12 overflow-hidden rounded-xl border border-slate-200 bg-white lg:col-span-8">
       {/* TOP TABS */}
       <nav
-        className="flex gap-6 overflow-x-auto border-b border-slate-200 px-4"
+        className="flex gap-3 overflow-x-auto border-b border-slate-200 px-3"
         aria-label="Deviation category"
       >
         {tabs.map(([id, label]) => (
@@ -113,7 +219,7 @@ export default function VendorTable({
       </nav>
 
       {/* MAIN CONTENT */}
-      <div className="grid h-[510px] min-h-0 grid-cols-1 lg:grid-cols-[235px_minmax(0,1fr)]">
+      <div className="grid h-[650px] min-h-0 grid-cols-1 lg:grid-cols-[235px_minmax(0,1fr)]">
         {/* LEFT SIDEBAR */}
         <aside className="bg-slate-50 lg:border-r lg:border-slate-200">
           <div className="border-b border-slate-200 bg-slate-50 px-4 py-4 text-xs font-bold uppercase tracking-wide text-slate-600">
@@ -189,7 +295,7 @@ export default function VendorTable({
             </label>
           </div>
 
-          <div className="table-scrollbar h-[calc(500px-116px)] overflow-x-auto overflow-y-scroll">
+          <div className="table-scrollbar h-[calc(640px-116px)] overflow-x-auto overflow-y-scroll">
             <table className="w-full min-w-[670px] bg-white">
               <thead className="border-b bg-slate-100">
                 <tr>

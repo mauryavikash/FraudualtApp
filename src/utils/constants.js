@@ -4,6 +4,7 @@ import {
   DollarSign,
   Users,
   Clock3,
+  BarChart3,
 } from "lucide-react";
 
 export const APP_NAME = "ReconFlow";
@@ -46,11 +47,11 @@ export const NAV_ITEMS = [
     icon: Clock3,
   },
 
-  // {
-  //   name: "Reports & Analytics",
-  //   href: "/reports",
-  //   icon: BarChart3,
-  // },
+  {
+    name: "AI Review",
+    href: "/aiReview",
+    icon: BarChart3,
+  },
   // {
   //   name: "Audit & Compliance",
   //   href: "/audit",

@@ -49,6 +49,9 @@ export default function CasesPage() {
   const [investigatorFilter, setInvestigatorFilter] = useState("All");
   const [vendorFilter, setVendorFilter] = useState("All");
   const [casesData, setCasesData] = useState(null);
+    const [selectedCase, setSelectedCase] = useState(null);
+  const [selectedRowId, setSelectedRowId] = useState(null);
+  
   const pageSize = 10;
   const TABS = [
     "All Cases",
@@ -234,7 +237,12 @@ const filteredData = useMemo(() => {
     setPage(1);
   };
 
-  const [selectedCase, setSelectedCase] = useState(null);
+useEffect(() => {
+  if (filteredData.length > 0 && !selectedRowId) {
+    setSelectedRowId(filteredData[0].pair_id);
+    setSelectedCase(filteredData[0]);
+  }
+}, [filteredData, selectedRowId]);
 
   if (!casesData) {
     return <LoadingState label="Loading cases..." />;
@@ -389,7 +397,7 @@ const filteredData = useMemo(() => {
                   <tr className="h-[46px] border-b border-[#E2E8F0]">
 
                     <th className="w-12 px-5">
-                      <input type="checkbox" />
+                      {/* <input type="checkbox" /> */}
                     </th>
 
                     {[
@@ -435,7 +443,11 @@ const filteredData = useMemo(() => {
 
                     <tr
                       key={row.pair_id}
-                      onClick={() => setSelectedCase(row)}
+                      onClick={() => {
+  setSelectedCase(row);
+  setSelectedRowId(row.pair_id);
+}}
+
                       className={`
                         h-[58px]
                         border-b
@@ -451,10 +463,20 @@ const filteredData = useMemo(() => {
                       `}
                     >
 
-                      <td className="px-5">
+                      {/* <td className="px-5">
                         <input type="checkbox" />
-                      </td>
-
+                      </td> */}
+<td className="px-5">
+  <input
+    type="checkbox"
+    checked={selectedRowId === row.pair_id}
+    onChange={() => {
+      setSelectedCase(row);
+      setSelectedRowId(row.pair_id);
+    }}
+    onClick={(e) => e.stopPropagation()}
+  />
+</td>
                       <td className="text-[12px] font-semibold text-[#2563EB]">
                         {row.pair_id}
                       </td>

@@ -86,17 +86,22 @@ export default function Vendor() {
         </div>
       </div>
 
-      <VendorRiskControls data={vendorData?.riskDrivers} />
+      {/* <VendorRiskControls data={vendorData?.riskDrivers} /> */}
 
-      <VendorExposureAnalytics
+      <VendorRiskControls
+  data={vendorData?.riskDrivers}
+  exposureData={vendorData?.vendorOverview}
+/>
+
+      {/* <VendorExposureAnalytics
         data={vendorData?.vendorOverview}
-      />
+      /> */}
 
-      <VendorFindingsActions
+      {/* <VendorFindingsActions
         issues={vendorData?.vendorIssues}
         findings={vendorData?.vendorFindings}
         actions={vendorData?.recommendedActions}
-      />
+      /> */}
     </div>
   );
 }

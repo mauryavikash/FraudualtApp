@@ -10,15 +10,6 @@ import {
 } from "lucide-react";
 import KpiCardsGrid from "../common/KpiCardsGrid";
 
-function formatCurrency(value) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    notation: "compact",
-    maximumFractionDigits: 2,
-  }).format(Number(value || 0));
-}
-
 export default function DashboardKpiCards({ data }) {
   const iconConfig = [
     {
@@ -67,43 +58,49 @@ export default function DashboardKpiCards({ data }) {
     ? data
     : data?.kpiCards || data?.items || [];
 
-  const currencyMetrics = [
-    "Total Invoice Value",
-    "Potential Savings",
-  ];
-
   const kpiData =
-  Array.isArray(apiKpis) && apiKpis.length
-    ? apiKpis.map((apiKpi, index) => {
-        const config =
-          iconConfig[index] || iconConfig[0];
+    Array.isArray(apiKpis) && apiKpis.length
+      ? apiKpis.map((apiKpi, index) => {
+          const config = iconConfig[index] || iconConfig[0];
 
-        return {
-          title: apiKpi.title || "",
-          value: apiKpi.value || "-",
-          change: apiKpi.change || "",
-          comparison: apiKpi.comparison || "",
-          positive: apiKpi.positive ?? true,
+          const changeValue = String(apiKpi.change || "").trim();
 
-          invoiceCount:
-            apiKpi.invoiceCount || "-",
+          // "+" => Green Up Arrow
+          // "-" => Red Down Arrow
+          // "0" => Neutral
+          const isPositive = changeValue.startsWith("+");
+          const isNegative = changeValue.startsWith("-");
+          const isNeutral =
+            changeValue === "0" ||
+            changeValue === "0%" ||
+            changeValue === "+0" ||
+            changeValue === "-0";
 
-          invoiceValue:
-            apiKpi.invoiceValue || "-",
+          return {
+            title: apiKpi.title || "",
+            value: apiKpi.value || "-",
+            change: changeValue,
+            comparison: apiKpi.comparison || "",
 
-          icon: config.icon,
-          iconColor: config.iconColor,
-          iconBg: config.iconBg,
-        };
-      })
-    : [];
+            // IMPORTANT
+            positive: isPositive,
+            negative: isNegative,
+            neutral: isNeutral,
+
+            invoiceCount: apiKpi.invoiceCount || "-",
+            invoiceValue: apiKpi.invoiceValue || "-",
+
+            icon: config.icon,
+            iconColor: config.iconColor,
+            iconBg: config.iconBg,
+          };
+        })
+      : [];
 
   return (
     <KpiCardsGrid
       items={kpiData}
-      // columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
       columns="grid-cols-1 md:grid-cols-3 lg:grid-cols-8"
     />
-
   );
 }

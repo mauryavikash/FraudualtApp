@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useMemo } from "react";
 import { createPortal } from "react-dom";
 import {
   ChevronRight,
@@ -9,8 +9,12 @@ import {
   Repeat2,
   X,
   Eye,
+  FileSearch,
+  AlertTriangle,
 } from "lucide-react";
-
+import { toast } from "sonner";
+// import { submitCaseAction } from "@/app/lib/api";
+import { submitVendorAction } from "@/app/lib/api";
 const deviationVisuals = {
   currency: {
     icon: DollarSign,
@@ -30,14 +34,69 @@ const deviationVisuals = {
 };
 
 export default function VendorInsight({ vendor }) {
+ const loggedInUser = useMemo(() => {
+  if (typeof window === "undefined") return null;
+
+  const user = sessionStorage.getItem("user");
+  return user ? JSON.parse(user) : null;
+ }, []);
+
+ const userName =
+  loggedInUser?.first_name ||
+  loggedInUser?.userName ||
+  "User";
+
   const [activeTab, setActiveTab] = useState("overview");
   const [isExceptionsOpen, setIsExceptionsOpen] = useState(false);
-const [currentPage, setCurrentPage] = useState(1);
-useEffect(() => {
-  setCurrentPage(1);
-}, [vendor?.vendorId]);
-const pageSize = 5;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const [reason, setReason] = useState("");
+  const [loading, setLoading] = useState(false);
+  
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [vendor?.vendorId]);
+
+  const pageSize = 5;
   if (!vendor) return null;
+
+  const handleAction = async (action) => {
+    if (action === "approve" && !reason) {
+      toast.error("Please select a reason code.");
+      return;
+    }
+    setLoading(true);
+    const toastId = toast.loading("Processing action...");
+    try {
+      const payload = {
+        vendorId:vendor?.vendorId,
+        action,
+        reason_code: action === "approve" ? reason : "",
+        comments: "",
+        performed_by: userName,
+        actionedAt: new Date().toISOString(),
+      };
+      console.log("Submit Payload", payload);
+      const response = await submitVendorAction(payload);
+      console.log("API Response", response);
+      toast.success("Action completed successfully", {
+        id: toastId,
+      });
+    } catch (error) {
+      console.error("submitVendorAction error:", error);
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Something went wrong",
+        {
+          id: toastId,
+        },
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const initials = vendor.vendorName
     .split(" ")
@@ -48,12 +107,12 @@ const pageSize = 5;
     (invoice) => invoice.deviation,
   );
   console.log("exceptionInvoices", exceptionInvoices);
-const totalPages = Math.ceil(exceptionInvoices.length / pageSize);
+  const totalPages = Math.ceil(exceptionInvoices.length / pageSize);
 
-const paginatedInvoices = exceptionInvoices.slice(
-  (currentPage - 1) * pageSize,
-  currentPage * pageSize,
-);
+  const paginatedInvoices = exceptionInvoices.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
   const openInvoiceImage = (imageUrl) => {
     if (!imageUrl) return;
 
@@ -88,143 +147,146 @@ const paginatedInvoices = exceptionInvoices.slice(
         </span>
       </header>
 
-            <div className="rounded-xl border border-slate-300 overflow-hidden">
-  <div className="max-h-[220px] overflow-auto">
-    <table className="w-full min-w-[1100px] text-[10px]">
-      <thead className="sticky top-0 bg-cyan-500 text-white z-10">
-        <tr>
-          <th className="px-2 py-1 text-left whitespace-nowrap">Posted</th>
-          <th className="px-2 py-1 text-left whitespace-nowrap">Vendor</th>
-          <th className="px-2 py-1 text-left whitespace-nowrap">Invoice No.</th>
-          <th className="px-2 py-1 text-left whitespace-nowrap">Doc No.</th>
-          <th className="px-2 py-1 text-left whitespace-nowrap">Inv Date</th>
-          <th className="px-2 py-1 text-left whitespace-nowrap">Amount</th>
-          <th className="px-2 py-1 text-left whitespace-nowrap">Category</th>
-          <th className="px-2 py-1 text-left whitespace-nowrap">Cost Center</th>
-          <th className="px-2 py-1 text-left whitespace-nowrap">GL Account</th>
-          <th className="px-2 py-1 text-left whitespace-nowrap">Risk</th>
-          <th className="px-2 py-1 text-left whitespace-nowrap">Text</th>
-        </tr>
-      </thead>
+      <div className="border border-slate-300 overflow-hidden p-4">
+        <div className="max-h-[220px] overflow-auto">
+          <table className="w-full min-w-[1100px] text-[10px]">
+            <thead className="sticky top-0 bg-cyan-500 text-white z-10">
+              <tr>
+                <th className="px-2 py-1 text-left whitespace-nowrap">
+                  Posted
+                </th>
+                <th className="px-2 py-1 text-left whitespace-nowrap">
+                  Vendor
+                </th>
+                <th className="px-2 py-1 text-left whitespace-nowrap">
+                  Invoice No.
+                </th>
+                <th className="px-2 py-1 text-left whitespace-nowrap">
+                  Doc No.
+                </th>
+                <th className="px-2 py-1 text-left whitespace-nowrap">
+                  Inv Date
+                </th>
+                <th className="px-2 py-1 text-left whitespace-nowrap">
+                  Amount
+                </th>
+                <th className="px-2 py-1 text-left whitespace-nowrap">
+                  Category
+                </th>
+                <th className="px-2 py-1 text-left whitespace-nowrap">
+                  Cost Center
+                </th>
+                <th className="px-2 py-1 text-left whitespace-nowrap">
+                  GL Account
+                </th>
+                <th className="px-2 py-1 text-left whitespace-nowrap">Risk</th>
+                <th className="px-2 py-1 text-left whitespace-nowrap">Text</th>
+              </tr>
+            </thead>
 
-      <tbody>
-        {paginatedInvoices.map((invoice, index) => (
-          <tr
-  key={`${vendor.vendorId}-${invoice.id}-${index}`}
-            className="border-b border-slate-100 text-[10px] text-slate-700 hover:bg-slate-50"
-          >
-            <td className="px-2 py-1 whitespace-nowrap">
-              {invoice.posted ?? "-"}
-            </td>
+            <tbody>
+              {paginatedInvoices.map((invoice, index) => (
+                <tr
+                  key={`${vendor.vendorId}-${invoice.id}-${index}`}
+                  className="border-b border-slate-100 text-[10px] text-slate-700 hover:bg-slate-50"
+                >
+                  <td className="px-2 py-1 whitespace-nowrap">
+                    {invoice.posted ?? "-"}
+                  </td>
 
-            <td className="px-2 py-1 whitespace-nowrap">
-              {vendor.vendorName ?? "-"}
-            </td>
+                  <td className="px-2 py-1 whitespace-nowrap">
+                    {vendor.vendorName ?? "-"}
+                  </td>
 
-            <td className="px-2 py-1 whitespace-nowrap">
-              <div className="flex items-center gap-1">
-                <span>
-                  {invoice.invoiceNo ?? invoice.invoice_no ?? "-"}
-                </span>
+                  <td className="px-2 py-1 whitespace-nowrap">
+                    <div className="flex items-center gap-1">
+                      <span>
+                        {invoice.invoiceNo ?? invoice.invoice_no ?? "-"}
+                      </span>
 
-                {invoice.invoice_image_url && (
-                  <button
-                    type="button"
-                    title="View Invoice"
-                    onClick={() =>
-                      openInvoiceImage(invoice.invoice_image_url)
-                    }
-                    className="text-slate-500 hover:text-blue-600"
+                      {invoice.invoice_image_url && (
+                        <button
+                          type="button"
+                          title="View Invoice"
+                          onClick={() =>
+                            openInvoiceImage(invoice.invoice_image_url)
+                          }
+                          className="text-slate-500 hover:text-blue-600"
+                        >
+                          <Eye size={12} />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+
+                  <td className="px-2 py-1 whitespace-nowrap">
+                    {invoice.docNo ?? "-"}
+                  </td>
+
+                  <td className="px-2 py-1 whitespace-nowrap">
+                    {invoice.invDate ?? "-"}
+                  </td>
+
+                  <td className="px-2 py-1 whitespace-nowrap font-semibold">
+                    {invoice.amount ?? "-"}
+                  </td>
+
+                  <td className="px-2 py-1 whitespace-nowrap">
+                    {invoice.category ?? "-"}
+                  </td>
+
+                  <td className="px-2 py-1 whitespace-nowrap">
+                    {invoice.costCenter ?? "-"}
+                  </td>
+
+                  <td className="px-2 py-1 whitespace-nowrap">
+                    {invoice.glAccount ?? "-"}
+                  </td>
+
+                  <td className="px-2 py-1 whitespace-nowrap">
+                    <span className="rounded bg-red-50 px-1 py-[1px] text-[9px] font-medium text-red-600">
+                      {invoice.risk ?? "-"}
+                    </span>
+                  </td>
+
+                  <td
+                    className="px-2 py-1 max-w-[180px] truncate"
+                    title={invoice.text}
                   >
-                    <Eye size={12} />
-                  </button>
-                )}
-              </div>
-            </td>
+                    {invoice.text ?? "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-            <td className="px-2 py-1 whitespace-nowrap">
-              {invoice.docNo ?? "-"}
-            </td>
-
-            <td className="px-2 py-1 whitespace-nowrap">
-              {invoice.invDate ?? "-"}
-            </td>
-
-            <td className="px-2 py-1 whitespace-nowrap font-semibold">
-              {invoice.amount ?? "-"}
-            </td>
-
-            <td className="px-2 py-1 whitespace-nowrap">
-              {invoice.category ?? "-"}
-            </td>
-
-            <td className="px-2 py-1 whitespace-nowrap">
-              {invoice.costCenter ?? "-"}
-            </td>
-
-            <td className="px-2 py-1 whitespace-nowrap">
-              {invoice.glAccount ?? "-"}
-            </td>
-
-            <td className="px-2 py-1 whitespace-nowrap">
-              <span className="rounded bg-red-50 px-1 py-[1px] text-[9px] font-medium text-red-600">
-                {invoice.risk ?? "-"}
-              </span>
-            </td>
-
-            <td
-              className="px-2 py-1 max-w-[180px] truncate"
-              title={invoice.text}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-end gap-2 border-t bg-white p-2">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="rounded border px-1 py-1 text-[10px] disabled:opacity-50"
             >
-              {invoice.text ?? "-"}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
+              Prev
+            </button>
 
-  {totalPages > 1 && (
-    <div className="flex items-center justify-center gap-2 border-t bg-white p-2">
-      <button
-        onClick={() =>
-          setCurrentPage((prev) => Math.max(prev - 1, 1))
-        }
-        disabled={currentPage === 1}
-        className="rounded border px-2 py-1 text-[10px] disabled:opacity-50"
-      >
-        Prev
-      </button>
+            <span className="text-[10px] font-medium">
+              Page {currentPage} of {totalPages}
+            </span>
 
-      <span className="text-[10px] font-medium">
-        Page {currentPage} of {totalPages}
-      </span>
-
-      <button
-        onClick={() =>
-          setCurrentPage((prev) =>
-            Math.min(prev + 1, totalPages)
-          )
-        }
-        disabled={currentPage === totalPages}
-        className="rounded border px-2 py-1 text-[10px] disabled:opacity-50"
-      >
-        Next
-      </button>
-    </div>
-  )}
-</div>
-
-{/* <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4">
-         <Metric label="Total invoices" value={vendor.issues} />
-        <Metric label="Open exceptions" value={vendor.risk} alert />
-         <Metric label="Total amount (USD)" value={vendor.status} />
-        <Metric
-          label="Exception amount"
-          value={vendor.status}
-          alert
-        />
-      </div> */}
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className="rounded border px-1 py-1 text-[10px] disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* TABS */}
       <nav
@@ -256,141 +318,97 @@ const paginatedInvoices = exceptionInvoices.slice(
       <div className="space-y-4 p-4">
         {activeTab === "overview" && (
           <>
-            {/* {vendor.deviations.map((deviation) => { */}
-            {(vendor?.deviations || []).map((deviation) => {
-              const visual =
-                deviationVisuals[deviation.type] ?? deviationVisuals.invoice;
+            <div className="">
+              <div className="grid grid-cols-2 gap-x-3 gap-y-3">
+                <div>
+                  <p className="text-[10px] font-medium text-slate-500">
+                    Vendor ID
+                  </p>
+                  <p className="text-[10px] font-semibold text-slate-800">
+                    {vendor.vendorId ?? "-"}
+                  </p>
+                </div>
 
-              const Icon = visual.icon;
+                <div>
+                  <p className="text-[10px] font-medium text-slate-500">
+                    Vendor Name
+                  </p>
+                  <p className="text-[10px] font-semibold text-slate-800 break-words">
+                    {vendor.vendorName ?? "-"}
+                  </p>
+                </div>
 
-              return (
-                <button
-                  key={deviation.type}
-                  type="button"
-                  className="flex w-full items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3 text-left transition-colors hover:bg-slate-100"
-                >
-                  <span
-                    className={`grid h-8 w-8 place-items-center rounded-full ${visual.bg} ${visual.color}`}
-                  >
-                    <Icon size={15} />
-                  </span>
+                <div>
+                  <p className="text-[10px] font-medium text-slate-500">
+                    Status
+                  </p>
+                  <p className="text-[10px] font-semibold text-emerald-600">
+                    {vendor.status ?? "-"}
+                  </p>
+                </div>
 
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-xs font-bold text-slate-800">
-                      {deviation.title}
-                    </span>
+                <div>
+                  <p className="text-[10px] font-medium text-slate-500">Risk</p>
+                  <p className="text-[10px] font-semibold text-rose-600">
+                    {vendor.risk ?? "-"}
+                  </p>
+                </div>
 
-                    <span className="block text-[10px] text-slate-500">
-                      {deviation.count} detected
-                    </span>
+                <div>
+                  <p className="text-[10px] font-medium text-slate-500">
+                    Issues
+                  </p>
+                  <p className="text-[10px] font-semibold text-slate-800">
+                    {vendor.issues ?? 0}
+                  </p>
+                </div>
 
-                    <span className="block text-[9px] text-slate-400">
-                      Last detected May 20, 2026
-                    </span>
-                  </span>
+                <div>
+                  <p className="text-[10px] font-medium text-slate-500">
+                    Total Amount
+                  </p>
+                  <p className="text-[10px] font-semibold text-slate-800">
+                    {vendor.totalAmount ?? "-"}
+                  </p>
+                </div>
 
-                  <ChevronRight size={15} className="text-slate-400" />
-                </button>
-              );
-            })}
-            {/* <Summary summary={vendor.summary} /> */}
+                <div>
+                  <p className="text-[10px] font-medium text-slate-500">
+                    Total Invoices
+                  </p>
+                  <p className="text-[10px] font-semibold text-slate-800">
+                    {vendor.summary?.invoices ?? 0}
+                  </p>
+                </div>
 
-           <div className="">
+                <div>
+                  <p className="text-[10px] font-medium text-slate-500">
+                    Open Exceptions
+                  </p>
+                  <p className="text-[10px] font-semibold text-red-600">
+                    {vendor.summary?.exceptions ?? 0}
+                  </p>
+                </div>
 
-  <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-    <div>
-      <p className="text-[12px] font-medium text-slate-500">
-        Vendor ID
-      </p>
-      <p className="text-[12px] font-semibold text-slate-800">
-        {vendor.vendorId ?? "-"}
-      </p>
-    </div>
+                <div>
+                  <p className="text-[10px] font-medium text-slate-500">
+                    Summary Amount
+                  </p>
+                  <p className="text-[10px] font-semibold text-slate-800">
+                    {vendor.summary?.totalAmount ?? "$0.00"}
+                  </p>
+                </div>
 
-    <div>
-      <p className="text-[12px] font-medium text-slate-500">
-        Vendor Name
-      </p>
-      <p className="text-[12px] font-semibold text-slate-800 break-words">
-        {vendor.vendorName ?? "-"}
-      </p>
-    </div>
-
-    <div>
-      <p className="text-[12px] font-medium text-slate-500">
-        Status
-      </p>
-      <p className="text-[12px] font-semibold text-emerald-600">
-        {vendor.status ?? "-"}
-      </p>
-    </div>
-
-    <div>
-      <p className="text-[12px] font-medium text-slate-500">
-        Risk
-      </p>
-      <p className="text-[12px] font-semibold text-rose-600">
-        {vendor.risk ?? "-"}
-      </p>
-    </div>
-
-    <div>
-      <p className="text-[12px] font-medium text-slate-500">
-        Issues
-      </p>
-      <p className="text-[12px] font-semibold text-slate-800">
-        {vendor.issues ?? 0}
-      </p>
-    </div>
-
-    <div>
-      <p className="text-[12px] font-medium text-slate-500">
-        Total Amount
-      </p>
-      <p className="text-[12px] font-semibold text-slate-800">
-        {vendor.totalAmount ?? "-"}
-      </p>
-    </div>
-
-    <div>
-      <p className="text-[12px] font-medium text-slate-500">
-        Total Invoices
-      </p>
-      <p className="text-[12px] font-semibold text-slate-800">
-        {vendor.summary?.invoices ?? 0}
-      </p>
-    </div>
-
-    <div>
-      <p className="text-[12px] font-medium text-slate-500">
-        Open Exceptions
-      </p>
-      <p className="text-[12px] font-semibold text-red-600">
-        {vendor.summary?.exceptions ?? 0}
-      </p>
-    </div>
-
-    <div>
-      <p className="text-[12px] font-medium text-slate-500">
-        Summary Amount
-      </p>
-      <p className="text-[12px] font-semibold text-slate-800">
-        {vendor.summary?.totalAmount ?? "$0.00"}
-      </p>
-    </div>
-
-    <div>
-      <p className="text-[12px] font-medium text-slate-500">
-        Exception Amount
-      </p>
-      <p className="text-[12px] font-semibold text-red-600">
-        {vendor.summary?.exceptionAmount ?? "$0.00"}
-      </p>
-    </div>
-  </div>
-</div>
-
-
+                <div>
+                  <p className="text-[10px] font-medium text-slate-500">
+                    Exception Amount
+                  </p>
+                  <p className="text-[10px] font-semibold text-red-600">
+                    {vendor.summary?.exceptionAmount ?? "$0.00"}
+                  </p>
+                </div>
+              </div>
+            </div>
           </>
         )}
         {activeTab !== "overview" && (
@@ -401,7 +419,7 @@ const paginatedInvoices = exceptionInvoices.slice(
       </div>
 
       {/* FOOTER */}
-      <footer className="mt-auto grid grid-cols-[1fr_1fr_34px] gap-2 border-t border-slate-300 p-4">
+      <div className="mt-auto grid grid-cols-[1fr_1fr_34px] gap-2 border-t border-slate-300 p-4">
         <button
           type="button"
           onClick={() => setIsExceptionsOpen(true)}
@@ -409,8 +427,66 @@ const paginatedInvoices = exceptionInvoices.slice(
         >
           View Exceptions
         </button>
+      </div>
 
-      </footer>
+      <div className="mt-2 mb-2 rounded-xl border border-slate-200 bg-slate-50 p-2">
+        <h3 className="text-sm font-semibold text-slate-900">Quick Actions</h3>
+
+        <div className="mt-2">
+          <label className="text-xs font-medium text-slate-600">
+            Reason Code (Required for Confirm)
+          </label>
+
+          <select
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-2 py-2 text-sm outline-none focus:border-blue-500"
+          >
+            <option value="">Select a reason...</option>
+            <option value="EXACT_MATCH">Exact Match</option>
+            <option value="DUPLICATE_INVOICE">Duplicate Invoice</option>
+            <option value="PAYMENT_ERROR">Payment Error</option>
+            <option value="VENDOR_ISSUE">Vendor Issue</option>
+          </select>
+        </div>
+
+        <div className="mt-2 grid grid-cols-3 gap-3">
+          {/* Confirm */}
+          <button
+            disabled={loading}
+            onClick={() => handleAction("approve")}
+            className="flex flex-col items-center justify-center rounded-lg bg-emerald-600 py-2 text-white hover:bg-emerald-700"
+          >
+            <FileSearch size={18} />
+            <span className="mt-1 text-xs font-medium">Approve</span>
+          </button>
+
+          {/* Reject */}
+          <button
+            disabled={loading}
+            onClick={() => handleAction("reject")}
+            className="flex flex-col items-center justify-center rounded-lg bg-rose-600 py-2 text-white hover:bg-rose-700"
+          >
+            <X size={18} />
+            <span className="mt-1 text-xs font-medium">Reject</span>
+          </button>
+
+          {/* Escalate */}
+          <button
+            disabled={loading}
+            onClick={() => handleAction("escalate")}
+            className="flex flex-col items-center justify-center rounded-lg border border-amber-500 bg-white py-2 text-amber-600 hover:bg-amber-50"
+          >
+            <AlertTriangle size={18} />
+            <span className="mt-1 text-xs font-medium">Escalate</span>
+          </button>
+        </div>
+
+        <p className="mt-2 text-xs text-slate-500">
+          Confirm requires a reason code. Reject and Escalate do not.
+        </p>
+      </div>
+
       {isExceptionsOpen &&
         typeof document !== "undefined" &&
         createPortal(
@@ -543,43 +619,3 @@ const paginatedInvoices = exceptionInvoices.slice(
     </aside>
   );
 }
-
-// function Summary({ summary }) {
-//   return (
-//     <section className="rounded-xl border border-slate-300 p-4">
-//       <h3 className="text-[10px] font-bold uppercase tracking-wide text-slate-700">
-//         Summary
-//       </h3>
-
-//       <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4">
-//         <Metric label="Total invoices" value={summary.invoices} />
-
-//         <Metric label="Open exceptions" value={summary.exceptions} alert />
-
-//         <Metric label="Total amount (USD)" value={summary.totalAmount} />
-
-//         <Metric
-//           label="Exception amount"
-//           value={summary.exceptionAmount}
-//           alert
-//         />
-//       </div>
-//     </section>
-//   );
-// }
-
-// function Metric({ label, value, alert }) {
-//   return (
-//     <div>
-//       <p className="text-[9px] text-slate-400">{label}</p>
-
-//       <p
-//         className={`mt-0.5 text-sm font-bold ${
-//           alert ? "text-rose-500" : "text-slate-800"
-//         }`}
-//       >
-//         {value}
-//       </p>
-//     </div>
-//   );
-// }

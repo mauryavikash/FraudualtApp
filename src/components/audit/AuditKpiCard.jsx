@@ -19,33 +19,45 @@ const iconMap = {
 export const AuditKpiCards = ({ data }) => {
   const apiKpis = Array.isArray(data) ? data : [];
 
-  const kpiData = apiKpis.map((item) => ({
-    title: item.title || "",
+  const kpiData = apiKpis.map((item) => {
+    const changeValue = String(item.change || "").trim();
 
-    value: item.value || "0",
+    const isPositive = changeValue.startsWith("+");
+    const isNegative = changeValue.startsWith("-");
+    const isNeutral =
+      changeValue === "0" ||
+      changeValue === "0%" ||
+      changeValue === "+0" ||
+      changeValue === "-0" ||
+      changeValue === "";
 
-    change: item.change || "",
+    return {
+      title: item.title || "",
 
-    comparison: item.comparison || "",
+      value: item.value || "0",
 
-    positive: item.positive ?? true,
+      change: changeValue,
 
-    supporting: item.comparison || "",
+      comparison: item.comparison || "",
 
-    invoiceCount: item.invoiceCount || "0",
+      // Auto Arrow Logic from change value
+      positive: isPositive,
+      negative: isNegative,
+      neutral: isNeutral,
 
-    invoiceValue: item.invoiceValue || "$0.00",
+      supporting: item.comparison || "",
 
-    icon:
-      iconMap[item.icon] ||
-      CheckSquare,
+      invoiceCount: item.invoiceCount || "0",
 
-    iconColor:
-      item.iconColor || "#2563EB",
+      invoiceValue: item.invoiceValue || "$0.00",
 
-    iconBg:
-      item.iconBg || "#DBEAFE",
-  }));
+      icon: iconMap[item.icon] || CheckSquare,
+
+      iconColor: item.iconColor || "#2563EB",
+
+      iconBg: item.iconBg || "#DBEAFE",
+    };
+  });
 
   return (
     <KpiCardsGrid

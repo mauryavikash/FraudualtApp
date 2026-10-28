@@ -39,11 +39,11 @@ export default function VendorExposureAnalytics({ data }) {
         </div>
       </div> */}
       <div className="grid gap-4 lg:grid-cols-3">
-      <article className={panel}>
+      {/* <article className={panel}>
         <h2 className="text-xs font-semibold text-slate-900">Exposure Trend (USD)</h2>
         <div className="mt-3 h-36"><ResponsiveContainer width="100%" height="100%"><LineChart data={exposureTrend} margin={{ top: 8, right: 8, left: -22, bottom: 0 }}><CartesianGrid vertical={false} stroke="#e2e8f0" /><XAxis dataKey="month" tick={{ fontSize: 9, fill: "#64748b" }} axisLine={false} tickLine={false} /><YAxis tick={{ fontSize: 9, fill: "#64748b" }} axisLine={false} tickLine={false} tickFormatter={(value) => `$${value}M`} /><Tooltip formatter={(value) => `$${value}M`} /><Line type="monotone" dataKey="value" stroke="#2563eb" strokeWidth={2} dot={{ r: 3, fill: "#2563eb" }} /></LineChart></ResponsiveContainer></div>
         <Link href="/reports" className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800">View full trend <ArrowRight size={13} /></Link>
-      </article>
+      </article> */}
 
       <article className={panel}>
         <h2 className="text-xs font-semibold text-slate-900">Exposure by Finding Type (USD)</h2>
@@ -51,11 +51,11 @@ export default function VendorExposureAnalytics({ data }) {
         <Link href="/cases" className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800">View all findings <ArrowRight size={13} /></Link>
       </article>
 
-      <article className={panel}>
+      {/* <article className={panel}>
         <div className="flex items-center justify-between"><h2 className="text-xs font-semibold text-slate-900">Currency Usage vs Peers</h2><div className="flex gap-3 text-[9px] text-slate-600"><span><i className="mr-1 inline-block h-2 w-2 rounded-sm bg-violet-700" />This Vendor</span><span><i className="mr-1 inline-block h-2 w-2 rounded-sm bg-slate-400" />Peer Avg.</span></div></div>
         <div className="mt-3 h-36"><ResponsiveContainer width="100%" height="100%"><BarChart data={currencyUsage} margin={{ top: 8, right: 4, left: -22, bottom: 0 }}><CartesianGrid vertical={false} stroke="#e2e8f0" /><XAxis dataKey="name" tick={{ fontSize: 9, fill: "#64748b" }} axisLine={false} tickLine={false} /><YAxis tick={{ fontSize: 9, fill: "#64748b" }} axisLine={false} tickLine={false} tickFormatter={(value) => `${value}%`} /><Tooltip formatter={(value) => `${value}%`} /><Bar dataKey="vendor" fill="#6d28d9" radius={[2, 2, 0, 0]} /><Bar dataKey="peers" fill="#94a3b8" radius={[2, 2, 0, 0]} /></BarChart></ResponsiveContainer></div>
         <Link href="/reports" className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800">View currency analysis <ArrowRight size={13} /></Link>
-      </article>
+      </article> */}
       </div>
     </section>
   );

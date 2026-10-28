@@ -423,15 +423,6 @@ const openInvoiceImage = (imageUrl) => {
                 </div>
               </div>
 
-              {/* <div className="grid grid-cols-1 gap-4 px-6 py-5 text-sm sm:grid-cols-2">
-                        <ModalInfo label="Case Type" value={selectedCase.case_type} />
-                        <ModalInfo label="Duplicate Type" value={selectedCase.duplicateType ?? selectedCase.duplicate_type} />
-                        <ModalInfo label="Status" value={selectedCase.case_status ?? selectedCase.risk_level} />
-                        <ModalInfo label="Priority" value={selectedCase.priority} />
-                        <ModalInfo label="Vendor" value={selectedCase.vendor} />
-                        <ModalInfo label="Similarity" value={selectedCase.similarity} />
-                    </div> */}
-
               <div className="border-t border-slate-200 px-6 py-5">
                 <h3 className="text-sm font-semibold text-slate-900">
                   Invoices
