@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  MoreVertical,
-} from "lucide-react";
-import {CasesKpiCards} from "@/components/cases/CasesKpiCards";
-import {CasesDetails} from "@/components/cases/CasesDetails";
-import {CasesHeader} from "@/components/cases/CasesHeader";
+import * as XLSX from "xlsx";
+import { Download } from "lucide-react";
+import { CasesKpiCards } from "@/components/cases/CasesKpiCards";
+import { CasesDetails } from "@/components/cases/CasesDetails";
+import { CasesHeader } from "@/components/cases/CasesHeader";
 // import CasesAnalyticsRow from "@/components/cases/CasesAnalyticsRow";
 import { LoadingState } from "@/components/common/LoadingState";
 import { getCases } from "@/app/lib/api";
@@ -26,18 +25,14 @@ function FilterSelect({ label, children, ...props }) {
 }
 
 export default function CasesPage() {
- const loggedInUser = useMemo(() => {
-  if (typeof window === "undefined") return null;
+  const loggedInUser = useMemo(() => {
+    if (typeof window === "undefined") return null;
 
-  const user = sessionStorage.getItem("user");
-  return user ? JSON.parse(user) : null;
- }, []);
+    const user = sessionStorage.getItem("user");
+    return user ? JSON.parse(user) : null;
+  }, []);
 
- const userName =
-  loggedInUser?.first_name ||
-  loggedInUser?.userName ||
-  "User";
-
+  const userName = loggedInUser?.first_name || loggedInUser?.userName || "User";
 
   const [activeTab, setActiveTab] = useState("All Cases");
   const [search, setSearch] = useState("");
@@ -49,9 +44,9 @@ export default function CasesPage() {
   const [investigatorFilter, setInvestigatorFilter] = useState("All");
   const [vendorFilter, setVendorFilter] = useState("All");
   const [casesData, setCasesData] = useState(null);
-    const [selectedCase, setSelectedCase] = useState(null);
+  const [selectedCase, setSelectedCase] = useState(null);
   const [selectedRowId, setSelectedRowId] = useState(null);
-  
+
   const pageSize = 10;
   const TABS = [
     "All Cases",
@@ -65,132 +60,126 @@ export default function CasesPage() {
   useEffect(() => {
     let isMounted = true;
 
-    getCases().then((data) => {
-      if (isMounted) {
-        setCasesData(data?.data ?? data);
-      }
-    }).catch(() => {
-      if (isMounted) {
-        setCasesData({ caseDetails: [], caseKpis: [], casesOverview: {} });
-      }
-    });
+    getCases()
+      .then((data) => {
+        if (isMounted) {
+          setCasesData(data?.data ?? data);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setCasesData({ caseDetails: [], caseKpis: [], casesOverview: {} });
+        }
+      });
 
     return () => {
       isMounted = false;
     };
   }, []);
 
-  const tableData = useMemo(
-    () => casesData?.caseDetails ?? [],
-    [casesData]
-  );
+  const tableData = useMemo(() => casesData?.caseDetails ?? [], [casesData]);
   const statusOptions = useMemo(
-  () => [...new Set(tableData.map((item) => item.case_status))],
-  [tableData]
-);
-  const caseTypeOptions = useMemo(
-  () =>
-    [...new Set(
-      tableData
-        .map((item) => item.case_type)
-        .filter(Boolean)
-    )],
-  [tableData]
-);
-  
-  const priorityOptions = useMemo(() => [...new Set(tableData.map((item) => item.priority))], [tableData]);
-  const duplicateTypeOptions = useMemo(
-    () => [...new Set(
-      tableData
-        .map((item) => item.duplicateType ?? item.duplicate_type)
-        .filter(Boolean)
-    )],
-    [tableData]
+    () => [...new Set(tableData.map((item) => item.case_status))],
+    [tableData],
   );
-  const investigatorOptions = useMemo(() => [...new Set(tableData.map((item) => item.investigator ?? "Unassigned"))], [tableData]);
-  const vendorOptions = useMemo(() => [...new Set(tableData.map((item) => item.vendor || "Unassigned"))], [tableData]);
+  const caseTypeOptions = useMemo(
+    () => [...new Set(tableData.map((item) => item.case_type).filter(Boolean))],
+    [tableData],
+  );
 
+  const priorityOptions = useMemo(
+    () => [...new Set(tableData.map((item) => item.priority))],
+    [tableData],
+  );
+  const duplicateTypeOptions = useMemo(
+    () => [
+      ...new Set(
+        tableData
+          .map((item) => item.duplicateType ?? item.duplicate_type)
+          .filter(Boolean),
+      ),
+    ],
+    [tableData],
+  );
+  const investigatorOptions = useMemo(
+    () => [
+      ...new Set(tableData.map((item) => item.investigator ?? "Unassigned")),
+    ],
+    [tableData],
+  );
+  const vendorOptions = useMemo(
+    () => [...new Set(tableData.map((item) => item.vendor || "Unassigned"))],
+    [tableData],
+  );
 
-const filteredData = useMemo(() => {
-  return tableData.filter((item) => {
-    const investigator = item.investigator ?? "Unassigned";
-    const vendor = item.vendor || "Unassigned";
+  const filteredData = useMemo(() => {
+    return tableData.filter((item) => {
+      const investigator = item.investigator ?? "Unassigned";
+      const vendor = item.vendor || "Unassigned";
 
-    const matchesSearch =
-      search === "" ||
-      JSON.stringify(item)
-        .toLowerCase()
-        .includes(search.toLowerCase());
+      const matchesSearch =
+        search === "" ||
+        JSON.stringify(item).toLowerCase().includes(search.toLowerCase());
 
-    const matchesStatus =
-      statusFilter === "All" ||
-      item.case_status === statusFilter;
+      const matchesStatus =
+        statusFilter === "All" || item.case_status === statusFilter;
 
-    const matchesType =
-  caseTypeFilter === "All" ||
-  (item.case_type || "").toUpperCase() ===
-  (caseTypeFilter || "").toUpperCase();
+      const matchesType =
+        caseTypeFilter === "All" ||
+        (item.case_type || "").toUpperCase() ===
+          (caseTypeFilter || "").toUpperCase();
 
-    const duplicateType = item.duplicateType ?? item.duplicate_type ?? "";
-    const matchesDuplicateType =
-      duplicateTypeFilter === "All" ||
-      duplicateType.toLowerCase() === duplicateTypeFilter.toLowerCase();
-    const matchesPriority =
-      priorityFilter === "All" ||
-      item.priority === priorityFilter;
+      const duplicateType = item.duplicateType ?? item.duplicate_type ?? "";
+      const matchesDuplicateType =
+        duplicateTypeFilter === "All" ||
+        duplicateType.toLowerCase() === duplicateTypeFilter.toLowerCase();
+      const matchesPriority =
+        priorityFilter === "All" || item.priority === priorityFilter;
 
-    const matchesInvestigator =
-      investigatorFilter === "All" ||
-      investigator === investigatorFilter;
+      const matchesInvestigator =
+        investigatorFilter === "All" || investigator === investigatorFilter;
 
-    const matchesVendor =
-      vendorFilter === "All" ||
-      vendor === vendorFilter;
+      const matchesVendor = vendorFilter === "All" || vendor === vendorFilter;
 
-    const caseType = (item.case_type || "").toUpperCase();
-    const caseStatus = (item.case_status || "").toUpperCase();
+      const caseType = (item.case_type || "").toUpperCase();
+      const caseStatus = (item.case_status || "").toUpperCase();
 
       let matchesTab = true;
 
       if (activeTab === "Duplicate Cases") {
         matchesTab = caseType.includes("DUPLICATE");
-      }
-      else if (activeTab === "Anomaly Cases") {
+      } else if (activeTab === "Anomaly Cases") {
         matchesTab = caseType.includes("ANOMALY");
-      }
-      else if (activeTab === "Escalated Cases") {
+      } else if (activeTab === "Escalated Cases") {
         matchesTab = caseStatus.includes("ESCALATED");
-      }
-      else if (activeTab === "My Assignments") {
+      } else if (activeTab === "My Assignments") {
         matchesTab = Boolean(item.investigator);
-      }
-      else if (activeTab === "Watchlist") {
+      } else if (activeTab === "Watchlist") {
         matchesTab = item.watchlist === true;
       }
 
-
-    return (
-      matchesSearch &&
-      matchesStatus &&
-      matchesType &&
-      matchesPriority &&
-      matchesInvestigator &&
-      matchesDuplicateType &&
-      matchesVendor &&
-      matchesTab
-    );
-  });
-}, [
-  tableData,
-  search,
-  statusFilter,
-  caseTypeFilter,
-  priorityFilter,
-  investigatorFilter,
-  duplicateTypeFilter,
-  vendorFilter,
-  activeTab,
-]);
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesType &&
+        matchesPriority &&
+        matchesInvestigator &&
+        matchesDuplicateType &&
+        matchesVendor &&
+        matchesTab
+      );
+    });
+  }, [
+    tableData,
+    search,
+    statusFilter,
+    caseTypeFilter,
+    priorityFilter,
+    investigatorFilter,
+    duplicateTypeFilter,
+    vendorFilter,
+    activeTab,
+  ]);
   const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
   const paginationItems = (() => {
     if (totalPages <= 7) {
@@ -202,65 +191,103 @@ const filteredData = useMemo(() => {
     }
 
     if (page >= totalPages - 3) {
-      return [1, "ellipsis-start", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+      return [
+        1,
+        "ellipsis-start",
+        totalPages - 4,
+        totalPages - 3,
+        totalPages - 2,
+        totalPages - 1,
+        totalPages,
+      ];
     }
 
-    return [1, "ellipsis-start", page - 1, page, page + 1, "ellipsis-end", totalPages];
+    return [
+      1,
+      "ellipsis-start",
+      page - 1,
+      page,
+      page + 1,
+      "ellipsis-end",
+      totalPages,
+    ];
   })();
 
   const paginatedData = filteredData.slice(
     (page - 1) * pageSize,
-    page * pageSize
+    page * pageSize,
   );
 
- const statusClass = (status) => {
-  switch (status) {
-    case "In Progress":
-      return "bg-[#DBEAFE] text-[#2563EB]";
+  const statusClass = (status) => {
+    switch (status) {
+      case "In Progress":
+        return "bg-[#DBEAFE] text-[#2563EB]";
 
-    case "Pending Review":
-      return "bg-[#FDE7C7] text-[#F59E0B]";
+      case "Pending Review":
+        return "bg-[#FDE7C7] text-[#F59E0B]";
 
-    case "Escalated":
-      return "bg-[#FEE2E2] text-[#EF4444]";
+      case "Escalated":
+        return "bg-[#FEE2E2] text-[#EF4444]";
 
-    case "Open":
-      return "bg-[#D1FAE5] text-[#10B981]";
+      case "Open":
+        return "bg-[#D1FAE5] text-[#10B981]";
 
-    default:
-      return "";
-  }
-};
+      default:
+        return "";
+    }
+  };
 
   const updateFilter = (setter) => (event) => {
     setter(event.target.value);
     setPage(1);
   };
 
-useEffect(() => {
-  if (filteredData.length > 0 && !selectedRowId) {
-    setSelectedRowId(filteredData[0].pair_id);
-    setSelectedCase(filteredData[0]);
-  }
-}, [filteredData, selectedRowId]);
+  useEffect(() => {
+    if (filteredData.length > 0 && !selectedRowId) {
+      setSelectedRowId(filteredData[0].pair_id);
+      setSelectedCase(filteredData[0]);
+    }
+  }, [filteredData, selectedRowId]);
 
   if (!casesData) {
     return <LoadingState label="Loading cases..." />;
   }
+  const handleExportExcel = () => {
+    const exportData = filteredData.map((row) => ({
+      "Pair ID": row.pair_id,
+      "Case Type": row.case_type,
+      "Duplicate Type": row.duplicateType ?? row.duplicate_type ?? "-",
+      Priority: row.priority,
+      Status: row.risk_level,
+      Vendor: row.vendor,
+      "Amount (USD)": row.invoice_1?.amount,
+      "Detected On": row.detectedOn,
+      "Invoice Date": row.invoice_1?.invoice_date,
+      "Invoice ID": row.invoice_1?.invoice_id,
+      "Invoice Number": row.invoice_1?.invoice_number,
+    }));
 
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
 
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Cases");
+
+    XLSX.writeFile(
+      workbook,
+      `Cases_${new Date().toISOString().split("T")[0]}.xlsx`,
+    );
+  };
   return (
     <div>
       {/* HEADER */}
-       <CasesHeader data={casesData.meta} />
+      <CasesHeader data={casesData.meta} />
       {/* KPI */}
       <CasesKpiCards data={casesData.caseKpis} />
       {/* CONTENT */}
       <div className="grid grid-cols-12 gap-4 mt-4 items-stretch">
-
         {/* TABLE */}
         <div className="col-span-12 lg:col-span-8 flex">
-
           <div
             className="
               w-full
@@ -275,7 +302,6 @@ useEffect(() => {
               overflow-hidden
           "
           >
-
             {/* Tabs */}
 
             <div className="px-5 pt-4 border-b border-[#E2E8F0]">
@@ -302,17 +328,17 @@ useEffect(() => {
 
             {/* Filters */}
 
-            <div className="px-5 py-4 border-b border-[#E2E8F0]">
-
-              <div className="grid grid-cols-6 gap-3">
-
+            <div className="px-3 py-3 border-b border-[#E2E8F0]">
+              <div className="grid grid-cols-7 gap-3">
                 <FilterSelect
                   label="Status"
                   value={statusFilter}
                   onChange={updateFilter(setStatusFilter)}
                 >
                   <option>All</option>
-                  {statusOptions.map((status) => <option key={status}>{status}</option>)}
+                  {statusOptions.map((status) => (
+                    <option key={status}>{status}</option>
+                  ))}
                 </FilterSelect>
 
                 <FilterSelect
@@ -323,13 +349,10 @@ useEffect(() => {
                   <option>All</option>
                   {/* {caseTypeOptions.map((caseType) => <option key={caseType}>{caseType}</option>)} */}
                   {caseTypeOptions.map((caseType) => (
-                  <option
-                    key={caseType}
-                    value={caseType}
-                  >
-                    {caseType}
-                  </option>
-                ))}
+                    <option key={caseType} value={caseType}>
+                      {caseType}
+                    </option>
+                  ))}
                 </FilterSelect>
                 <FilterSelect
                   label="Duplicate Type"
@@ -349,25 +372,41 @@ useEffect(() => {
                   onChange={updateFilter(setPriorityFilter)}
                 >
                   <option>All</option>
-                  {priorityOptions.map((priority) => <option key={priority}>{priority}</option>)}
+                  {priorityOptions.map((priority) => (
+                    <option key={priority}>{priority}</option>
+                  ))}
                 </FilterSelect>
 
-                <FilterSelect label="Investigator" value={investigatorFilter} onChange={updateFilter(setInvestigatorFilter)}>
+                <FilterSelect
+                  label="Investigator"
+                  value={investigatorFilter}
+                  onChange={updateFilter(setInvestigatorFilter)}
+                >
                   <option>All</option>
-                  {investigatorOptions.map((investigator) => <option key={investigator}>{investigator}</option>)}
+                  {investigatorOptions.map((investigator) => (
+                    <option key={investigator}>{investigator}</option>
+                  ))}
                 </FilterSelect>
 
-                <FilterSelect label="Vendor" value={vendorFilter} onChange={updateFilter(setVendorFilter)}>
+                <FilterSelect
+                  label="Vendor"
+                  value={vendorFilter}
+                  onChange={updateFilter(setVendorFilter)}
+                >
                   <option>All</option>
-                  {vendorOptions.map((vendor) => <option key={vendor}>{vendor}</option>)}
+                  {vendorOptions.map((vendor) => (
+                    <option key={vendor}>{vendor}</option>
+                  ))}
                 </FilterSelect>
-
-                {/* <div className="flex items-end gap-3">
-                  <button className="h-9 px-4 rounded-xl border border-[#D9E1EA] text-[12px] font-medium text-[#475569]">
-                    More Filters
-                  </button>
-
+                <div className="flex items-end">
                   <button
+                    onClick={handleExportExcel}
+                    className="flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-[#2563EB] px-3 text-[12px] font-medium text-white hover:bg-[#1D4ED8]"
+                  >
+                    <Download size={14} />
+                    Excel
+                  </button>
+                  {/* <button
                     onClick={() => {
                       setStatusFilter("All");
                       setPriorityFilter("All");
@@ -380,22 +419,18 @@ useEffect(() => {
                     className="text-[#2563EB] text-[12px] font-medium"
                   >
                     Reset
-                  </button>
-                </div> */}
-
+                  </button> */}
+                </div>
+                
               </div>
             </div>
 
             {/* TABLE */}
 
             <div className="table-scrollbar flex-1 min-h-[520px] overflow-x-scroll overflow-y-hidden">
-
               <table className="min-w-[1550px] w-full">
-
                 <thead>
-
                   <tr className="h-[46px] border-b border-[#E2E8F0]">
-
                     <th className="w-12 px-5">
                       {/* <input type="checkbox" /> */}
                     </th>
@@ -432,23 +467,27 @@ useEffect(() => {
 
                     <th />
                   </tr>
-
                 </thead>
 
                 <tbody>
-
                   {paginatedData.length === 0 ? (
-                    <tr><td colSpan={13} className="px-5 py-10 text-center text-[13px] text-[#94A3B8]">No matching cases found.</td></tr>
-                  ) : paginatedData.map((row) => (
-
-                    <tr
-                      key={row.pair_id}
-                      onClick={() => {
-  setSelectedCase(row);
-  setSelectedRowId(row.pair_id);
-}}
-
-                      className={`
+                    <tr>
+                      <td
+                        colSpan={13}
+                        className="px-5 py-10 text-center text-[13px] text-[#94A3B8]"
+                      >
+                        No matching cases found.
+                      </td>
+                    </tr>
+                  ) : (
+                    paginatedData.map((row) => (
+                      <tr
+                        key={row.pair_id}
+                        onClick={() => {
+                          setSelectedCase(row);
+                          setSelectedRowId(row.pair_id);
+                        }}
+                        className={`
                         h-[58px]
                         border-b
                         border-[#E2E8F0]
@@ -461,137 +500,130 @@ useEffect(() => {
                             : ""
                         }
                       `}
-                    >
-
-                      {/* <td className="px-5">
+                      >
+                        {/* <td className="px-5">
                         <input type="checkbox" />
                       </td> */}
-<td className="px-5">
-  <input
-    type="checkbox"
-    checked={selectedRowId === row.pair_id}
-    onChange={() => {
-      setSelectedCase(row);
-      setSelectedRowId(row.pair_id);
-    }}
-    onClick={(e) => e.stopPropagation()}
-  />
-</td>
-                      <td className="text-[12px] font-semibold text-[#2563EB]">
-                        {row.pair_id}
-                      </td>
-
-                      <td>
-                        <span
-                          className={`px-2.5 py-[2px] rounded-md text-[10px] font-semibold ${
-                            row.case_type === "Duplicate"
-                              ? "bg-[#F3E8FF] text-[#8B5CF6]"
-                              : "bg-[#FDE7C7] text-[#F59E0B]"
-                          }`}
-                        >
-                          {row.case_type}
-                        </span>
-                      </td>
-                      <td className="text-[12px] text-[#334155]">
-                        {row.duplicateType ?? row.duplicate_type ?? "-"}
-                      </td>
-                      <td>
-                        <div className="flex items-center gap-2 text-[12px] text-[#334155]">
-
-                          <span
-                            className={`w-2 h-2 rounded-full ${
-                              row.priority === "High"
-                                ? "bg-red-500"
-                                : row.priority === "Medium"
-                                ? "bg-amber-500"
-                                : "bg-emerald-500"
-                            }`}
+                        <td className="px-5">
+                          <input
+                            type="checkbox"
+                            checked={selectedRowId === row.pair_id}
+                            onChange={() => {
+                              setSelectedCase(row);
+                              setSelectedRowId(row.pair_id);
+                            }}
+                            onClick={(e) => e.stopPropagation()}
                           />
+                        </td>
+                        <td className="text-[12px] font-semibold text-[#2563EB]">
+                          {row.pair_id}
+                        </td>
 
-                          {row.priority}
+                        <td>
+                          <span
+                            className={`px-2.5 py-[2px] rounded-md text-[10px] font-semibold ${
+                              row.case_type === "Duplicate"
+                                ? "bg-[#F3E8FF] text-[#8B5CF6]"
+                                : "bg-[#FDE7C7] text-[#F59E0B]"
+                            }`}
+                          >
+                            {row.case_type}
+                          </span>
+                        </td>
+                        <td className="text-[12px] text-[#334155]">
+                          {row.duplicateType ?? row.duplicate_type ?? "-"}
+                        </td>
+                        <td>
+                          <div className="flex items-center gap-2 text-[12px] text-[#334155]">
+                            <span
+                              className={`w-2 h-2 rounded-full ${
+                                row.priority === "High"
+                                  ? "bg-red-500"
+                                  : row.priority === "Medium"
+                                    ? "bg-amber-500"
+                                    : "bg-emerald-500"
+                              }`}
+                            />
 
-                        </div>
-                      </td>
+                            {row.priority}
+                          </div>
+                        </td>
 
-                      <td>
-                        <span
-                          className={`px-2.5 py-[2px] rounded-md text-[10px] font-semibold ${statusClass(
-                            row.risk_level
-                          )}`}
-                        >
-                          {row.risk_level}
-                        </span>
-                      </td>
+                        <td>
+                          <span
+                            className={`px-2.5 py-[2px] rounded-md text-[10px] font-semibold ${statusClass(
+                              row.risk_level,
+                            )}`}
+                          >
+                            {row.risk_level}
+                          </span>
+                        </td>
 
-                      <td className="text-[12px] text-[#334155]">
-                        {row.vendor}
-                      </td>
+                        <td className="text-[12px] text-[#334155]">
+                          {row.vendor}
+                        </td>
 
-                      <td className="text-[12px] font-semibold text-[#0F172A]">
-                        {row.invoice_1?.amount}
-                      </td>
+                        <td className="text-[12px] font-semibold text-[#0F172A]">
+                          {row.invoice_1?.amount}
+                        </td>
 
-                      <td className="text-[12px] text-[#64748B]">
-                        {row.detectedOn}
-                      </td>
+                        <td className="text-[12px] text-[#64748B]">
+                          {row.detectedOn}
+                        </td>
 
-                      <td>
-                        <div className="text-[12px] text-[#334155]">
-                          {row.invoice_1?.invoice_date}
-                        </div>
-                        
-                      </td>
+                        <td>
+                          <div className="text-[12px] text-[#334155]">
+                            {row.invoice_1?.invoice_date}
+                          </div>
+                        </td>
 
-                      <td className="text-[12px] text-[#64748B]">
-                        {/* {row.investigator} */}
-                        {row.invoice_1?.invoice_id}
-                      </td>
+                        <td className="text-[12px] text-[#64748B]">
+                          {/* {row.investigator} */}
+                          {row.invoice_1?.invoice_id}
+                        </td>
 
-                      <td className="text-[12px] text-[#64748B]">
-                        {row.invoice_1?.invoice_number}
-                      </td>
+                        <td className="text-[12px] text-[#64748B]">
+                          {row.invoice_1?.invoice_number}
+                        </td>
 
-                      {/* <td className="text-[12px] font-semibold text-[#0F172A]">
+                        {/* <td className="text-[12px] font-semibold text-[#0F172A]">
                         {row.invoice_1?.confidenceScore}
                       </td> */}
 
-                      {/* <td className="text-[12px] font-semibold text-[#0F172A]">
+                        {/* <td className="text-[12px] font-semibold text-[#0F172A]">
                         {row.similarity}
                       </td> */}
 
-                      {/* <td className="pr-4">
+                        {/* <td className="pr-4">
                         <MoreVertical
                           size={15}
                           className="text-[#94A3B8]"
                         />
                       </td> */}
-
-                    </tr>
-
-                  ))}
-
+                      </tr>
+                    ))
+                  )}
                 </tbody>
-
               </table>
-
             </div>
 
             {/* Pagination */}
 
             <div className="border-t border-[#E2E8F0] px-5 py-3 flex items-center justify-between">
-
               <div className="text-[12px] text-[#64748B]">
                 Showing {filteredData.length ? (page - 1) * pageSize + 1 : 0} to{" "}
-                {Math.min(
-                  page * pageSize,
-                  filteredData.length
-                )}
-                {" "}of {filteredData.length} cases
+                {Math.min(page * pageSize, filteredData.length)} of{" "}
+                {filteredData.length} cases
               </div>
 
               <div className="flex items-center gap-2">
-
-                <button onClick={() => setPage((currentPage) => Math.max(1, currentPage - 1))} disabled={page === 1} className="w-7 h-7 rounded-lg border border-[#D9E1EA] disabled:opacity-40">
+                <button
+                  onClick={() =>
+                    setPage((currentPage) => Math.max(1, currentPage - 1))
+                  }
+                  disabled={page === 1}
+                  className="w-7 h-7 rounded-lg border border-[#D9E1EA] disabled:opacity-40"
+                >
                   ‹
                 </button>
 
@@ -609,36 +641,48 @@ useEffect(() => {
                       {item}
                     </button>
                   ) : (
-                    <span key={item} className="w-5 text-center text-[#64748B]" aria-hidden="true">
+                    <span
+                      key={item}
+                      className="w-5 text-center text-[#64748B]"
+                      aria-hidden="true"
+                    >
                       ...
                     </span>
-                  )
+                  ),
                 )}
 
-                <button onClick={() => setPage((currentPage) => Math.min(totalPages, currentPage + 1))} disabled={page === totalPages} className="w-7 h-7 rounded-lg border border-[#D9E1EA] disabled:opacity-40">
+                <button
+                  onClick={() =>
+                    setPage((currentPage) =>
+                      Math.min(totalPages, currentPage + 1),
+                    )
+                  }
+                  disabled={page === totalPages}
+                  className="w-7 h-7 rounded-lg border border-[#D9E1EA] disabled:opacity-40"
+                >
                   ›
                 </button>
 
-                <select className="h-7 rounded-lg border border-[#D9E1EA] px-2 text-[12px]" value={pageSize} disabled>
+                <select
+                  className="h-7 rounded-lg border border-[#D9E1EA] px-2 text-[12px]"
+                  value={pageSize}
+                  disabled
+                >
                   <option value={10}>10 / page</option>
                 </select>
-
               </div>
-
             </div>
-
           </div>
         </div>
 
         {/* RIGHT PANEL */}
         <div className="col-span-12 lg:col-span-4 flex">
-          <CasesDetails caseData={selectedCase ?? tableData[0]} userName={userName} />
+          <CasesDetails
+            caseData={selectedCase ?? tableData[0]}
+            userName={userName}
+          />
         </div>
-
       </div>
-
-      {/* <CasesAnalyticsRow data={casesData.casesOverview} /> */}
     </div>
   );
 }
-

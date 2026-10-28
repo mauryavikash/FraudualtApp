@@ -22,6 +22,7 @@ function normalizeDeviation(deviation) {
   if (
     value.includes("invoice") ||
     value.includes("duplicate") ||
+    value.includes("potential_duplicate") ||
     value.includes("potential-dup")
   ) {
     return "invoice";
@@ -31,7 +32,11 @@ function normalizeDeviation(deviation) {
     return "recurring";
   }
 
-  if (value.includes("outlier") || value.includes("anomaly")) {
+  if (
+    value.includes("outlier") ||
+    value.includes("anomaly") ||
+    value.includes("outlier_anomalies")
+  ) {
     return "outlier";
   }
 
@@ -90,49 +95,63 @@ export default function VendorTable({
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
 
-
   const filteredVendors = useMemo(() => {
     return vendors.filter((vendor) => {
-      if (activeDeviation === "outlier") {
-        return (
-          String(vendor.type ?? "")
-            .toLowerCase()
-            .includes("outlier") ||
-          String(vendor.type ?? "")
-            .toLowerCase()
-            .includes("anomaly")
-        );
-      }
-
-      if (activeDeviation === "onetime") {
-        const type = String(vendor.type ?? "").toLowerCase();
-
-        return (
-          type.includes("one-time") ||
-          type.includes("one time") ||
-          type.includes("onetime")
-        );
-      }
+      const vendorInvoices = vendor?.invoices || [];
 
       if (activeDeviation === "500k") {
-        const amountText = String(vendor.totalAmount ?? "").toUpperCase();
+        return vendorInvoices.some((invoice) => {
+          const amountText = String(invoice.amount ?? "0").toUpperCase();
 
-        let amount = parseFloat(amountText.replace(/[^0-9.]/g, ""));
+          let amount = parseFloat(amountText.replace(/[^0-9.]/g, ""));
 
-        if (amountText.includes("M")) {
-          amount *= 1000000;
-        } else if (amountText.includes("K")) {
-          amount *= 1000;
-        }
+          if (amountText.includes("M")) {
+            amount *= 1000000;
+          } else if (amountText.includes("K")) {
+            amount *= 1000;
+          }
 
-        return amount >= 500000;
+          return amount >= 500000;
+        });
       }
 
-      return normalizeType(vendor.type) === activeDeviation;
+      return vendorInvoices.some((invoice) => {
+        const text = String(
+          invoice.deviation ||
+            invoice.type ||
+            invoice.category ||
+            invoice.id ||
+            "",
+        ).toLowerCase();
+
+        switch (activeDeviation) {
+          case "currency":
+            return text.includes("currency");
+
+          case "invoice":
+            return text.includes("invoice") || text.includes("duplicate");
+
+          case "recurring":
+            return text.includes("recurring") || text.includes("irregular");
+
+          case "outlier":
+            return text.includes("outlier") || text.includes("anomaly");
+
+          case "onetime":
+            return (
+              text.includes("one-time") ||
+              text.includes("one time") ||
+              text.includes("onetime")
+            );
+
+          default:
+            return true;
+        }
+      });
     });
   }, [vendors, activeDeviation]);
 
-    useEffect(() => {
+  useEffect(() => {
     if (filteredVendors.length > 0 && !selectedVendorId) {
       onSelectVendor(filteredVendors[0].vendorId);
     }
@@ -153,27 +172,62 @@ export default function VendorTable({
         .toLowerCase()
         .includes(search.toLowerCase());
 
+      const text = String(
+        invoice.deviation ||
+          invoice.type ||
+          invoice.category ||
+          invoice.id ||
+          "",
+      ).toLowerCase();
+
       let matchesTab = false;
 
-      if (activeDeviation === "500k") {
-        const amountText = String(invoice.amount ?? "0").toUpperCase();
+      switch (activeDeviation) {
+        case "currency":
+          matchesTab = text.includes("currency");
+          break;
 
-        let amount = parseFloat(amountText.replace(/[^0-9.]/g, ""));
+        case "invoice":
+          matchesTab = text.includes("invoice") || text.includes("duplicate");
+          break;
 
-        if (amountText.includes("M")) {
-          amount *= 1000000;
-        } else if (amountText.includes("K")) {
-          amount *= 1000;
+        case "recurring":
+          matchesTab = text.includes("recurring") || text.includes("irregular");
+          break;
+
+        case "outlier":
+          matchesTab = text.includes("outlier") || text.includes("anomaly");
+          break;
+
+        case "onetime":
+          matchesTab =
+            text.includes("one-time") ||
+            text.includes("one time") ||
+            text.includes("onetime");
+          break;
+
+        case "500k": {
+          const amountText = String(invoice.amount ?? "0").toUpperCase();
+
+          let amount = parseFloat(amountText.replace(/[^0-9.]/g, ""));
+
+          if (amountText.includes("M")) {
+            amount *= 1000000;
+          } else if (amountText.includes("K")) {
+            amount *= 1000;
+          }
+
+          matchesTab = amount >= 500000;
+          break;
         }
 
-        matchesTab = amount >= 500000;
-      } else {
-        matchesTab = normalizeDeviation(invoice.deviation) === activeDeviation;
+        default:
+          matchesTab = true;
       }
 
       return matchesTab && matchesSearch;
     });
-  }, [activeDeviation, search, selectedVendor]);
+  }, [selectedVendor, activeDeviation, search]);
 
   if (!selectedVendor) {
     return (

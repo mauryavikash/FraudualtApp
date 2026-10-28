@@ -2,8 +2,8 @@
 import React, { useState, useMemo } from "react";
 import { X, Check, FileSearch, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
-import { submitCaseAction } from "@/app/lib/api";
-// import { submitRecoveryAction } from "@/app/lib/api";
+// import { submitCaseAction } from "@/app/lib/api";
+import { submitRecoveryAction } from "@/app/lib/api";
 const statusBadgeClass = (status) => {
   switch (status) {
     case "Completed":
@@ -28,7 +28,7 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
   }, []);
 
   const userName = loggedInUser?.first_name || loggedInUser?.userName || "User";
-// const [activeTab, setActiveTab] = useState("Overview");
+  // const [activeTab, setActiveTab] = useState("Overview");
   const [isDraftGenerated, setIsDraftGenerated] = useState(false);
 
   const selected = recovery ?? {};
@@ -57,13 +57,13 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
         actionedAt: new Date().toISOString(),
       };
       console.log("Submit Payload", payload);
-      const response = await submitCaseAction(payload);
+      const response = await submitRecoveryAction(payload);
       console.log("API Response", response);
       toast.success("Action completed successfully", {
         id: toastId,
       });
     } catch (error) {
-      console.error("submitCaseAction error:", error);
+      console.error("submitRecoveryAction error:", error);
       toast.error(
         error?.response?.data?.message ||
           error?.message ||
@@ -76,8 +76,6 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
       setLoading(false);
     }
   };
-
-  
 
   return (
     // <div className="w-full flex flex-col bg-white rounded-[16px] border border-[#D9E1EA] shadow-[0px_2px_8px_rgba(15,23,42,0.05)] overflow-hidden">
@@ -136,7 +134,7 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
 
       {/* Overview */}
       <div className="px-4 pt-4 flex-1 min-h-0 overflow-y-auto">
-        <div className="flex flex-col gap-2.5 text-[12px]">
+        <div className="flex flex-col gap-2.5 text-[10px]">
           <MetaRow label="Recovery Type" value={selected.type} />
           <MetaRow
             label="Status"
@@ -176,10 +174,12 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
           <MetaRow label="Recovery Method" value={selected.recoveryMethod} />
           <MetaRow label="Notes" value={selected.notes} />
         </div>
-
+        <div className="p-2 text-[10px] text-green-600">
+          <p>{selected?.auditRemarks}</p>
+        </div>
         {/* Recovery Progress */}
         <div className="mt-5">
-          <div className="text-[11px] font-semibold tracking-wide text-[#64748B]">
+          <div className="text-[10px] font-semibold tracking-wide text-[#64748B]">
             RECOVERY PROGRESS
           </div>
 
@@ -273,12 +273,15 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
               className="flex flex-col items-center justify-center rounded-lg border border-amber-500 bg-white py-2 text-amber-600 hover:bg-amber-50"
             >
               <AlertTriangle size={18} />
-              <span className="mt-1 text-xs font-medium">Adjusted Internally</span>
+              <span className="mt-1 text-xs font-medium">
+                Adjusted Internally
+              </span>
             </button>
           </div>
 
           <p className="mt-2 text-xs text-slate-500">
-            Confirm requires a reason code. Invalid and Adjusted Internally do not.
+            Confirm requires a reason code. Invalid and Adjusted Internally do
+            not.
           </p>
         </div>
         {/* Recovery Timeline */}

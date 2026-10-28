@@ -419,6 +419,10 @@ export default function VendorInsight({ vendor }) {
       </div>
 
       {/* FOOTER */}
+
+      <div className="p-2 text-[10px] text-green-600">
+        <p>{vendor?.auditRemarks}</p>
+      </div>
       <div className="mt-auto grid grid-cols-[1fr_1fr_34px] gap-2 border-t border-slate-300 p-4">
         <button
           type="button"
@@ -429,7 +433,7 @@ export default function VendorInsight({ vendor }) {
         </button>
       </div>
 
-      <div className="mt-2 mb-2 rounded-xl border border-slate-200 bg-slate-50 p-2">
+      <div className="mt-2 mb-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
         <h3 className="text-sm font-semibold text-slate-900">Quick Actions</h3>
 
         <div className="mt-2">
