@@ -11,6 +11,7 @@ import {
   Users,
   Clock3,
   BarChart3,
+  ShieldCheck,
 
 } from "lucide-react";
 import Link from "next/link";
@@ -22,6 +23,7 @@ const navItems = [
   { name: "Vendor", href: "/vendor", icon: Users },
   { name: "Audit Trail", href: "/audit", icon: Clock3 },
   { name: "AI Review", href: "/aiReview", icon: BarChart3 },
+  { name: "AI Recommendation", href: "/aiRecommendation", icon: ShieldCheck },
 
 ];
 

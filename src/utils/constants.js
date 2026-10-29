@@ -1,11 +1,12 @@
 import {
-  Home,
   Gift,
   DollarSign,
   Users,
   Clock3,
   BarChart3,
+  ShieldCheck,
 } from "lucide-react";
+
 
 export const APP_NAME = "ReconFlow";
 export const APP_SHORT_NAME = "ReconFlow";
@@ -52,11 +53,11 @@ export const NAV_ITEMS = [
     href: "/aiReview",
     icon: BarChart3,
   },
-  // {
-  //   name: "Audit & Compliance",
-  //   href: "/audit",
-  //   icon: ShieldCheck,
-  // },
+  {
+    name: "AI Recommendation",
+    href: "/aiRecommendation",
+    icon: ShieldCheck,
+  },
   // {
   //   name: "Configuration",
   //   href: "/settings",
