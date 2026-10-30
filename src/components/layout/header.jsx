@@ -1,27 +1,37 @@
-
 "use client";
 
-import { Bell, Menu,Zap,Bot, ChevronDown,CheckCircle2,FileText,Mail, Settings, User, LogOut, HelpCircle, Download, Upload, BarChart3 } from "lucide-react";
+import {
+  Bell,
+  Menu,
+  Zap,
+  Bot,
+  ChevronDown,
+  CheckCircle2,
+  FileText,
+  Mail,
+  Settings,
+  User,
+  LogOut,
+  HelpCircle,
+  Download,
+  Upload,
+  BarChart3,
+} from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import {
-getAgentStatus,
-getNotifications,
-} from "@/app/lib/api";
-  import { useRouter } from "next/navigation";
- 
+import { getAgentStatus, getNotifications } from "@/app/lib/api";
+import { useRouter } from "next/navigation";
+
 export default function Header({ setIsOpen, isOpen }) {
   const pathname = usePathname();
 
+  const router = useRouter();
 
+  const handleLogout = () => {
+    sessionStorage.clear();
 
-const router = useRouter();
-
-const handleLogout = () => {
-  sessionStorage.clear();
-
-  router.replace("/login");
-};
+    router.replace("/login");
+  };
 
   const [user, setUser] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -31,106 +41,86 @@ const handleLogout = () => {
   const [notifications, setNotifications] = useState([]);
   const [notificationOpen, setNotificationOpen] = useState(false);
 
-const notificationRef = useRef(null);
-
-useEffect(() => {
-  const storedUser = sessionStorage.getItem("user");
-
-  if (storedUser && storedUser !== "undefined") {
-    setUser(JSON.parse(storedUser));
-  }
-}, []);
+  const notificationRef = useRef(null);
 
   useEffect(() => {
-  const loadAgents = async () => {
-    try {
-      const data = await getAgentStatus();
+    const storedUser = sessionStorage.getItem("user");
 
-      const agents = data?.agents || [];
-
-      const live = agents.filter((agent) =>
-        agent.agent_id?.startsWith("A")
-      );
-
-      const standby = agents.filter((agent) =>
-        agent.agent_id?.startsWith("S")
-      );
-
-      setLiveAgents(live);
-      setStandbyAgents(standby);
-
-    } catch (error) {
-      console.error("Agent API Error:", error);
+    if (storedUser && storedUser !== "undefined") {
+      setUser(JSON.parse(storedUser));
     }
-  };
+  }, []);
 
-  loadAgents();
-}, []);
-useEffect(() => {
-  const loadNotifications = async () => {
-    try {
-      const data = await getNotifications();
+  useEffect(() => {
+    const loadAgents = async () => {
+      try {
+        const data = await getAgentStatus();
 
-      setNotifications(data?.notifications || []);
+        const agents = data?.agents || [];
 
-    } catch (error) {
-      console.error("Notification API Error:", error);
-    }
-  };
+        const live = agents.filter((agent) => agent.agent_id?.startsWith("A"));
 
-  loadNotifications();
-}, []);
-  const [agentsOpen,   setAgentsOpen]   = useState(false);
-  const [standbyOpen,  setStandbyOpen]  = useState(false);
+        const standby = agents.filter((agent) =>
+          agent.agent_id?.startsWith("S"),
+        );
+
+        setLiveAgents(live);
+        setStandbyAgents(standby);
+      } catch (error) {
+        console.error("Agent API Error:", error);
+      }
+    };
+
+    loadAgents();
+  }, []);
+  useEffect(() => {
+    const loadNotifications = async () => {
+      try {
+        const data = await getNotifications();
+
+        setNotifications(data?.notifications || []);
+      } catch (error) {
+        console.error("Notification API Error:", error);
+      }
+    };
+
+    loadNotifications();
+  }, []);
+  const [agentsOpen, setAgentsOpen] = useState(false);
+  const [standbyOpen, setStandbyOpen] = useState(false);
 
   const dropdownRef = useRef(null);
-   const agentsRef  = useRef(null);
+  const agentsRef = useRef(null);
   const standbyRef = useRef(null);
 
-
   useEffect(() => {
-  const handleClickOutside = (e) => {
-    if (
-      dropdownRef.current &&
-      !dropdownRef.current.contains(e.target)
-    ) {
-      setProfileOpen(false);
-    }
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setProfileOpen(false);
+      }
 
-    if (
-      agentsRef.current &&
-      !agentsRef.current.contains(e.target)
-    ) {
-      setAgentsOpen(false);
-    }
+      if (agentsRef.current && !agentsRef.current.contains(e.target)) {
+        setAgentsOpen(false);
+      }
 
-    if (
-      standbyRef.current &&
-      !standbyRef.current.contains(e.target)
-    ) {
-      setStandbyOpen(false);
-    }
+      if (standbyRef.current && !standbyRef.current.contains(e.target)) {
+        setStandbyOpen(false);
+      }
 
-    if (
-      notificationRef.current &&
-      !notificationRef.current.contains(e.target)
-    ) {
-      setNotificationOpen(false);
-    }
-  };
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(e.target)
+      ) {
+        setNotificationOpen(false);
+      }
+    };
 
-  document.addEventListener(
-    "mousedown",
-    handleClickOutside
-  );
+    document.addEventListener("mousedown", handleClickOutside);
 
-  return () => {
-    document.removeEventListener(
-      "mousedown",
-      handleClickOutside
-    );
-  };
-}, []);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   let title = "Home";
 
   if (pathname) {
@@ -139,8 +129,8 @@ useEffect(() => {
     else if (pathname === "/recoveries") title = "Recoveries";
     else if (pathname === "/vendor") title = "Vendor Deviations ";
     else if (pathname === "/audit") title = "Audit Log";
-    else if (pathname === "/aiReview") title = "AI Review";
-
+    else if (pathname === "/aiReview") title = "AI-Review Queue";
+  
   }
 
   const headerActions = [
@@ -180,11 +170,13 @@ useEffect(() => {
 
         {/* Right section */}
         <div className="flex items-center gap-2 flex-wrap justify-end">
-          
           <div className="relative" ref={agentsRef}>
             <button
               type="button"
-              onClick={() => { setAgentsOpen((v) => !v); setStandbyOpen(false); }}
+              onClick={() => {
+                setAgentsOpen((v) => !v);
+                setStandbyOpen(false);
+              }}
               className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700 shadow-sm transition-all hover:bg-emerald-100 hover:shadow-md cursor-pointer"
             >
               <span className="relative flex h-2.5 w-2.5">
@@ -198,13 +190,19 @@ useEffect(() => {
             </button>
 
             {/* Live agents dropdown */}
-            <div className={`absolute left-0 top-full mt-2 w-72 overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-xl transition-all duration-200 z-50 ${
-              agentsOpen ? "visible translate-y-0 opacity-100" : "invisible -translate-y-2 opacity-0 pointer-events-none"
-            }`}>
+            <div
+              className={`absolute left-0 top-full mt-2 w-72 overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-xl transition-all duration-200 z-50 ${
+                agentsOpen
+                  ? "visible translate-y-0 opacity-100"
+                  : "invisible -translate-y-2 opacity-0 pointer-events-none"
+              }`}
+            >
               <div className="border-b border-slate-100 bg-emerald-50 px-4 py-2.5">
                 <div className="flex items-center gap-2">
                   <Zap size={13} className="text-emerald-600" />
-                  <span className="text-xs font-bold uppercase tracking-wide text-emerald-700">Live Agents ({liveAgents.length})</span>
+                  <span className="text-xs font-bold uppercase tracking-wide text-emerald-700">
+                    Live Agents ({liveAgents.length})
+                  </span>
                 </div>
               </div>
               {liveAgents.map((agent, index) => (
@@ -214,7 +212,7 @@ useEffect(() => {
                 >
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-xs font-semibold text-amber-700">
                     {/* {index + 1} */} <User size={13} />
-                    </span>
+                  </span>
 
                   <div className="min-w-0 flex-1">
                     <p className="text-[12px] font-semibold text-slate-800">
@@ -239,7 +237,10 @@ useEffect(() => {
           <div className="relative" ref={standbyRef}>
             <button
               type="button"
-              onClick={() => { setStandbyOpen((v) => !v); setAgentsOpen(false); }}
+              onClick={() => {
+                setStandbyOpen((v) => !v);
+                setAgentsOpen(false);
+              }}
               className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[11px] font-semibold text-amber-700 shadow-sm transition-all hover:bg-amber-100 hover:shadow-md cursor-pointer"
             >
               <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
@@ -250,13 +251,19 @@ useEffect(() => {
             </button>
 
             {/* Standby agents dropdown */}
-            <div className={`absolute left-0 top-full mt-2 w-72 overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-xl transition-all duration-200 z-50 ${
-              standbyOpen ? "visible translate-y-0 opacity-100" : "invisible -translate-y-2 opacity-0 pointer-events-none"
-            }`}>
+            <div
+              className={`absolute left-0 top-full mt-2 w-72 overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-xl transition-all duration-200 z-50 ${
+                standbyOpen
+                  ? "visible translate-y-0 opacity-100"
+                  : "invisible -translate-y-2 opacity-0 pointer-events-none"
+              }`}
+            >
               <div className="border-b border-slate-100 bg-amber-50 px-4 py-2.5">
                 <div className="flex items-center gap-2">
                   <Bot size={13} className="text-amber-600" />
-                  <span className="text-xs font-bold uppercase tracking-wide text-amber-700">Standby Agents ({standbyAgents.length})</span>
+                  <span className="text-xs font-bold uppercase tracking-wide text-amber-700">
+                    Standby Agents ({standbyAgents.length})
+                  </span>
                 </div>
               </div>
               {standbyAgents.map((agent, index) => (
@@ -266,7 +273,7 @@ useEffect(() => {
                 >
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-xs font-semibold text-amber-700">
                     {/* {index + 1} */} <User size={13} />
-                    </span>
+                  </span>
 
                   <div className="min-w-0 flex-1">
                     <p className="text-[12px] font-semibold text-slate-800">
@@ -294,80 +301,80 @@ useEffect(() => {
           </button> */}
 
           <div className="relative" ref={notificationRef}>
-  <button
-    type="button"
-    onClick={() => setNotificationOpen((v) => !v)}
-    className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-all hover:bg-slate-50 hover:shadow-md"
-  >
-    <Bell size={16} />
+            <button
+              type="button"
+              onClick={() => setNotificationOpen((v) => !v)}
+              className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-all hover:bg-slate-50 hover:shadow-md"
+            >
+              <Bell size={16} />
 
-    {notifications.length > 0 && (
-      <span className="absolute -right-0.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-red-500 text-xs font-bold text-white">
-        {notifications.length}
-      </span>
-    )}
-  </button>
+              {notifications.length > 0 && (
+                <span className="absolute -right-0.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-red-500 text-xs font-bold text-white">
+                  {notifications.length}
+                </span>
+              )}
+            </button>
 
-  <div
-    className={`absolute right-0 top-full mt-2 w-[380px] overflow-hidden rounded-2xl border border-red-100 bg-white shadow-xl transition-all duration-200 z-50 ${
-      notificationOpen
-        ? "visible translate-y-0 opacity-100"
-        : "invisible -translate-y-2 opacity-0 pointer-events-none"
-    }`}
-  >
-    {/* Header */}
-    <div className="border-b border-slate-100 bg-red-50 px-4 py-3">
-      <div className="flex items-center gap-2">
-        <Bell size={13} className="text-red-600" />
-        <span className="text-xs font-bold uppercase tracking-wide text-red-700">
-          Notifications ({notifications.length})
-        </span>
-      </div>
-    </div>
+            <div
+              className={`absolute right-0 top-full mt-2 w-[380px] overflow-hidden rounded-2xl border border-red-100 bg-white shadow-xl transition-all duration-200 z-50 ${
+                notificationOpen
+                  ? "visible translate-y-0 opacity-100"
+                  : "invisible -translate-y-2 opacity-0 pointer-events-none"
+              }`}
+            >
+              {/* Header */}
+              <div className="border-b border-slate-100 bg-red-50 px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <Bell size={13} className="text-red-600" />
+                  <span className="text-xs font-bold uppercase tracking-wide text-red-700">
+                    Notifications ({notifications.length})
+                  </span>
+                </div>
+              </div>
 
-    {/* Notification List */}
-    <div className="max-h-[420px] overflow-y-auto">
-      {notifications.map((item, index) => (
-        <div
-          key={item.notification_id || index}
-          className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-100"
-        >
-          {/* Number Circle */}
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-xs font-semibold text-red-700">
-            {/* {index + 1} */}
-            <Bell size={13} />
-          </span>
+              {/* Notification List */}
+              <div className="max-h-[420px] overflow-y-auto">
+                {notifications.map((item, index) => (
+                  <div
+                    key={item.notification_id || index}
+                    className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-100"
+                  >
+                    {/* Number Circle */}
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-xs font-semibold text-red-700">
+                      {/* {index + 1} */}
+                      <Bell size={13} />
+                    </span>
 
-          <div className="min-w-0 flex-1">
-            <p className="text-[12px] font-semibold text-slate-800">
-              {item.title}
-            </p>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[12px] font-semibold text-slate-800">
+                        {item.title}
+                      </p>
 
-            <p className="text-[11px] text-slate-500 mt-1">
-              {item.message || item.description}
-            </p>
+                      <p className="text-[11px] text-slate-500 mt-1">
+                        {item.message || item.description}
+                      </p>
 
-            <p className="text-[10px] text-slate-400 mt-1">
-              {item.notification_id}
-            </p>
+                      <p className="text-[10px] text-slate-400 mt-1">
+                        {item.notification_id}
+                      </p>
+                    </div>
+
+                    {/* Status Dot */}
+                    <span className="relative flex h-2 w-2 mt-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-50" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+                    </span>
+                  </div>
+                ))}
+
+                {notifications.length === 0 && (
+                  <div className="p-8 text-center text-sm text-slate-500">
+                    No notifications found
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-
-          {/* Status Dot */}
-          <span className="relative flex h-2 w-2 mt-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-50" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
-          </span>
-        </div>
-      ))}
-
-      {notifications.length === 0 && (
-        <div className="p-8 text-center text-sm text-slate-500">
-          No notifications found
-        </div>
-      )}
-    </div>
-  </div>
-</div>
 
           <div className="relative" ref={dropdownRef}>
             <button
@@ -385,7 +392,9 @@ useEffect(() => {
                 <span className="text-[12px] font-semibold text-slate-900">
                   {user?.first_name || "User"}
                 </span>
-                <span className="text-[10px] text-slate-500">{user?.role || ""}</span>
+                <span className="text-[10px] text-slate-500">
+                  {user?.role || ""}
+                </span>
               </span>
               <ChevronDown size={14} className="text-slate-500" />
             </button>
@@ -411,7 +420,10 @@ useEffect(() => {
                 <Settings size={16} />
                 Settings
               </a> */}
-              <button onClick={handleLogout} className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-slate-700 transition-colors hover:bg-red-50 hover:text-red-600">
+              <button
+                onClick={handleLogout}
+                className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-slate-700 transition-colors hover:bg-red-50 hover:text-red-600"
+              >
                 <LogOut size={16} />
                 Logout
               </button>

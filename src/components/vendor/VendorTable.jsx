@@ -95,77 +95,79 @@ export default function VendorTable({
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
 
-  // const filteredVendors = useMemo(() => {
-  //   return vendors.filter((vendor) => {
-  //     const vendorInvoices = vendor?.invoices || [];
 
-  //     if (activeDeviation === "500k") {
-  //       return vendorInvoices.some((invoice) => {
-  //         const amountText = String(invoice.amount ?? "0").toUpperCase();
+const filteredVendors = useMemo(() => {
+  return (vendors || []).filter((vendor) => {
+    const vendorInvoices = vendor?.invoices || [];
 
-  //         let amount = parseFloat(amountText.replace(/[^0-9.]/g, ""));
+    return vendorInvoices.some((invoice) => {
+      const text = [
+  invoice.deviation,
+  invoice.type,
+  invoice.category,
+]
+  .filter(Boolean)
+  .join(" ")
+  .toLowerCase();
 
-  //         if (amountText.includes("M")) {
-  //           amount *= 1000000;
-  //         } else if (amountText.includes("K")) {
-  //           amount *= 1000;
-  //         }
+      switch (activeDeviation) {
+        case "currency":
+          return text.includes("currency");
 
-  //         return amount >= 500000;
-  //       });
-  //     }
+        case "invoice":
+          return (
+            text.includes("invoice") ||
+            text.includes("duplicate")
+          );
 
-  //     return vendorInvoices.some((invoice) => {
-  //       const text = String(
-  //         invoice.deviation ||
-  //           invoice.type ||
-  //           invoice.category ||
-  //           invoice.id ||
-  //           "",
-  //       ).toLowerCase();
+        case "recurring":
+          return (
+            text.includes("recurring") ||
+            text.includes("irregular")
+          );
 
-  //       switch (activeDeviation) {
-  //         case "currency":
-  //           return text.includes("currency");
+        case "outlier":
+          return (
+            text.includes("outlier") ||
+            text.includes("anomal")
+          );
 
-  //         case "invoice":
-  //           return text.includes("invoice") || text.includes("duplicate");
+        case "onetime":
+          return (
+            text.includes("one-time") ||
+            text.includes("one time") ||
+            text.includes("onetime")
+          );
 
-  //         case "recurring":
-  //           return text.includes("recurring") || text.includes("irregular");
+        case "500k":
+          return true;
 
-  //         case "outlier":
-  //           return text.includes("outlier") || text.includes("anomaly");
+        default:
+          return true;
+      }
+    });
+  });
+}, [vendors, activeDeviation]);
 
-  //         case "onetime":
-  //           return (
-  //             text.includes("one-time") ||
-  //             text.includes("one time") ||
-  //             text.includes("onetime")
-  //           );
+useEffect(() => {
+  if (filteredVendors.length > 0) {
+    const exists = filteredVendors.some(
+      (v) => v.vendorId === selectedVendorId
+    );
 
-  //         default:
-  //           return true;
-  //       }
-  //     });
-  //   });
-  // }, [vendors, activeDeviation]);
-const filteredVendors = vendors || [];
-  useEffect(() => {
-    if (filteredVendors.length > 0 && !selectedVendorId) {
+    if (!exists) {
       onSelectVendor(filteredVendors[0].vendorId);
     }
-  }, [filteredVendors, selectedVendorId, onSelectVendor]);
+  }
+}, [filteredVendors, selectedVendorId, onSelectVendor]);
 
-  // useEffect(() => {
-  //   if (filteredVendors.length > 0) {
-  //     onSelectVendor(filteredVendors[0].vendorId);
-  //   }
-  // }, [activeDeviation]);
+
  const selectedVendor = useMemo(() => {
+  if (!filteredVendors.length) return null;
+
   return (
     filteredVendors.find(
-      (vendor) => vendor.vendorId === selectedVendorId
+      (vendor) => String(vendor.vendorId) === String(selectedVendorId)
     ) || filteredVendors[0]
   );
 }, [filteredVendors, selectedVendorId]);
@@ -226,6 +228,16 @@ const invoices = useMemo(() => {
   search,
 ]);
 
+useEffect(() => {
+  const totalPages = Math.max(
+    1,
+    Math.ceil(invoices.length / ITEMS_PER_PAGE)
+  );
+
+  if (currentPage > totalPages) {
+    setCurrentPage(1);
+  }
+}, [invoices.length, currentPage]);
   if (!selectedVendor) {
     return (
       <section className="col-span-12 overflow-hidden rounded-xl border border-slate-200 bg-white lg:col-span-8">
@@ -253,11 +265,11 @@ const invoices = useMemo(() => {
           <button
             key={id}
             type="button"
-            // onClick={() => setActiveDeviation(id)}
             onClick={() => {
-              setActiveDeviation(id);
-              setCurrentPage(1);
-            }}
+  setActiveDeviation(id);
+  setCurrentPage(1);
+  setSearch("");
+}}
             className={`shrink-0 border-b-2 py-4 text-sm font-semibold transition-colors ${
               activeDeviation === id
                 ? "border-blue-600 text-blue-600"

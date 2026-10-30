@@ -178,6 +178,14 @@ export async function submitVendorAction(payload) {
 
   return response.data;
 }
+export async function submitAiReviewAction(payload) {
+  const response = await axiosInstance.post(
+    "ai-review-action",
+    payload
+  );
+
+  return response.data;
+}
 
 export async function getRecoveries() {
   if (!recoveriesRequest) {
@@ -220,7 +228,14 @@ export async function getVendors() {
 
   return vendorsRequest;
 }
+export async function assignAiReview(aiReviewId, payload) {
+  const response = await axiosInstance.post(
+    `api/dq/aiReview/${encodeURIComponent(aiReviewId)}/assign`,
+    payload,
+  );
 
+  return response.data;
+}
 export async function sendCopilotMessage(message, userId, userName) {
   const response = await axiosInstance.post("v1/copilot/chat", {
     userId,
