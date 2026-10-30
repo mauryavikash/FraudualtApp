@@ -53,11 +53,7 @@ export const NAV_ITEMS = [
     href: "/aiReview",
     icon: BarChart3,
   },
-  {
-    name: "AI Recommendation",
-    href: "/aiRecommendation",
-    icon: ShieldCheck,
-  },
+
   // {
   //   name: "Configuration",
   //   href: "/settings",

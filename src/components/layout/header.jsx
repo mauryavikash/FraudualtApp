@@ -129,8 +129,8 @@ export default function Header({ setIsOpen, isOpen }) {
     else if (pathname === "/recoveries") title = "Recoveries";
     else if (pathname === "/vendor") title = "Vendor Deviations ";
     else if (pathname === "/audit") title = "Audit Log";
-    else if (pathname === "/aiReview") title = "AI Review";
-    else if (pathname === "/aiRecommendation") title = "AI Recommendation";
+    else if (pathname === "/aiReview") title = "AI-Review Queue";
+  
   }
 
   const headerActions = [

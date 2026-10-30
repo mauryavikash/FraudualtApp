@@ -23,7 +23,7 @@ const navItems = [
   { name: "Vendor", href: "/vendor", icon: Users },
   { name: "Audit Trail", href: "/audit", icon: Clock3 },
   { name: "AI Review", href: "/aiReview", icon: BarChart3 },
-  { name: "AI Recommendation", href: "/aiRecommendation", icon: ShieldCheck },
+
 
 ];
 
