@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 
 const tabs = [
@@ -12,251 +12,205 @@ const tabs = [
   ["500k", "500K-plus Findings"],
 ];
 
-function normalizeDeviation(deviation) {
-  const value = String(deviation ?? "").toLowerCase();
+const columns = [
+  ["posted", "Posted"],
+  ["vendor", "Vendor"],
+  ["invoiceNo", "Invoice no."],
+  ["docNo", "Doc no."],
+  ["invDate", "Inv date"],
+  ["amount", "Amount"],
+  ["category", "Category"],
+  ["risk", "Risk"],
+];
 
-  if (value.includes("currency") || value.includes("amount")) {
+function normalizeText(value) {
+  return String(value ?? "")
+    .toLowerCase()
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getDeviationType(invoice) {
+  const labels = [
+    invoice?.id,
+    invoice?.deviation,
+    invoice?.type,
+    invoice?.category,
+    invoice?.finding,
+    invoice?.findingType,
+    invoice?.deviationType,
+    invoice?.deviation_type,
+    invoice?.issueType,
+    invoice?.issue_type,
+  ]
+    .map(normalizeText)
+    .filter(Boolean);
+
+  if (labels.some((label) => /currency|amount deviation/.test(label))) {
     return "currency";
   }
-
-  if (
-    value.includes("invoice") ||
-    value.includes("duplicate") ||
-    value.includes("potential_duplicate") ||
-    value.includes("potential-dup")
-  ) {
+  if (labels.some((label) => /invoice|duplicate/.test(label))) {
     return "invoice";
   }
-
-  if (value.includes("recurring") || value.includes("irregular")) {
+  if (labels.some((label) => /recurring|irregular/.test(label))) {
     return "recurring";
   }
-
-  if (
-    value.includes("outlier") ||
-    value.includes("anomaly") ||
-    value.includes("outlier_anomalies")
-  ) {
+  if (labels.some((label) => /outlier|anomal/.test(label))) {
     return "outlier";
   }
-
-  if (value.includes("one-time") || value.includes("onetime")) {
+  if (labels.some((label) => /one time|onetime/.test(label))) {
     return "onetime";
   }
 
-  if (
-    value.includes("500k") ||
-    value.includes("500k-plus") ||
-    value.includes("500k plus")
-  ) {
-    return "500k";
-  }
-
-  return value;
+  return null;
 }
 
-function normalizeType(type) {
-  const value = String(type ?? "").toLowerCase();
-
-  if (value.includes("currency")) {
-    return "currency";
+function getAmountValue(amount) {
+  if (typeof amount === "number") {
+    return Number.isFinite(amount) ? amount : null;
   }
 
-  if (value.includes("invoice") || value.includes("duplicate")) {
-    return "invoice";
+  const normalized = String(amount ?? "")
+    .trim()
+    .replace(/,/g, "")
+    .replace(/[^0-9.+\-kmb]/gi, "");
+  const match = normalized.match(/^([+-]?\d*\.?\d+)([kmb])?$/i);
+
+  if (!match) {
+    return null;
   }
 
-  if (value.includes("recurring") || value.includes("irregular")) {
-    return "recurring";
-  }
-
-  if (value.includes("outlier") || value.includes("anomaly")) {
-    return "outlier";
-  }
-
-  if (value.includes("one-time") || value.includes("onetime")) {
-    return "onetime";
-  }
-
-  if (value.includes("500k") || value.includes("500k-plus")) {
-    return "500k";
-  }
-
-  return value;
+  const multipliers = { k: 1_000, m: 1_000_000, b: 1_000_000_000 };
+  const value = Number(match[1]) * (multipliers[match[2]?.toLowerCase()] ?? 1);
+  return Number.isFinite(value) ? value : null;
 }
+
+function matchesDeviation(invoice, deviation) {
+  if (deviation === "500k") {
+    return getAmountValue(invoice?.amount) >= 500_000;
+  }
+
+  return getDeviationType(invoice) === deviation;
+}
+
+function getInvoiceValue(invoice, vendor, column) {
+  switch (column) {
+    case "posted":
+      return invoice.posted ?? invoice.posted_date ?? "";
+    case "vendor":
+      return invoice.vendor ?? invoice.vendorName ?? vendor.vendorName ?? "";
+    case "invoiceNo":
+      return invoice.invoiceNo ?? invoice.invoice_no ?? "";
+    case "docNo":
+      return invoice.docNo ?? invoice.doc_no ?? "";
+    case "invDate":
+      return invoice.invDate ?? invoice.inv_date ?? "";
+    case "amount":
+      return getAmountValue(invoice.amount) ?? normalizeText(invoice.amount);
+    case "category":
+      return invoice.category ?? "";
+    case "risk":
+      return invoice.risk ?? "";
+    default:
+      return "";
+  }
+}
+
 export default function VendorTable({
-  vendors,
+  vendors = [],
   selectedVendorId,
   onSelectVendor,
 }) {
   const [activeDeviation, setActiveDeviation] = useState("currency");
   const [search, setSearch] = useState("");
-
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 10;
+  const [sort, setSort] = useState({ column: null, direction: "asc" });
+  const itemsPerPage = 10;
 
+  const filteredVendors = useMemo(
+    () =>
+      vendors.filter((vendor) =>
+        (vendor.invoices ?? []).some((invoice) =>
+          matchesDeviation(invoice, activeDeviation),
+        ),
+      ),
+    [vendors, activeDeviation],
+  );
 
-const filteredVendors = useMemo(() => {
-  return (vendors || []).filter((vendor) => {
-    const vendorInvoices = vendor?.invoices || [];
+  const selectedVendor = useMemo(
+    () =>
+      filteredVendors.find(
+        (vendor) => String(vendor.vendorId) === String(selectedVendorId),
+      ) ??
+      filteredVendors[0] ??
+      null,
+    [filteredVendors, selectedVendorId],
+  );
 
-    return vendorInvoices.some((invoice) => {
-      const text = [
-  invoice.deviation,
-  invoice.type,
-  invoice.category,
-]
-  .filter(Boolean)
-  .join(" ")
-  .toLowerCase();
+  useEffect(() => {
+    const selectionIsValid = filteredVendors.some(
+      (vendor) => String(vendor.vendorId) === String(selectedVendorId),
+    );
+    const nextVendorId = selectionIsValid
+      ? selectedVendorId
+      : (filteredVendors[0]?.vendorId ?? null);
 
-      switch (activeDeviation) {
-        case "currency":
-          return text.includes("currency");
+    if (String(nextVendorId) !== String(selectedVendorId)) {
+      onSelectVendor(nextVendorId);
+    }
+  }, [filteredVendors, onSelectVendor, selectedVendorId]);
 
-        case "invoice":
-          return (
-            text.includes("invoice") ||
-            text.includes("duplicate")
-          );
-
-        case "recurring":
-          return (
-            text.includes("recurring") ||
-            text.includes("irregular")
-          );
-
-        case "outlier":
-          return (
-            text.includes("outlier") ||
-            text.includes("anomal")
-          );
-
-        case "onetime":
-          return (
-            text.includes("one-time") ||
-            text.includes("one time") ||
-            text.includes("onetime")
-          );
-
-        case "500k":
-          return true;
-
-        default:
-          return true;
-      }
-    });
-  });
-}, [vendors, activeDeviation]);
-
-useEffect(() => {
-  if (filteredVendors.length > 0) {
-    const exists = filteredVendors.some(
-      (v) => v.vendorId === selectedVendorId
+  const invoices = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    const filtered = (selectedVendor?.invoices ?? []).filter(
+      (invoice) =>
+        !query || JSON.stringify(invoice).toLowerCase().includes(query),
     );
 
-    if (!exists) {
-      onSelectVendor(filteredVendors[0].vendorId);
+    if (!sort.column) {
+      return filtered;
     }
-  }
-}, [filteredVendors, selectedVendorId, onSelectVendor]);
 
+    return filtered
+      .map((invoice, index) => ({ invoice, index }))
+      .sort((left, right) => {
+        const leftValue = getInvoiceValue(left.invoice, selectedVendor, sort.column);
+        const rightValue = getInvoiceValue(right.invoice, selectedVendor, sort.column);
+        const comparison =
+          typeof leftValue === "number" && typeof rightValue === "number"
+            ? leftValue - rightValue
+            : String(leftValue).localeCompare(String(rightValue), undefined, {
+                numeric: true,
+                sensitivity: "base",
+              });
 
- const selectedVendor = useMemo(() => {
-  if (!filteredVendors.length) return null;
+        return comparison === 0
+          ? left.index - right.index
+          : sort.direction === "asc"
+            ? comparison
+            : -comparison;
+      })
+      .map(({ invoice }) => invoice);
+  }, [search, selectedVendor, sort]);
 
-  return (
-    filteredVendors.find(
-      (vendor) => String(vendor.vendorId) === String(selectedVendorId)
-    ) || filteredVendors[0]
-  );
-}, [filteredVendors, selectedVendorId]);
-
-const invoices = useMemo(() => {
-  return (selectedVendor?.invoices || []).filter(
-    (invoice) => {
-      const matchesSearch =
-        search === "" ||
-        JSON.stringify(invoice)
-          .toLowerCase()
-          .includes(search.toLowerCase());
-
-      const text = JSON.stringify(invoice)
-        .toLowerCase();
-
-      let matchesTab = true;
-
-      if (activeDeviation === "currency") {
-        matchesTab =
-          text.includes("currency");
-      }
-
-      if (activeDeviation === "invoice") {
-        matchesTab =
-          text.includes("invoice") ||
-          text.includes("duplicate");
-      }
-
-      if (activeDeviation === "recurring") {
-        matchesTab =
-          text.includes("recurring");
-      }
-
-      if (activeDeviation === "outlier") {
-        matchesTab =
-          text.includes("outlier") ||
-          text.includes("anomal");
-      }
-
-      if (activeDeviation === "onetime") {
-        matchesTab =
-          text.includes("one-time") ||
-          text.includes("one time") ||
-          text.includes("onetime");
-      }
-
-      if (activeDeviation === "500k") {
-        matchesTab = true;
-      }
-
-      return matchesSearch && matchesTab;
-    }
-  );
-}, [
-  selectedVendor,
-  activeDeviation,
-  search,
-]);
-
-useEffect(() => {
-  const totalPages = Math.max(
-    1,
-    Math.ceil(invoices.length / ITEMS_PER_PAGE)
-  );
-
-  if (currentPage > totalPages) {
-    setCurrentPage(1);
-  }
-}, [invoices.length, currentPage]);
-  if (!selectedVendor) {
-    return (
-      <section className="col-span-12 overflow-hidden rounded-xl border border-slate-200 bg-white lg:col-span-8">
-        <div className="p-10 text-center text-slate-500">
-          No vendors found for this deviation type.
-        </div>
-      </section>
-    );
-  }
-
-  const totalPages = Math.max(1, Math.ceil(invoices.length / ITEMS_PER_PAGE));
-
+  const totalPages = Math.max(1, Math.ceil(invoices.length / itemsPerPage));
+  const visiblePage = Math.min(currentPage, totalPages);
   const paginatedInvoices = invoices.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE,
+    (visiblePage - 1) * itemsPerPage,
+    visiblePage * itemsPerPage,
   );
+
+  const handleSort = (column) => {
+    setSort((current) => ({
+      column,
+      direction:
+        current.column === column && current.direction === "asc" ? "desc" : "asc",
+    }));
+  };
+
   return (
     <section className="col-span-12 overflow-hidden rounded-xl border border-slate-200 bg-white lg:col-span-8">
-      {/* TOP TABS */}
       <nav
         className="flex gap-3 overflow-x-auto border-b border-slate-200 px-3"
         aria-label="Deviation category"
@@ -265,11 +219,12 @@ useEffect(() => {
           <button
             key={id}
             type="button"
+            aria-pressed={activeDeviation === id}
             onClick={() => {
-  setActiveDeviation(id);
-  setCurrentPage(1);
-  setSearch("");
-}}
+              setActiveDeviation(id);
+              setSearch("");
+              setCurrentPage(1);
+            }}
             className={`shrink-0 border-b-2 py-4 text-sm font-semibold transition-colors ${
               activeDeviation === id
                 ? "border-blue-600 text-blue-600"
@@ -281,31 +236,30 @@ useEffect(() => {
         ))}
       </nav>
 
-      {/* MAIN CONTENT */}
-      <div className="grid h-[650px] min-h-0 grid-cols-1 lg:grid-cols-[235px_minmax(0,1fr)]">
-        {/* LEFT SIDEBAR */}
-        <aside className="bg-slate-50 lg:border-r lg:border-slate-200">
+      <div className="grid min-h-0 grid-cols-1 lg:grid-cols-[235px_minmax(0,1fr)]">
+        <aside className="min-h-0 bg-slate-50 lg:border-r lg:border-slate-200">
           <div className="border-b border-slate-200 bg-slate-50 px-4 py-4 text-xs font-bold uppercase tracking-wide text-slate-600">
             Exception Vendors
           </div>
 
-          <div className="h-[calc(100vh-0px)] overflow-y-auto overflow-x-hidden">
-            {/* {vendors.map((vendor) => { */}
+          <div className="max-h-[300px] overflow-y-auto overflow-x-hidden lg:max-h-[600px]">
             {filteredVendors.map((vendor) => {
-              const selected = vendor.vendorId === selectedVendorId;
+              const selected =
+                String(vendor.vendorId) === String(selectedVendor?.vendorId);
 
               return (
                 <button
                   key={vendor.vendorId}
                   type="button"
-                  // onClick={() => onSelectVendor(vendor.vendorId)}
+                  aria-pressed={selected}
                   onClick={() => {
                     onSelectVendor(vendor.vendorId);
+                    setSearch("");
                     setCurrentPage(1);
                   }}
-                  className={`w-full border-b border-slate-200 px-4 py-4 text-left transition-all duration-200 ${
+                  className={`w-full border-b border-slate-200 px-4 py-4 text-left transition-colors ${
                     selected
-                      ? "bg-[#e9b7d929] border-t-2 border-t-[#A78BFA]"
+                      ? "border-t-2 border-t-[#A78BFA] bg-[#e9b7d929]"
                       : "bg-white hover:bg-slate-50"
                   }`}
                 >
@@ -313,117 +267,115 @@ useEffect(() => {
                     <h3 className="text-[16px] font-bold text-slate-800">
                       {vendor.vendorId}
                     </h3>
-
                     <span className="rounded-md bg-red-50 px-2 py-1 text-[10px] font-semibold text-red-500">
                       {vendor.issues} issues
                     </span>
                   </div>
-
                   <p className="truncate text-[15px] text-slate-600">
                     {vendor.vendorName}
                   </p>
-
                   <p className="text-[14px] font-bold text-slate-900">
                     {vendor.totalAmount}
                   </p>
                 </button>
               );
             })}
+            {filteredVendors.length === 0 && (
+              <p className="px-4 py-6 text-sm text-slate-500">No Data Found</p>
+            )}
           </div>
         </aside>
 
-        {/* TABLE SECTION */}
-        <div className="min-w-0 flex h-full flex-col">
+        <div className="flex min-w-0 flex-col">
           <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-md font-semibold text-slate-800">
               Invoices with deviations
             </h2>
-
             <label className="relative block sm:w-64">
               <Search
                 size={16}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
               />
-
               <input
                 value={search}
-                // onChange={(event) => setSearch(event.target.value)}
                 onChange={(event) => {
                   setSearch(event.target.value);
                   setCurrentPage(1);
                 }}
                 placeholder="Search invoices"
+                aria-label="Search invoices"
                 className="h-8 w-full rounded-lg border border-slate-300 pl-10 pr-3 text-sm outline-none focus:border-blue-500"
               />
             </label>
           </div>
 
-          <div className="table-scrollbar h-[calc(840px-116px)] overflow-x-auto overflow-y-scroll">
-            <table className="w-full min-w-[670px] min-h-[680px] bg-white">
-              <thead className="border-b bg-slate-100">
+          <div className="table-scrollbar max-h-[60vh] overflow-auto lg:max-h-[480px]">
+            <table className="w-full min-w-[670px] bg-white">
+              <thead className="sticky top-0 z-10 border-b bg-slate-100">
                 <tr>
-                  {[
-                    "Posted",
-                    "Vendor",
-                    "Invoice no.",
-                    "Doc no.",
-                    "Inv date",
-                    "Amount",
-                    "Category",
-                    "Risk",
-                  ].map((title) => (
+                  {columns.map(([column, title]) => (
                     <th
-                      key={title}
+                      key={column}
+                      aria-sort={
+                        sort.column === column
+                          ? sort.direction === "asc"
+                            ? "ascending"
+                            : "descending"
+                          : "none"
+                      }
                       className="px-3 py-3 text-left text-[10px] font-bold uppercase tracking-wide text-slate-500"
                     >
-                      {title}
+                      <button
+                        type="button"
+                        onClick={() => handleSort(column)}
+                        className="whitespace-nowrap"
+                      >
+                        {title}
+                        {sort.column === column
+                          ? sort.direction === "asc"
+                            ? " ↑"
+                            : " ↓"
+                          : ""}
+                      </button>
                     </th>
                   ))}
                 </tr>
               </thead>
-
               <tbody>
-                {/* {invoices.map((invoice) => ( */}
-                {paginatedInvoices.map((invoice) => (
+                {paginatedInvoices.map((invoice, index) => (
                   <tr
-                    key={invoice.id}
-                    className="h-12 border-b border-slate-200 bg-[#e9b7d929] hover:bg-slate-50"
+                    key={`${invoice.id ?? invoice.invoiceNo ?? invoice.invoice_no ?? "invoice"}-${index}`}
+                    className="border-b border-slate-200 bg-[#e9b7d929] hover:bg-slate-50"
                   >
                     <td className="whitespace-nowrap px-3 py-2 text-[11px] text-slate-600">
                       {invoice.posted ?? invoice.posted_date ?? "-"}
                     </td>
-
                     <td
                       title={
                         invoice.vendor ??
                         invoice.vendorName ??
-                        selectedVendor.vendorName ??
+                        selectedVendor?.vendorName ??
                         "-"
                       }
                       className="max-w-36 truncate whitespace-nowrap px-3 py-2 text-[11px] font-semibold text-blue-600"
                     >
                       {invoice.vendor ??
                         invoice.vendorName ??
-                        selectedVendor.vendorName ??
+                        selectedVendor?.vendorName ??
                         "-"}
                     </td>
-
                     <td className="max-w-28 truncate whitespace-nowrap px-3 py-2 text-[11px] text-slate-700">
                       {invoice.invoiceNo ?? invoice.invoice_no ?? "-"}
                     </td>
-
                     <td className="whitespace-nowrap px-3 py-2 text-[11px] text-slate-600">
                       {invoice.docNo ?? invoice.doc_no ?? "-"}
                     </td>
-
                     <td className="whitespace-nowrap px-3 py-2 text-[11px] text-slate-600">
                       {invoice.invDate ?? invoice.inv_date ?? "-"}
                     </td>
-
                     <td className="whitespace-nowrap px-3 py-2 text-[11px] font-bold text-slate-800">
                       {invoice.amount ?? "-"}
                     </td>
-
                     <td className="whitespace-nowrap px-3 py-2">
                       <span
                         className={`rounded px-2 py-1 text-[9px] font-semibold ${
@@ -432,10 +384,9 @@ useEffect(() => {
                             : "bg-amber-50 text-amber-600"
                         }`}
                       >
-                        {invoice.category}
+                        {invoice.category ?? "-"}
                       </span>
                     </td>
-
                     <td className="whitespace-nowrap px-3 py-2">
                       <span
                         className={`rounded px-2 py-1 text-[9px] font-semibold ${
@@ -444,19 +395,18 @@ useEffect(() => {
                             : "bg-amber-50 text-amber-600"
                         }`}
                       >
-                        {invoice.risk}
+                        {invoice.risk ?? "-"}
                       </span>
                     </td>
                   </tr>
                 ))}
-
-                {invoices.length === 0 && (
+                {paginatedInvoices.length === 0 && (
                   <tr>
                     <td
-                      colSpan={8}
-                      className="px-3 py-12 text-center text-sm text-slate-500"
+                      colSpan={columns.length}
+                      className="px-3 py-8 text-center text-sm text-slate-500"
                     >
-                      No invoices found for this deviation type.
+                      No Data Found
                     </td>
                   </tr>
                 )}
@@ -464,32 +414,29 @@ useEffect(() => {
             </table>
           </div>
 
-          <footer className="mt-auto flex items-center justify-between border-t border-slate-200 p-3">
+          <footer className="flex items-center justify-between border-t border-slate-200 p-3">
             <span className="text-[10px] text-slate-500">
               Showing {paginatedInvoices.length} of {invoices.length} invoices
             </span>
-
-            <div className="flex gap-1">
+            <div className="flex items-center gap-1">
               <button
                 type="button"
                 aria-label="Previous page"
                 disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                 className="grid h-8 w-8 place-items-center rounded border border-slate-200 text-slate-500 disabled:opacity-40"
               >
                 <ChevronLeft size={13} />
               </button>
-
-              <span className="grid h-8 w-8 place-items-center rounded bg-blue-600 text-xs font-semibold text-white">
-                {currentPage}
+              <span className="grid h-8 min-w-8 place-items-center rounded bg-blue-600 px-2 text-xs font-semibold text-white">
+                {visiblePage} / {totalPages}
               </span>
-
               <button
                 type="button"
                 aria-label="Next page"
-                disabled={currentPage === totalPages}
+                disabled={currentPage >= totalPages}
                 onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                  setCurrentPage((page) => Math.min(totalPages, page + 1))
                 }
                 className="grid h-8 w-8 place-items-center rounded border border-slate-200 text-slate-500 disabled:opacity-40"
               >
