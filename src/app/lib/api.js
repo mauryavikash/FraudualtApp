@@ -28,6 +28,7 @@ export const CASES_URL = `${API_BASE_URL}/cases`;
 export const RECOVERIES_URL = `${API_BASE_URL}/recoveries`;
 export const AUDIT_URL = `${API_BASE_URL}/audit`;
 export const VENDORS_URL = `${API_BASE_URL}/vendors`;
+export const AI_REVIEW_URL = `${API_BASE_URL}/aireview`;
 export const COPILOT_CHAT_URL = `${API_BASE_URL}/v1/copilot/chat`;
 export const LOGIN_URL = `${API_BASE_URL}/auth/login`;
 export const REGISTER_URL = `${API_BASE_URL}/auth/register`;
@@ -39,6 +40,7 @@ let casesRequest;
 let recoveriesRequest;
 let auditRequest;
 let vendorsRequest;
+let aiReviewRequest;
 
 axiosInstance.interceptors.request.use(
   (config) => {
@@ -180,7 +182,7 @@ export async function submitVendorAction(payload) {
 }
 export async function submitAiReviewAction(payload) {
   const response = await axiosInstance.post(
-    "ai-review-action",
+    "aireview-action",
     payload
   );
 
@@ -234,13 +236,29 @@ export async function getVendors() {
 
   return vendorsRequest;
 }
-export async function assignAiReview(aiReviewId, payload) {
-  const response = await axiosInstance.post(
-    `api/dq/ai-review/${encodeURIComponent(aiReviewId)}/assign`,
-    payload,
-  );
+export async function getAiReview() {
+  if (!aiReviewRequest) {
+    aiReviewRequest = axiosInstance
+      .get("aireview")
+      .then((response) => response.data)
+      .catch((error) => {
+        aiReviewRequest = undefined;
+        throw error;
+      });
+  }
 
-  return response.data;
+  return aiReviewRequest;
+}
+export async function assignAiReview(payload) {
+  return axiosInstance.post(
+    "aireview/assign",
+    payload,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 }
 export async function sendCopilotMessage(message, userId, userName) {
   const response = await axiosInstance.post("v1/copilot/chat", {

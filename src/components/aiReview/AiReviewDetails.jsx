@@ -7,20 +7,24 @@ import {
   AlertCircle,
   Sparkles,
   FileSearch,
-  AlertTriangle,  
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
-import { submitVendorAction } from "@/app/lib/api";
 import { submitAiReviewAction } from "@/app/lib/api";
 const statusBadgeClass = (status) => {
   switch (status?.toUpperCase()) {
     case "IDENTIFIED":
+    case "PENDING":
+    case "PENDING REVIEW":
+    case "REQUIRES REVIEW":
       return "bg-blue-100 text-blue-700";
 
     case "COMPLETED":
+    case "APPROVED":
       return "bg-green-100 text-green-700";
 
     case "FAILED":
+    case "REJECTED":
       return "bg-red-100 text-red-700";
 
     default:
@@ -28,25 +32,30 @@ const statusBadgeClass = (status) => {
   }
 };
 
-export const AiReviewDetails = ({ recovery }) => {
-const loggedInUser = useMemo(() => {
-  if (typeof window === "undefined") return null;
+const displayValue = (value) => {
+  if (value === undefined || value === null || value === "") return "-";
+  return typeof value === "object" ? JSON.stringify(value) : String(value);
+};
 
-  const user = sessionStorage.getItem("user");
-  return user ? JSON.parse(user) : null;
- }, []);
+export const AiReviewDetails = ({ review }) => {
+  const loggedInUser = useMemo(() => {
+    if (typeof window === "undefined") return null;
 
- const userName =
-  loggedInUser?.first_name ||
-  loggedInUser?.userName ||
-  "User";
+    const user = sessionStorage.getItem("user");
+    return user ? JSON.parse(user) : null;
+  }, []);
 
+  const userName =
+    loggedInUser?.first_name || loggedInUser?.userName || "User";
 
-  const selected = recovery || {};
- const [reason, setReason] = useState("");
+  const selected = review || {};
+  const reviewDetails = Array.isArray(selected.reviewDetails)
+    ? selected.reviewDetails
+    : [];
+  const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
 
-    const handleAction = async (action) => {
+  const handleAction = async (action) => {
     if (action === "approve" && !reason) {
       toast.error("Please select a reason code.");
       return;
@@ -55,9 +64,9 @@ const loggedInUser = useMemo(() => {
     const toastId = toast.loading("Processing action...");
     try {
       const payload = {
-        aiReviewId:selected.aiReviewId,
+        aiReviewId: selected.invoiceId,
         action,
-        reason_code: action === "approve" ? reason : "",
+        reason_code: reason,
         comments: "",
         performed_by: userName,
         actionedAt: new Date().toISOString(),
@@ -90,11 +99,11 @@ const loggedInUser = useMemo(() => {
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-[20px] font-bold text-[#0F172A] leading-none">
-              {selected.recoveryId}
+              {selected.invoiceId ?? "AI Review"}
             </h2>
 
             <p className="mt-2 text-sm font-medium text-slate-600">
-              {selected.vendor}
+              {selected.supplier}
             </p>
           </div>
 
@@ -107,11 +116,13 @@ const loggedInUser = useMemo(() => {
 
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="rounded-full bg-red-100 px-3 py-1 text-[11px] font-bold text-red-700">
-            HIGH RISK
+            {selected.riskScore ?? "-"} {selected.riskLevel ?? "RISK"}
           </span>
 
           <span className="rounded-full bg-purple-100 px-3 py-1 text-[11px] font-bold text-purple-700">
-            REVIEW REQUIRED
+            {selected.humanReviewRequired
+              ? "REVIEW REQUIRED"
+              : selected.status ?? "REVIEW"}
           </span>
         </div>
 
@@ -122,7 +133,7 @@ const loggedInUser = useMemo(() => {
             Overview
           </button>
 
-          <button className="pb-2 text-xs font-medium text-slate-500">
+          {/* <button className="pb-2 text-xs font-medium text-slate-500">
             AI Findings
           </button>
 
@@ -132,7 +143,7 @@ const loggedInUser = useMemo(() => {
 
           <button className="pb-2 text-xs font-medium text-slate-500">
             Audit Trail
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -145,17 +156,17 @@ const loggedInUser = useMemo(() => {
           <div className="grid grid-cols-2 gap-y-3 text-sm">
             <InfoRow
               label="Supplier"
-              value={selected.vendor}
+              value={selected.supplier}
             />
 
             <InfoRow
               label="Invoice Amount"
-              value={selected.amount}
+              value={selected.invoiceAmount}
             />
 
             <InfoRow
               label="PO Number"
-              value={selected.caseId}
+              value={selected.poNumber}
             />
 
             <InfoRow
@@ -165,14 +176,14 @@ const loggedInUser = useMemo(() => {
 
             <InfoRow
               label="Assigned To"
-              value={selected.investigator}
+              value={selected.assignedTo}
             />
 
             <InfoRow
               label="SLA"
               value={
                 <span className="font-semibold text-orange-600">
-                  {selected.slaDue}
+                  {selected.sla}
                 </span>
               }
             />
@@ -181,21 +192,71 @@ const loggedInUser = useMemo(() => {
               label="AI Risk Score"
               value={
                 <span className="font-bold text-red-600">
-                  92 / 100 - HIGH
+                  {selected.riskScore ?? "-"} / 100 - {selected.riskLevel ?? "-"}
                 </span>
               }
             />
 
             <InfoRow
               label="AI Confidence"
-              value="96%"
+              value={selected.confidence}
             />
           </div>
         </div>
 
+        {/* <section className="mt-4 rounded-lg border border-slate-200 p-4">
+          <h3 className="mb-3 text-sm font-semibold text-slate-800">
+            Invoice field comparison
+          </h3>
+          {reviewDetails.length ? (
+            <div className="space-y-3">
+              {reviewDetails.map((detail, index) => (
+                <div
+                  key={`${detail.field}-${index}`}
+                  className="rounded-md bg-slate-50 p-3"
+                >
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold text-slate-700">
+                      {displayValue(detail.field)}
+                    </span>
+                    {detail.matchStatus !== "-" && (
+                      <span className="rounded-full bg-white px-2 py-1 text-[10px] font-medium text-slate-600">
+                        {displayValue(detail.matchStatus)}
+                      </span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div className="min-w-0">
+                      <div className="text-slate-500">AI / OCR value</div>
+                      <div className="break-words font-medium text-slate-800">
+                        {displayValue(detail.ocrValue)}
+                      </div>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-slate-500">ERP posting</div>
+                      <div className="break-words font-medium text-slate-800">
+                        {displayValue(detail.erpValue)}
+                      </div>
+                    </div>
+                  </div>
+                  {detail.ocrConfidence !== "-" && (
+                    <div className="mt-2 text-[11px] text-slate-500">
+                      OCR confidence: {displayValue(detail.ocrConfidence)}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-slate-500">
+              No invoice field details were supplied for this review.
+            </p>
+          )}
+        </section> */}
+
         {/* Why Review Required */}
 
-        <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
+        {/* <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
           <div className="flex items-center gap-2">
             <AlertCircle
               size={18}
@@ -208,15 +269,26 @@ const loggedInUser = useMemo(() => {
           </div>
 
           <ul className="mt-3 space-y-1 text-xs text-slate-700">
-            <li>• Potential duplicate detected</li>
-            <li>• Bank account mismatch</li>
-            <li>• Invoice amount exceeds threshold</li>
+            {(Array.isArray(selected.aiFindings)
+              ? selected.aiFindings
+              : [selected.humanReviewTrigger]
+            )
+              .filter((finding) => finding && finding !== "-")
+              .map((finding, index) => (
+                <li key={`${finding}-${index}`}>• {finding}</li>
+              ))}
+            {(!Array.isArray(selected.aiFindings) ||
+              selected.aiFindings.length === 0) &&
+              (!selected.humanReviewTrigger ||
+                selected.humanReviewTrigger === "-") && (
+                <li>No review reasons were supplied.</li>
+              )}
           </ul>
-        </div>
+        </div> */}
 
         {/* AI Recommendation */}
 
-        <div className="mt-4 rounded-lg border border-purple-200 bg-purple-50 p-4">
+        {/* <div className="mt-4 rounded-lg border border-purple-200 bg-purple-50 p-4">
           <div className="flex items-center gap-2">
             <Sparkles
               size={18}
@@ -229,13 +301,11 @@ const loggedInUser = useMemo(() => {
           </div>
 
           <div className="mt-3 rounded-md bg-red-100 py-3 text-center text-sm font-bold text-red-700">
-            HOLD PAYMENT & INVESTIGATE
+            {selected.aiRecommendation}
           </div>
 
           <p className="mt-3 text-xs text-slate-700">
-            High duplicate probability and supplier
-            mismatch require validation before payment
-            release.
+            {selected.aiExplanation}
           </p>
 
           <div className="mt-3">
@@ -244,14 +314,19 @@ const loggedInUser = useMemo(() => {
             </div>
 
             <ol className="mt-2 list-decimal pl-5 text-xs text-slate-600 space-y-1">
-              <li>Review duplicate evidence</li>
-              <li>Validate supplier bank details</li>
-              <li>Confirm tax code</li>
-              <li>Resolve exceptions</li>
-              <li>Continue payment after approval</li>
+              {(Array.isArray(selected.recommendedSteps)
+                ? selected.recommendedSteps
+                : []
+              ).map((step, index) => (
+                <li key={`${step}-${index}`}>{step}</li>
+              ))}
+              {(!Array.isArray(selected.recommendedSteps) ||
+                selected.recommendedSteps.length === 0) && (
+                <li>No recommended steps were supplied.</li>
+              )}
             </ol>
           </div>
-        </div>
+        </div> */}
 
         {/* Quick Actions */}
 
@@ -312,7 +387,7 @@ const loggedInUser = useMemo(() => {
         <div className="mt-2 grid grid-cols-3 gap-3">
           {/* Confirm */}
           <button
-            disabled={loading}
+            disabled={loading || !selected.aiReviewId}
             onClick={() => handleAction("approve")}
             className="flex flex-col items-center justify-center rounded-lg bg-emerald-600 py-2 text-white hover:bg-emerald-700"
           >
@@ -322,7 +397,7 @@ const loggedInUser = useMemo(() => {
 
           {/* Reject */}
           <button
-            disabled={loading}
+            disabled={loading || !selected.aiReviewId}
             onClick={() => handleAction("reject")}
             className="flex flex-col items-center justify-center rounded-lg bg-rose-600 py-2 text-white hover:bg-rose-700"
           >
@@ -332,7 +407,7 @@ const loggedInUser = useMemo(() => {
 
           {/* Escalate */}
           <button
-            disabled={loading}
+            disabled={loading || !selected.aiReviewId}
             onClick={() => handleAction("escalate")}
             className="flex flex-col items-center justify-center rounded-lg border border-amber-500 bg-white py-2 text-amber-600 hover:bg-amber-50"
           >

@@ -31,37 +31,38 @@ export const AiReviewHeader = ({ data, onSubmit }) => {
       })
     : "";
 
-const handleSubmit = async () => {
-  setIsSaving(true);
+  const handleSubmit = async () => {
+    setIsSaving(true);
 
-  const toastId = toast.loading("Saving...");
+    const toastId = toast.loading("Saving...");
 
-  try {
-    await assignAiReview({
-      email,
-      invoice_id: invoiceId,
-      status,
-    });
-
-    toast.success("Action completed successfully", {
-      id: toastId,
-    });
-
-    setShowAssignPopup(false);
-    setEmail("");
-    setInvoiceId("");
-    setStatus("IDENTIFIED");
-  } catch (error) {
-    toast.error(
-      error?.response?.data?.message || "Something went wrong",
-      {
-        id: toastId,
-      }
-    );
-  } finally {
-    setIsSaving(false);
-  }
+    try {
+      const payload = {
+  email: email.trim(),
+  invoice_id: invoiceId.trim(),
+  status,
 };
+
+console.log("Assign Payload:", payload);
+
+await assignAiReview(payload);
+
+      toast.success("Action completed successfully", {
+        id: toastId,
+      });
+
+      setShowAssignPopup(false);
+      setEmail("");
+      setInvoiceId("");
+      setStatus("IDENTIFIED");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Something went wrong", {
+        id: toastId,
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <>
@@ -73,7 +74,8 @@ const handleSubmit = async () => {
             </h1>
 
             <p className="mt-1 text-[14px] text-[#64748B]">
-              Prioritize and review invoices requiring AI-assisted human validation.
+              Prioritize and review invoices requiring AI-assisted human
+              validation.
             </p>
           </div>
 
@@ -94,9 +96,7 @@ const handleSubmit = async () => {
               <span className="text-lg">🔄</span>
 
               <div>
-                <div className="text-[11px] text-slate-500">
-                  Last Refreshed
-                </div>
+                <div className="text-[11px] text-slate-500">Last Refreshed</div>
 
                 <div className="text-[15px] font-semibold text-slate-800">
                   {lastRefreshedAt}
@@ -123,9 +123,7 @@ const handleSubmit = async () => {
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
           <div className="w-[450px] rounded-xl bg-white p-5 shadow-xl">
             <div className="flex items-center justify-between">
-              <h3 className="text-[14px] font-bold">
-                Assign / Review Invoice
-              </h3>
+              <h3 className="text-[14px] font-bold">Assign / Review Invoice</h3>
 
               <button onClick={() => setShowAssignPopup(false)}>
                 <X size={18} />
@@ -184,12 +182,12 @@ const handleSubmit = async () => {
               </button>
 
               <button
-  disabled={!email.trim() || !invoiceId.trim() || isSaving}
-  onClick={handleSubmit}
-  className="cursor-pointer rounded-md bg-[#1565F9] px-4 py-2 text-white disabled:cursor-not-allowed disabled:bg-slate-300"
->
-  {isSaving ? "Saving..." : "Submit"}
-</button>
+                disabled={!email.trim() || !invoiceId.trim() || isSaving}
+                onClick={handleSubmit}
+                className="cursor-pointer rounded-md bg-[#1565F9] px-4 py-2 text-white disabled:cursor-not-allowed disabled:bg-slate-300"
+              >
+                {isSaving ? "Saving..." : "Submit"}
+              </button>
             </div>
           </div>
         </div>
