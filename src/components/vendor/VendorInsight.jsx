@@ -79,6 +79,7 @@ export default function VendorInsight({ vendor }) {
       };
       console.log("Submit Payload", payload);
       const response = await submitVendorAction(payload);
+      window.location.reload();
       console.log("API Response", response);
       toast.success("Action completed successfully", {
         id: toastId,

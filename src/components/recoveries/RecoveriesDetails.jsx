@@ -58,6 +58,7 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
       };
       console.log("Submit Payload", payload);
       const response = await submitRecoveryAction(payload);
+      window.location.reload();
       console.log("API Response", response);
       toast.success("Action completed successfully", {
         id: toastId,
