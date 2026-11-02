@@ -12,6 +12,56 @@ import VendorFindingsActions from "@/components/vendor/VendorFindingsActions";
 import { LoadingState } from "@/components/common/LoadingState";
 import { getVendors } from "@/app/lib/api";
 
+function getOneTimeFindings(data) {
+  const pending = [data];
+  const visited = new Set();
+
+  while (pending.length > 0) {
+    const current = pending.shift();
+    if (!current || typeof current !== "object" || visited.has(current)) {
+      continue;
+    }
+
+    visited.add(current);
+    if (Array.isArray(current)) {
+      pending.push(...current);
+      continue;
+    }
+
+    const categoryMatches = (value) =>
+      String(value ?? "").replace(/[^a-z0-9]/gi, "").toLowerCase() ===
+      "onetimevendorfindings";
+
+    if (
+      [current.label, current.type, current.category].some(categoryMatches) &&
+      Array.isArray(current.vendors)
+    ) {
+      return current;
+    }
+
+    const findingEntry = Object.entries(current).find(
+      ([key]) =>
+        categoryMatches(key) &&
+        (Array.isArray(current[key]) ||
+          Array.isArray(current[key]?.vendors)),
+    );
+
+    if (findingEntry) {
+      return Array.isArray(findingEntry[1])
+        ? { vendors: findingEntry[1] }
+        : findingEntry[1];
+    }
+
+    pending.push(
+      ...Object.values(current).filter(
+        (value) => value && typeof value === "object",
+      ),
+    );
+  }
+
+  return null;
+}
+
 export default function Vendor() {
   const [vendorData, setVendorData] = useState(null);
   const [selectedVendorId, setSelectedVendorId] = useState(null);
@@ -60,6 +110,12 @@ export default function Vendor() {
   const vendorRecords = Array.isArray(vendorData?.vendorRecords)
     ? vendorData.vendorRecords
     : [];
+  const oneTimeFindings = getOneTimeFindings(vendorData);
+  const oneTimeVendors = Array.isArray(oneTimeFindings?.vendors)
+    ? oneTimeFindings.vendors
+    : Array.isArray(oneTimeFindings)
+      ? oneTimeFindings
+      : [];
 
   if (loading) {
     return <LoadingState label="Loading vendor data..." />;
@@ -86,7 +142,11 @@ export default function Vendor() {
   const selectedVendor =
     vendorRecords.find(
       (vendor) => String(vendor.vendorId) === String(selectedVendorId),
-    ) ?? null;
+    ) ??
+    oneTimeVendors.find(
+      (vendor) => String(vendor.vendorId) === String(selectedVendorId),
+    ) ??
+    null;
 
   return (
     <div>
@@ -100,6 +160,7 @@ export default function Vendor() {
       <div className="mt-4 grid grid-cols-12 gap-4 items-stretch">
         <VendorTable
           vendors={vendorRecords}
+          oneTimeFindings={oneTimeFindings}
           selectedVendorId={selectedVendorId}
           onSelectVendor={setSelectedVendorId}
         />
