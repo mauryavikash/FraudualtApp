@@ -10,6 +10,7 @@ export const AiReviewHeader = ({ data, onSubmit }) => {
   const [showAssignPopup, setShowAssignPopup] = useState(false);
   const [email, setEmail] = useState("");
   const [invoiceId, setInvoiceId] = useState("");
+  const [caseId, setCaseId] = useState("");
   const [status, setStatus] = useState("IDENTIFIED");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -38,14 +39,15 @@ export const AiReviewHeader = ({ data, onSubmit }) => {
 
     try {
       const payload = {
-  email: email.trim(),
-  invoice_id: invoiceId.trim(),
-  status,
-};
+        email: email.trim(),
+        invoice_id: invoiceId.trim(),
+        case_id: caseId.trim(),
+        status,
+      };
 
-console.log("Assign Payload:", payload);
+      console.log("Assign Payload:", payload);
 
-await assignAiReview(payload);
+      await assignAiReview(payload);
 
       toast.success("Action completed successfully", {
         id: toastId,
@@ -53,6 +55,7 @@ await assignAiReview(payload);
 
       setShowAssignPopup(false);
       setEmail("");
+      setCaseId("");
       setInvoiceId("");
       setStatus("IDENTIFIED");
     } catch (error) {
@@ -108,6 +111,7 @@ await assignAiReview(payload);
               onClick={() => {
                 setEmail("");
                 setInvoiceId("");
+                setCaseId("");
                 setStatus("IDENTIFIED");
                 setShowAssignPopup(true);
               }}
@@ -157,6 +161,19 @@ await assignAiReview(payload);
                 className="h-10 w-full rounded-md border border-[#D0D5DD] px-3 outline-none focus:border-[#1565F9]"
               />
             </div>
+            <div className="mt-4">
+              <label className="mb-1 block text-[12px] font-medium">
+                Case ID
+              </label>
+
+              <input
+                type="text"
+                value={caseId}
+                onChange={(e) => setCaseId(e.target.value)}
+                placeholder="Enter case ID"
+                className="h-10 w-full rounded-md border border-[#D0D5DD] px-3 outline-none focus:border-[#1565F9]"
+              />
+            </div>
 
             <div className="mt-4">
               <label className="mb-1 block text-[12px] font-medium">
@@ -182,7 +199,12 @@ await assignAiReview(payload);
               </button>
 
               <button
-                disabled={!email.trim() || !invoiceId.trim() || isSaving}
+                disabled={
+                  !email.trim() ||
+                  !invoiceId.trim() ||
+                  !caseId.trim() ||
+                  isSaving
+                }
                 onClick={handleSubmit}
                 className="cursor-pointer rounded-md bg-[#1565F9] px-4 py-2 text-white disabled:cursor-not-allowed disabled:bg-slate-300"
               >

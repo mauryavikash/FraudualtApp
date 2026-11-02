@@ -411,7 +411,9 @@ export const AiReviewTable = ({
               <th className="px-2 text-left text-[10px] font-bold uppercase text-slate-500">
                 Invoice ID
               </th>
-
+              <th className="px-2 text-left text-[10px] font-bold uppercase text-slate-500">
+                Case ID
+              </th>
               <th className="px-2 text-left text-[10px] font-bold uppercase text-slate-500">
                 Supplier
               </th>
@@ -504,7 +506,11 @@ export const AiReviewTable = ({
                         {row.invoiceId}
                       </span>
                     </td>
-
+                    <td className="px-2">
+                      <span className="font-medium text-slate-700 text-sm">
+                        {row.caseId || "-"}
+                      </span>
+                    </td>
                     <td className="px-2 text-sm text-slate-700">
                       {row.supplier}
                     </td>
@@ -541,7 +547,9 @@ export const AiReviewTable = ({
 
                     <td className="px-2">
                       <span className="px-2 text-sm whitespace-nowrap text-orange-500">
-                        {row.sla}
+                        {row.slaDueAt
+                          ? new Date(row.slaDueAt).toLocaleDateString("en-GB")
+                          : "-"}
                       </span>
                     </td>
 
@@ -688,17 +696,17 @@ export const AiReviewTable = ({
                         ).toUpperCase();
 
                         const validationClass =
-  status === "MATCH"
-    ? "text-emerald-600"
-    : status === "MISMATCH"
-      ? "text-amber-600"
-      : status === "ERP ONLY"
-        ? "text-emerald-600"
-        : status === "REVIEW"
-          ? "text-amber-600"
-          : status === "HIGH_RISK_MISMATCH"
-            ? "text-red-600"
-            : "text-slate-600";
+                          status === "MATCH"
+                            ? "text-emerald-600"
+                            : status === "MISMATCH"
+                              ? "text-amber-600"
+                              : status === "ERP ONLY"
+                                ? "text-emerald-600"
+                                : status === "REVIEW"
+                                  ? "text-amber-600"
+                                  : status === "HIGH_RISK_MISMATCH"
+                                    ? "text-red-600"
+                                    : "text-slate-600";
 
                         return (
                           <tr
@@ -708,8 +716,8 @@ export const AiReviewTable = ({
                             {/* Field */}
                             <td className="px-2 py-2">
                               <div className="text-[13px] font-bold text-slate-900">
-  {displayValue(detail.field)}
-</div>
+                                {displayValue(detail.field)}
+                              </div>
 
                               {detail.ocrConfidence && (
                                 <div className="mt-1 text-[12px] text-slate-500">
@@ -731,27 +739,28 @@ export const AiReviewTable = ({
                             {/* Validation */}
                             <td className="px-2 py-2">
                               <span
-  className={`text-[12px] font-semibold ${validationClass}`}
->
-  {status === "MATCH" && "✓ Match"}
+                                className={`text-[12px] font-semibold ${validationClass}`}
+                              >
+                                {status === "MATCH" && "✓ Match"}
 
-  {status === "MISMATCH" && "⚠ Mismatch"}
+                                {status === "MISMATCH" && "⚠ Mismatch"}
 
-  {status === "ERP ONLY" && "✓ ERP Only"}
+                                {status === "ERP ONLY" && "✓ ERP Only"}
 
-  {status === "REVIEW" && "? Review"}
+                                {status === "REVIEW" && "? Review"}
 
-  {status === "HIGH_RISK_MISMATCH" && "❗High-risk mismatch"}
+                                {status === "HIGH_RISK_MISMATCH" &&
+                                  "❗High-risk mismatch"}
 
-  {![
-    "MATCH",
-    "MISMATCH",
-    "ERP ONLY",
-    "REVIEW",
-    "HIGH_RISK_MISMATCH",
-  ].includes(status) &&
-    displayValue(detail.matchStatus)}
-</span>
+                                {![
+                                  "MATCH",
+                                  "MISMATCH",
+                                  "ERP ONLY",
+                                  "REVIEW",
+                                  "HIGH_RISK_MISMATCH",
+                                ].includes(status) &&
+                                  displayValue(detail.matchStatus)}
+                              </span>
                             </td>
                           </tr>
                         );
