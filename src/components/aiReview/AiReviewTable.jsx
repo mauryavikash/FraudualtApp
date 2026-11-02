@@ -411,7 +411,9 @@ export const AiReviewTable = ({
               <th className="px-2 text-left text-[10px] font-bold uppercase text-slate-500">
                 Invoice ID
               </th>
-
+              <th className="px-2 text-left text-[10px] font-bold uppercase text-slate-500">
+                Case ID
+              </th>
               <th className="px-2 text-left text-[10px] font-bold uppercase text-slate-500">
                 Supplier
               </th>
@@ -504,7 +506,11 @@ export const AiReviewTable = ({
                         {row.invoiceId}
                       </span>
                     </td>
-
+                    <td className="px-2">
+                      <span className="font-medium text-slate-700 text-sm">
+                        {row.caseId || "-"}
+                      </span>
+                    </td>
                     <td className="px-2 text-sm text-slate-700">
                       {row.supplier}
                     </td>
@@ -541,7 +547,9 @@ export const AiReviewTable = ({
 
                     <td className="px-2">
                       <span className="px-2 text-sm whitespace-nowrap text-orange-500">
-                        {row.sla}
+                        {row.slaDueAt
+                          ? new Date(row.slaDueAt).toLocaleDateString("en-GB")
+                          : "-"}
                       </span>
                     </td>
 
@@ -663,8 +671,8 @@ export const AiReviewTable = ({
 
             <section className="mt-6">
               {reviewData.reviewDetails?.length ? (
-                <div className="overflow-x-auto rounded-md border border-slate-200">
-                  <table className="w-full min-w-[600px] text-left text-xs">
+                <div className="max-h-[500px] overflow-auto rounded-md border border-slate-200">
+                  <table className="w-full min-w-[500px] text-left text-xs">
                     <thead className="bg-[#F8FAFC] border-b border-slate-200">
                       <tr>
                         <th className="px-2 py-2 text-left text-[11px] font-bold uppercase text-slate-500">
@@ -687,17 +695,18 @@ export const AiReviewTable = ({
                           detail.matchStatus || "",
                         ).toUpperCase();
 
-                        const validationClass = status.includes("MATCH")
-                          ? "text-emerald-600"
-                          : status.includes("MISMATCH")
-                            ? "text-amber-600"
-                            : status.includes("ERP")
-                              ? "text-blue-600"
-                              : status.includes("REVIEW")
-                                ? "text-orange-600"
-                                : status.includes("HIGH")
-                                  ? "text-red-600"
-                                  : "text-slate-600";
+                        const validationClass =
+                          status === "MATCH"
+                            ? "text-emerald-600"
+                            : status === "MISMATCH"
+                              ? "text-amber-600"
+                              : status === "ERP ONLY"
+                                ? "text-emerald-600"
+                                : status === "REVIEW"
+                                  ? "text-amber-600"
+                                  : status === "HIGH_RISK_MISMATCH"
+                                    ? "text-red-600"
+                                    : "text-slate-600";
 
                         return (
                           <tr
@@ -706,7 +715,7 @@ export const AiReviewTable = ({
                           >
                             {/* Field */}
                             <td className="px-2 py-2">
-                              <div className="font-semibold text-[12px] text-slate-800">
+                              <div className="text-[13px] font-bold text-slate-900">
                                 {displayValue(detail.field)}
                               </div>
 
@@ -733,14 +742,22 @@ export const AiReviewTable = ({
                                 className={`text-[12px] font-semibold ${validationClass}`}
                               >
                                 {status === "MATCH" && "✓ Match"}
+
                                 {status === "MISMATCH" && "⚠ Mismatch"}
+
                                 {status === "ERP ONLY" && "✓ ERP Only"}
+
                                 {status === "REVIEW" && "? Review"}
+
+                                {status === "HIGH_RISK_MISMATCH" &&
+                                  "❗High-risk mismatch"}
+
                                 {![
                                   "MATCH",
                                   "MISMATCH",
                                   "ERP ONLY",
                                   "REVIEW",
+                                  "HIGH_RISK_MISMATCH",
                                 ].includes(status) &&
                                   displayValue(detail.matchStatus)}
                               </span>
