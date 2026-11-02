@@ -15,22 +15,37 @@ import { getVendors } from "@/app/lib/api";
 export default function Vendor() {
   const [vendorData, setVendorData] = useState(null);
   const [selectedVendorId, setSelectedVendorId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
 
     const fetchData = async () => {
+      setLoading(true);
+      setLoadError(null);
+      setVendorData(null);
+
       try {
         const response = await getVendors();
 
         if (isMounted) {
-          setVendorData(response?.data ?? response);
+          setVendorData(response?.data ?? response ?? {});
         }
       } catch (error) {
         console.error("Vendor API Error:", error);
 
         if (isMounted) {
-          setVendorData({});
+          setLoadError(
+            error?.response?.data?.message ??
+              error?.message ??
+              "Unable to load vendor data.",
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
         }
       }
     };
@@ -40,30 +55,38 @@ export default function Vendor() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [retryCount]);
 
-  // CHANGE ONLY THIS PART
-  const vendorRecords = vendorData?.vendorRecords || [];
+  const vendorRecords = Array.isArray(vendorData?.vendorRecords)
+    ? vendorData.vendorRecords
+    : [];
 
-  useEffect(() => {
-    if (
-      vendorRecords.length > 0 &&
-      !selectedVendorId
-    ) {
-      setSelectedVendorId(vendorRecords[0].vendorId);
-    }
-  }, [vendorRecords, selectedVendorId]);
-
-  if (!vendorData) {
+  if (loading) {
     return <LoadingState label="Loading vendor data..." />;
+  }
+
+  if (loadError) {
+    return (
+      <div
+        role="alert"
+        className="rounded-xl border border-red-200 bg-white p-6 text-center"
+      >
+        <p className="text-sm text-red-700">{loadError}</p>
+        <button
+          type="button"
+          onClick={() => setRetryCount((count) => count + 1)}
+          className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   const selectedVendor =
     vendorRecords.find(
-      (vendor) => vendor.vendorId === selectedVendorId
-    ) ||
-    vendorRecords[0] ||
-    null;
+      (vendor) => String(vendor.vendorId) === String(selectedVendorId),
+    ) ?? null;
 
   return (
     <div>

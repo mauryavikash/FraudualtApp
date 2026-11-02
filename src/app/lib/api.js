@@ -220,17 +220,23 @@ export async function getVendors() {
     vendorsRequest = axiosInstance
       .get("vendors")
       .then((response) => response.data)
-      .catch((error) => {
-        vendorsRequest = undefined;
-        throw error;
-      });
+      .then(
+        (data) => {
+          vendorsRequest = undefined;
+          return data;
+        },
+        (error) => {
+          vendorsRequest = undefined;
+          throw error;
+        }
+      );
   }
 
   return vendorsRequest;
 }
 export async function assignAiReview(aiReviewId, payload) {
   const response = await axiosInstance.post(
-    `api/dq/aiReview/${encodeURIComponent(aiReviewId)}/assign`,
+    `api/dq/ai-review/${encodeURIComponent(aiReviewId)}/assign`,
     payload,
   );
 
