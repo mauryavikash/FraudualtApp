@@ -51,7 +51,7 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
       const payload = {
         recoveryId: selected.recoveryId,
         action,
-        reason_code: action === "invalid" ? reason : "",
+        reason_code: reason,
         comments: "",
         performed_by: userName,
         actionedAt: new Date().toISOString(),

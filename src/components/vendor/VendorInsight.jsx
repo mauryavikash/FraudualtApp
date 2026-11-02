@@ -72,7 +72,7 @@ export default function VendorInsight({ vendor }) {
       const payload = {
         vendorId:vendor?.vendorId,
         action,
-        reason_code: action === "approve" ? reason : "",
+        reason_code: reason,
         comments: "",
         performed_by: userName,
         actionedAt: new Date().toISOString(),
