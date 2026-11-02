@@ -119,6 +119,7 @@ function getInvoiceValue(invoice, vendor, column) {
 
 export default function VendorTable({
   vendors = [],
+  oneTimeFindings,
   selectedVendorId,
   onSelectVendor,
 }) {
@@ -128,15 +129,54 @@ export default function VendorTable({
   const [sort, setSort] = useState({ column: null, direction: "asc" });
   const itemsPerPage = 10;
 
-  const filteredVendors = useMemo(
-    () =>
-      vendors.filter((vendor) =>
+  const oneTimeVendorRecords = useMemo(
+    () => {
+      const findingVendors = Array.isArray(oneTimeFindings?.vendors)
+        ? oneTimeFindings.vendors
+        : Array.isArray(oneTimeFindings)
+          ? oneTimeFindings
+          : [];
+
+      return findingVendors.map((vendor) => {
+        const sourceInvoices =
+          Array.isArray(vendor.invoices) && vendor.invoices.length
+            ? vendor.invoices
+            : [vendor];
+        const invoices = sourceInvoices.map((invoice) => ({
+          ...invoice,
+          type: invoice.type ?? "ONE_TIME_VENDOR_FINDINGS",
+          vendorName: invoice.vendorName ?? vendor.vendorName,
+        }));
+
+        return {
+          ...vendor,
+          invoices,
+          issues: vendor.issues ?? invoices.length,
+        };
+      });
+    },
+    [oneTimeFindings],
+  );
+
+  const filteredVendors = useMemo(() => {
+    if (activeDeviation === "onetime") {
+      if (oneTimeVendorRecords.length > 0) {
+        return oneTimeVendorRecords;
+      }
+
+      return vendors.filter((vendor) =>
         (vendor.invoices ?? []).some((invoice) =>
           matchesDeviation(invoice, activeDeviation),
         ),
+      );
+    }
+
+    return vendors.filter((vendor) =>
+      (vendor.invoices ?? []).some((invoice) =>
+        matchesDeviation(invoice, activeDeviation),
       ),
-    [vendors, activeDeviation],
-  );
+    );
+  }, [vendors, activeDeviation, oneTimeVendorRecords]);
 
   const selectedVendor = useMemo(
     () =>

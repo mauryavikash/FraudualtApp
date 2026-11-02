@@ -59,7 +59,14 @@ export default function VendorInsight({ vendor }) {
   }, [vendor?.vendorId]);
 
   const pageSize = 5;
-  if (!vendor) return null;
+  if (!vendor) {
+    return (
+      <aside
+        aria-label="Vendor details"
+        className="min-h-[320px] rounded-xl border border-slate-300 bg-white shadow-sm"
+      />
+    );
+  }
 
   const handleAction = async (action) => {
     if (action === "approve" && !reason) {

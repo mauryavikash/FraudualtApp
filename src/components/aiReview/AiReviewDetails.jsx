@@ -184,7 +184,7 @@ export const AiReviewDetails = ({ review }) => {
               label="SLA"
               value={
                 <span className="font-semibold text-orange-600">
-                  {selected.sla}
+                  {selected.slaDueAt}
                 </span>
               }
             />
