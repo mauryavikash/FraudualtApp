@@ -73,6 +73,7 @@ export const AiReviewDetails = ({ review }) => {
       };
       console.log("Submit Payload", payload);
       const response = await submitAiReviewAction(payload);
+      window.location.reload();
       console.log("API Response", response);
       toast.success("Action completed successfully", {
         id: toastId,

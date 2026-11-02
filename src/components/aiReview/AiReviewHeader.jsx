@@ -48,7 +48,7 @@ export const AiReviewHeader = ({ data, onSubmit }) => {
       console.log("Assign Payload:", payload);
 
       await assignAiReview(payload);
-
+      window.location.reload();
       toast.success("Action completed successfully", {
         id: toastId,
       });

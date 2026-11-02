@@ -5,7 +5,7 @@ import autoTable from "jspdf-autotable";
 import { X, FileSearch, AlertTriangle, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { submitCaseAction } from "@/app/lib/api";
-export const CasesDetails = ({ caseData, userName }) => {
+export const CasesDetails = ({ caseData, userName,onSubmit  }) => {
   const selectedCase = caseData ?? {};
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,7 +30,7 @@ export const CasesDetails = ({ caseData, userName }) => {
       };
 
       await submitCaseAction(payload);
-
+window.location.reload();
       toast.success("Action completed successfully", {
         id: toastId,
       });
