@@ -135,13 +135,13 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
 
       {/* Overview */}
       <div className="px-4 pt-4 flex-1 min-h-0 overflow-y-auto">
-        <div className="flex flex-col gap-2.5 text-[10px]">
+        <div className="flex flex-col gap-2.5 text-[12px]">
           <MetaRow label="Recovery Type" value={selected.type} />
           <MetaRow
             label="Status"
             value={
               <span
-                className={`px-2 py-[2px] rounded text-[10px] font-semibold ${statusBadgeClass(
+                className={`px-2 py-[2px] rounded text-[12px] font-semibold ${statusBadgeClass(
                   selected.status,
                 )}`}
               >
@@ -175,12 +175,12 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
           <MetaRow label="Recovery Method" value={selected.recoveryMethod} />
           <MetaRow label="Notes" value={selected.notes} />
         </div>
-        <div className="p-2 text-[10px] text-green-600">
+        <div className="mt-2 text-[12px] text-green-600">
           <p>{selected?.auditRemarks}</p>
         </div>
         {/* Recovery Progress */}
-        <div className="mt-5">
-          <div className="text-[10px] font-semibold tracking-wide text-[#64748B]">
+        <div className="mt-2">
+          <div className="text-[12px] font-semibold tracking-wide text-[#64748B]">
             RECOVERY PROGRESS
           </div>
 
@@ -195,10 +195,10 @@ export const RecoveriesDetails = ({ recovery, stages, timeline, tabs }) => {
                   >
                     {isClosed && <Check size={12} className="text-white" />}
                   </div>
-                  <span className="mt-2 text-[10px] font-medium text-[#334155]">
+                  <span className="mt-2 text-[12px] font-medium text-[#334155]">
                     {stage.stage}
                   </span>
-                  <span className="text-[9px] text-[#94A3B8]">
+                  <span className="text-[10px] text-[#94A3B8]">
                     {formatDate(stage.date)}
                   </span>
                 </div>

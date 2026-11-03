@@ -41,6 +41,7 @@ function normalizeRecovery(recovery) {
     paymentDate: formatDate(recovery.paymentDate),
     recoveredOn: formatDate(recovery.recoveredOn),
     notes: recovery.notes || "-",
+    auditRemarks: recovery.auditRemarks ?? recovery.audit_remarks ?? "-",
     invoiceImageUrl: recovery.invoice_image_url || "",
   };
 }

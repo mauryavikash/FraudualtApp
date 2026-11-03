@@ -441,7 +441,7 @@ export default function VendorInsight({ vendor }) {
         </button>
       </div>
 
-      <div className="mt-2 mb-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
+      <div className="m-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
         <h3 className="text-sm font-semibold text-slate-900">Quick Actions</h3>
 
         <div className="mt-2">
